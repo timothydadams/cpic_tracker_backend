@@ -1,0 +1,31 @@
+import express from "express";
+import morgan from "morgan";
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import { corsOptionsDelegate } from "./configs/cors.config.js";
+import {dirname, join} from 'path';
+import { fileURLToPath } from 'url';
+import AppRouter from "./routes/index.js";
+import { errorHandler } from "./middleware/handleErrors.js";
+
+/* Needed to support ES6 module instead of CommonJS */
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const app = express();
+
+app.use(morgan('dev'));
+app.use(helmet());
+app.use(cors(corsOptionsDelegate));
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.urlencoded({extended:true}));
+app.use(express.static(join(__dirname, '../public')));
+
+
+app.use('/', AppRouter);
+
+//Error handling
+app.use(errorHandler)
+
+export const expressApp = app;

@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "./generated/prisma"
+  moduleFormat    = "esm"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String        @id @default(uuid())
+  auth_source           String        @default("self")
+  google_id             String?       @unique
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  display_name          String?       @unique
+  profile_pic           String?
+  nickname              String?
+  given_name            String?
+  family_name           String?
+  password_hash         String?
+  email                 String?       @unique
+  disabled              Boolean       @default(false)
+  assigned_implementers Implementer[] @relation("SMEtoImplementer")
+  userRoles             UserRole[]
+  comments              Comment[]
+}
+
+model Role {
+  id          String     @id @default(uuid())
+  name        String     @unique @db.VarChar(75)
+  description String     @db.VarChar(255)
+  userRoles   UserRole[]
+}
+
+model UserRole {
+  role_id   String
+  user_id   String
+  createdAt DateTime @default(now())
+  role      Role     @relation(fields: [role_id], references: [id])
+  user      User     @relation(fields: [user_id], references: [id])
+
+  @@id([user_id, role_id])
+}
+
+model FocusArea {
+  id       Int        @id @default(autoincrement())
+  name     String
+  policies Policies[]
+}
+
+model Policies {
+  id            String     @id @default(uuid())
+  description   String
+  policy_number Int
+  focus_area_id Int
+  area          FocusArea  @relation(fields: [focus_area_id], references: [id])
+  strategies    Strategy[]
+}
+
+model TimelineOptions {
+  id         Int        @id @default(autoincrement())
+  title      String     @unique
+  strategies Strategy[]
+}
+
+model StatusOptions {
+  id         Int        @id @default(autoincrement())
+  title      String     @unique
+  strategies Strategy[]
+}
+
+model Strategy {
+  id              Int                   @id @default(autoincrement())
+  content         String
+  last_comms_date DateTime?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  policy_id       String
+  strategy_number Int
+  timeline_id     Int
+  status_id       Int
+  stakeholders    Stakeholder[]
+  comments        Comment[]
+  timeline        TimelineOptions       @relation(fields: [timeline_id], references: [id])
+  status          StatusOptions         @relation(fields: [status_id], references: [id])
+  policy          Policies              @relation(fields: [policy_id], references: [id])
+  implementers    StrategyImplementer[]
+}
+
+model Implementer {
+  id            Int                   @id @default(autoincrement())
+  name          String
+  emails        String[]
+  phone_numbers String[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  is_board      Boolean               @default(false)
+  is_department Boolean               @default(false)
+  is_school     Boolean               @default(false)
+  cpic_smes     User[]                @relation("SMEtoImplementer")
+  strategies    StrategyImplementer[]
+}
+
+model Stakeholder {
+  id                Int      @id @default(autoincrement())
+  name              String
+  organization_name String?
+  emails            String[]
+  phone_numbers     String[]
+  strategy_id       Int
+  strategy          Strategy @relation(fields: [strategy_id], references: [id])
+}
+
+model StrategyImplementer {
+  implementer_id Int
+  strategy_id    Int
+  order_number   Int?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  implementer    Implementer @relation(fields: [implementer_id], references: [id])
+  strategy       Strategy    @relation(fields: [strategy_id], references: [id])
+
+  @@id([implementer_id, strategy_id])
+}
+
+model Comment {
+  id          Int    @id @default(autoincrement())
+  user_id     String
+  strategy_id Int
+
+  parent_id Int?
+  parent    Comment?  @relation("replies", fields: [parent_id], references: [id], onDelete: Cascade)
+  children  Comment[] @relation("replies")
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user     User     @relation(fields: [user_id], references: [id])
+  strategy Strategy @relation(fields: [strategy_id], references: [id])
+}
