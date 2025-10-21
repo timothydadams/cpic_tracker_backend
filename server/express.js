@@ -22,10 +22,15 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static(join(__dirname, '../public')));
 
-
-app.use('/', AppRouter);
+app.use('/api', AppRouter);
 
 //Error handling
 app.use(errorHandler)
+
+// Catch-all route to serve index.html for any other requests (e.g., for client-side routing)
+// This should be placed AFTER all API routes
+app.get('/*splat', (req, res) => {
+   res.sendFile(join(__dirname, '../public', 'index.html'));
+});
 
 export const expressApp = app;

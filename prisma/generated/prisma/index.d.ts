@@ -13459,6 +13459,7 @@ export namespace Prisma {
     implementer_id: number | null
     strategy_id: number | null
     order_number: number | null
+    is_primary: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13467,6 +13468,7 @@ export namespace Prisma {
     implementer_id: number | null
     strategy_id: number | null
     order_number: number | null
+    is_primary: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13475,6 +13477,7 @@ export namespace Prisma {
     implementer_id: number
     strategy_id: number
     order_number: number
+    is_primary: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -13497,6 +13500,7 @@ export namespace Prisma {
     implementer_id?: true
     strategy_id?: true
     order_number?: true
+    is_primary?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13505,6 +13509,7 @@ export namespace Prisma {
     implementer_id?: true
     strategy_id?: true
     order_number?: true
+    is_primary?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13513,6 +13518,7 @@ export namespace Prisma {
     implementer_id?: true
     strategy_id?: true
     order_number?: true
+    is_primary?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -13608,6 +13614,7 @@ export namespace Prisma {
     implementer_id: number
     strategy_id: number
     order_number: number | null
+    is_primary: boolean
     createdAt: Date
     updatedAt: Date
     _count: StrategyImplementerCountAggregateOutputType | null
@@ -13635,6 +13642,7 @@ export namespace Prisma {
     implementer_id?: boolean
     strategy_id?: boolean
     order_number?: boolean
+    is_primary?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     implementer?: boolean | ImplementerDefaultArgs<ExtArgs>
@@ -13645,6 +13653,7 @@ export namespace Prisma {
     implementer_id?: boolean
     strategy_id?: boolean
     order_number?: boolean
+    is_primary?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     implementer?: boolean | ImplementerDefaultArgs<ExtArgs>
@@ -13655,6 +13664,7 @@ export namespace Prisma {
     implementer_id?: boolean
     strategy_id?: boolean
     order_number?: boolean
+    is_primary?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     implementer?: boolean | ImplementerDefaultArgs<ExtArgs>
@@ -13665,11 +13675,12 @@ export namespace Prisma {
     implementer_id?: boolean
     strategy_id?: boolean
     order_number?: boolean
+    is_primary?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type StrategyImplementerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"implementer_id" | "strategy_id" | "order_number" | "createdAt" | "updatedAt", ExtArgs["result"]["strategyImplementer"]>
+  export type StrategyImplementerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"implementer_id" | "strategy_id" | "order_number" | "is_primary" | "createdAt" | "updatedAt", ExtArgs["result"]["strategyImplementer"]>
   export type StrategyImplementerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     implementer?: boolean | ImplementerDefaultArgs<ExtArgs>
     strategy?: boolean | StrategyDefaultArgs<ExtArgs>
@@ -13693,6 +13704,7 @@ export namespace Prisma {
       implementer_id: number
       strategy_id: number
       order_number: number | null
+      is_primary: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["strategyImplementer"]>
@@ -14123,6 +14135,7 @@ export namespace Prisma {
     readonly implementer_id: FieldRef<"StrategyImplementer", 'Int'>
     readonly strategy_id: FieldRef<"StrategyImplementer", 'Int'>
     readonly order_number: FieldRef<"StrategyImplementer", 'Int'>
+    readonly is_primary: FieldRef<"StrategyImplementer", 'Boolean'>
     readonly createdAt: FieldRef<"StrategyImplementer", 'DateTime'>
     readonly updatedAt: FieldRef<"StrategyImplementer", 'DateTime'>
   }
@@ -15887,6 +15900,7 @@ export namespace Prisma {
     implementer_id: 'implementer_id',
     strategy_id: 'strategy_id',
     order_number: 'order_number',
+    is_primary: 'is_primary',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -16619,6 +16633,7 @@ export namespace Prisma {
     implementer_id?: IntFilter<"StrategyImplementer"> | number
     strategy_id?: IntFilter<"StrategyImplementer"> | number
     order_number?: IntNullableFilter<"StrategyImplementer"> | number | null
+    is_primary?: BoolFilter<"StrategyImplementer"> | boolean
     createdAt?: DateTimeFilter<"StrategyImplementer"> | Date | string
     updatedAt?: DateTimeFilter<"StrategyImplementer"> | Date | string
     implementer?: XOR<ImplementerScalarRelationFilter, ImplementerWhereInput>
@@ -16629,6 +16644,7 @@ export namespace Prisma {
     implementer_id?: SortOrder
     strategy_id?: SortOrder
     order_number?: SortOrderInput | SortOrder
+    is_primary?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     implementer?: ImplementerOrderByWithRelationInput
@@ -16643,6 +16659,7 @@ export namespace Prisma {
     implementer_id?: IntFilter<"StrategyImplementer"> | number
     strategy_id?: IntFilter<"StrategyImplementer"> | number
     order_number?: IntNullableFilter<"StrategyImplementer"> | number | null
+    is_primary?: BoolFilter<"StrategyImplementer"> | boolean
     createdAt?: DateTimeFilter<"StrategyImplementer"> | Date | string
     updatedAt?: DateTimeFilter<"StrategyImplementer"> | Date | string
     implementer?: XOR<ImplementerScalarRelationFilter, ImplementerWhereInput>
@@ -16653,6 +16670,7 @@ export namespace Prisma {
     implementer_id?: SortOrder
     strategy_id?: SortOrder
     order_number?: SortOrderInput | SortOrder
+    is_primary?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: StrategyImplementerCountOrderByAggregateInput
@@ -16669,6 +16687,7 @@ export namespace Prisma {
     implementer_id?: IntWithAggregatesFilter<"StrategyImplementer"> | number
     strategy_id?: IntWithAggregatesFilter<"StrategyImplementer"> | number
     order_number?: IntNullableWithAggregatesFilter<"StrategyImplementer"> | number | null
+    is_primary?: BoolWithAggregatesFilter<"StrategyImplementer"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"StrategyImplementer"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"StrategyImplementer"> | Date | string
   }
@@ -17359,6 +17378,7 @@ export namespace Prisma {
 
   export type StrategyImplementerCreateInput = {
     order_number?: number | null
+    is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     implementer: ImplementerCreateNestedOneWithoutStrategiesInput
@@ -17369,12 +17389,14 @@ export namespace Prisma {
     implementer_id: number
     strategy_id: number
     order_number?: number | null
+    is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type StrategyImplementerUpdateInput = {
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     implementer?: ImplementerUpdateOneRequiredWithoutStrategiesNestedInput
@@ -17385,6 +17407,7 @@ export namespace Prisma {
     implementer_id?: IntFieldUpdateOperationsInput | number
     strategy_id?: IntFieldUpdateOperationsInput | number
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17393,12 +17416,14 @@ export namespace Prisma {
     implementer_id: number
     strategy_id: number
     order_number?: number | null
+    is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type StrategyImplementerUpdateManyMutationInput = {
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17407,6 +17432,7 @@ export namespace Prisma {
     implementer_id?: IntFieldUpdateOperationsInput | number
     strategy_id?: IntFieldUpdateOperationsInput | number
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -18100,6 +18126,7 @@ export namespace Prisma {
     implementer_id?: SortOrder
     strategy_id?: SortOrder
     order_number?: SortOrder
+    is_primary?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18114,6 +18141,7 @@ export namespace Prisma {
     implementer_id?: SortOrder
     strategy_id?: SortOrder
     order_number?: SortOrder
+    is_primary?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -18122,6 +18150,7 @@ export namespace Prisma {
     implementer_id?: SortOrder
     strategy_id?: SortOrder
     order_number?: SortOrder
+    is_primary?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -19907,6 +19936,7 @@ export namespace Prisma {
 
   export type StrategyImplementerCreateWithoutStrategyInput = {
     order_number?: number | null
+    is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     implementer: ImplementerCreateNestedOneWithoutStrategiesInput
@@ -19915,6 +19945,7 @@ export namespace Prisma {
   export type StrategyImplementerUncheckedCreateWithoutStrategyInput = {
     implementer_id: number
     order_number?: number | null
+    is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20061,6 +20092,7 @@ export namespace Prisma {
     implementer_id?: IntFilter<"StrategyImplementer"> | number
     strategy_id?: IntFilter<"StrategyImplementer"> | number
     order_number?: IntNullableFilter<"StrategyImplementer"> | number | null
+    is_primary?: BoolFilter<"StrategyImplementer"> | boolean
     createdAt?: DateTimeFilter<"StrategyImplementer"> | Date | string
     updatedAt?: DateTimeFilter<"StrategyImplementer"> | Date | string
   }
@@ -20108,6 +20140,7 @@ export namespace Prisma {
 
   export type StrategyImplementerCreateWithoutImplementerInput = {
     order_number?: number | null
+    is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     strategy: StrategyCreateNestedOneWithoutImplementersInput
@@ -20116,6 +20149,7 @@ export namespace Prisma {
   export type StrategyImplementerUncheckedCreateWithoutImplementerInput = {
     strategy_id: number
     order_number?: number | null
+    is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20951,6 +20985,7 @@ export namespace Prisma {
   export type StrategyImplementerCreateManyStrategyInput = {
     implementer_id: number
     order_number?: number | null
+    is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -21008,6 +21043,7 @@ export namespace Prisma {
 
   export type StrategyImplementerUpdateWithoutStrategyInput = {
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     implementer?: ImplementerUpdateOneRequiredWithoutStrategiesNestedInput
@@ -21016,6 +21052,7 @@ export namespace Prisma {
   export type StrategyImplementerUncheckedUpdateWithoutStrategyInput = {
     implementer_id?: IntFieldUpdateOperationsInput | number
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21023,6 +21060,7 @@ export namespace Prisma {
   export type StrategyImplementerUncheckedUpdateManyWithoutStrategyInput = {
     implementer_id?: IntFieldUpdateOperationsInput | number
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21030,6 +21068,7 @@ export namespace Prisma {
   export type StrategyImplementerCreateManyImplementerInput = {
     strategy_id: number
     order_number?: number | null
+    is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -21088,6 +21127,7 @@ export namespace Prisma {
 
   export type StrategyImplementerUpdateWithoutImplementerInput = {
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     strategy?: StrategyUpdateOneRequiredWithoutImplementersNestedInput
@@ -21096,6 +21136,7 @@ export namespace Prisma {
   export type StrategyImplementerUncheckedUpdateWithoutImplementerInput = {
     strategy_id?: IntFieldUpdateOperationsInput | number
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21103,6 +21144,7 @@ export namespace Prisma {
   export type StrategyImplementerUncheckedUpdateManyWithoutImplementerInput = {
     strategy_id?: IntFieldUpdateOperationsInput | number
     order_number?: NullableIntFieldUpdateOperationsInput | number | null
+    is_primary?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

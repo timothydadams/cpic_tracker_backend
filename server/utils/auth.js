@@ -6,6 +6,7 @@ export const cookieLife = 24*60*60*1000;
 export const comparePasswords = (password, hash) => bcrypt.compare(password, hash);
 
 export const hashPassword = (pw) => bcrypt.hash(pw, Number(process.env.PW_SALT));
+export const hashSyncPassword = (pw) => bcrypt.hashSync(pw, Number(process.env.PW_SALT));
 
 
 const claim_keys = [

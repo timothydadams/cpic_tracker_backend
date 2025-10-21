@@ -11,14 +11,14 @@ import CommentsRouter from './comments.js';
 
 const AppRouter = Router();
 
-AppRouter.use('/api/auth', AuthRouter);
-AppRouter.use('/api/users', UserRouter);
-AppRouter.use('/api/roles', RolesRouter);
-AppRouter.use('/api/strategies', StrategyRouter);
-AppRouter.use('/api/policies', PolicyRouter);
-AppRouter.use('/api/focusareas', FocusAreaRouter);
-AppRouter.use('/api/implementers', ImplementerRouter);
-AppRouter.use('/api/comments', CommentsRouter);
+AppRouter.use('/auth', AuthRouter);
+AppRouter.use('/users', UserRouter);
+AppRouter.use('/roles', RolesRouter);
+AppRouter.use('/strategies', StrategyRouter);
+AppRouter.use('/policies', PolicyRouter);
+AppRouter.use('/focusareas', FocusAreaRouter);
+AppRouter.use('/implementers', ImplementerRouter);
+AppRouter.use('/comments', CommentsRouter);
 
 
 export default AppRouter;

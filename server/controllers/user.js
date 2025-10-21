@@ -25,6 +25,21 @@ const findRoleByName = async(name) => {
     }
 }
 
+const getUserById = async (id, res, includedItems = null) => {
+    const user = await prisma.user.findUnique({
+        where:{
+            id
+        },
+        ...(includedItems != null && {select:includedItems}),
+    });
+
+    if (!user) {
+        handleResponse(res, 404, "user not found");
+    } else {
+        return user
+    }
+}
+
 
 
 
@@ -69,53 +84,37 @@ export const handleCreateUser = async(req,res) => {
 export const handleGetUser = async(req,res) => {
     const { id } = req.params;
     if (!id) return res.json({message:"must provide an id parameter"})
-    const { id:requesterId, isAdmin } = res.locals;
 
-    if (!requesterId || (
-        isAdmin === false && id !== requesterId
-    )) return res.sendStatus(403);
-
-    const selectItems = {
+    const includeItems = {
         email:true,
         id:true,
         family_name:true,
         given_name:true,
-        google_id:true,
-        nickname:true,
         display_name:true,
+        profile_pic: true,
     }
 
-    if (isAdmin) {
-        selectItems["roles"] = {
-            select: {
-                name:true,
-                description:true,
-                    roles: {
-                        select: {
-                            name:true,
-                        }
+    const user = await getUserById(id, res, includeItems);
+
+    const roles = await prisma.userRole.findMany({
+        where: {
+            user_id:id,
+        },
+        include: {
+            role: {
+                select: {
+                    name:true
                 }
             }
         }
-    }
+    });
 
-    try {
-        const user = await prisma.user.findUnique({
-            where: {
-                id,
-            },
-            //select: selectItems,
-        });
-        
-        if (!user?.id ) return res.status(500).json({message:'failed to find user'});
+    user.roles = roles.map(({role}) => role.name);
 
-        res.json({ user });
-        
-    } catch(e) {
-        console.log('error:', e);
-        res.status(500).json({message:'failed to update user'});
-    }
-    
+    authorize(userPolicies.canRead, user)(req, res, () => {
+        handleResponse(res, 200, "user retrieved successfully", user);
+    });
+
 }
 
 export const handleGetAllUsers = async(req,res) => {

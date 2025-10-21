@@ -15,6 +15,7 @@ AuthRouter.get('/google-callback/', handleGoogleSignIn);
 AuthRouter.post('/logout', handleLogout);
 
 AuthRouter.get('/google-url', async function(req, res, next){
+    const { persist } = req.query;
     res.header('Access-Control-Allow-Origin', `http://localhost:3000`);
     res.header('Referrer-Policy', 'no-referrer-when-downgrade');
 
@@ -35,7 +36,9 @@ AuthRouter.get('/google-url', async function(req, res, next){
     // Generate the url that will be used for the consent dialog.
     const authorizeUrl = goog_oauth_client.generateAuthUrl({
       access_type: 'offline',
-      scope: scopes, 
+      scope: scopes,
+      //state: encodeURIComponent(`persist=${persist}`),
+      state: encodeURIComponent(JSON.stringify({persist})),
       //'https://www.googleapis.com/auth/userinfo.profile email openid',
       prompt:'consent',
     });

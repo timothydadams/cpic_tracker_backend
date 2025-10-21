@@ -104,7 +104,7 @@ export const handleRefreshToken = async(req,res) => {
         async (err, decoded) => {
             
             if (err || !decoded?.id) {
-                console.log('on refresh errror:', {err, decoded});
+                console.log('on refresh error:', {err, decoded});
                 res.clearCookie('jwt_cpic', { httpOnly:true, sameSite:'lax', secure:true})
                 return res.status(401).json({message:"forbidden"});
             }
@@ -147,7 +147,11 @@ SIGNIN CONTROLLER
 */
 export const handleGoogleSignIn = async(req, res) => {
     const code = req.query.code;
-    const duration = "SHORT"
+    const { 
+        persist = "SHORT"
+     } = JSON.parse(decodeURIComponent(req.query.state));
+
+    const duration = persist;
     const redirectURL = `http://localhost:3500/api/auth/google-callback/`;
     const goog_oauth_client = new OAuth2Client({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -183,6 +187,8 @@ export const handleGoogleSignIn = async(req, res) => {
 
         const role = await findRoleByName("Viewer");
 
+        //update to only support invited users (must already exist in user table)
+        
         const user = await prisma.user.upsert({
             where: {
                 google_id: id
@@ -192,6 +198,7 @@ export const handleGoogleSignIn = async(req, res) => {
                     email,
                     given_name,
                     family_name,
+                    display_name: `${given_name} ${family_name}`,
                     profile_pic: picture,
             },
             create: {
@@ -243,7 +250,7 @@ export const handleSelfSignIn = async (req,res) => {
 
     const validUser = await findUserForSignIn(email, "email", true);
     
-    if (!validUser?.id) return res.sendStatus(409);
+    if (!validUser?.id || !validUser?.password_hash) return res.sendStatus(409);
     
     const match = await comparePasswords(password, validUser.password_hash);
 

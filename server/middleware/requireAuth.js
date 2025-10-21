@@ -23,7 +23,7 @@ export const verifyToken = async (req, res, next) => {
         token,
         process.env.JWT_ACCESS_SECRET, 
         (err, decoded) => {
-            //console.log('decoded user', decoded);
+            console.log('decoded user', decoded);
 
             if (err) return res.status(401).json({error:"invalid token"});
             res.locals.user = decoded;

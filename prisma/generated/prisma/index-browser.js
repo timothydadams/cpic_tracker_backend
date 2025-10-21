@@ -212,6 +212,7 @@ exports.Prisma.StrategyImplementerScalarFieldEnum = {
   implementer_id: 'implementer_id',
   strategy_id: 'strategy_id',
   order_number: 'order_number',
+  is_primary: 'is_primary',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

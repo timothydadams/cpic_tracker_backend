@@ -2,7 +2,7 @@
 import { PrismaClient } from './generated/prisma/index.js'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import csv from 'csvtojson';
-import { hashPassword } from '../server/utils/auth.js';
+import { hashPassword, hashSyncPassword } from '../server/utils/auth.js';
 import fs from 'fs';
 import { join } from 'path';
 import { 
@@ -11,6 +11,8 @@ import {
     town_departments, 
     school_orgs 
 } from './csv_cleanup.js';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const prisma = new PrismaClient().$extends(withAccelerate())
 
@@ -328,6 +330,64 @@ const addImplementerStrategies = async() => {
     return true;
 }
 
+const addUsersWithRoles = async() => {
+
+    const cpic_admin_role = await prisma.role.findUnique({where: {name: 'CPIC Admin'}});
+    const cpic_member_role = await prisma.role.findUnique({where: {name: 'CPIC Member'}});
+    const implementer_role = await prisma.role.findUnique({where: {name: 'Implementer'}});
+    
+    const testUsers = [
+        {
+            email: "cpic_admin@test.com",
+            given_name: "CPIC",
+            family_name: "Admin",
+            display_name: "CPIC Admin",
+            password_hash: hashSyncPassword(process.env.DUMMY_USR_PW),
+            profile_pic: "https://www.dreamstime.com/funny-avatar-cunning-emoji-flat-vector-illustration-comic-yellow-social-media-sticker-humorous-cartoon-face-smiling-mouth-image162122340",
+        },
+        {
+            email: "cpic_member@test.com",
+            given_name: "CPIC",
+            family_name: "Member",
+            display_name: "CPIC Member",
+            password_hash: hashSyncPassword(process.env.DUMMY_USR_PW),
+            profile_pic: "https://img.freepik.com/free-vector/cheerful-cartoon-man-with-glasses_1308-165736.jpg?t=st=1760814975~exp=1760818575~hmac=c2169497dc0731ec5fc560c0c035cf719be43e6decf1f881a84c5bccc69e9010",
+        },
+        {
+            email: "cpic_implementer@test.com",
+            given_name: "CPIC",
+            family_name: "Implementer",
+            display_name: "CPIC Implementer",
+            password_hash: hashSyncPassword(process.env.DUMMY_USR_PW),
+            profile_pic: "https://img.freepik.com/premium-vector/cartoon-face-with-cartoon-face-that-says-monster_1230457-43396.jpg",
+        }
+    ];
+
+    const users = await prisma.user.createManyAndReturn({
+        data: testUsers,
+        skipDuplicates:true,
+    });
+
+    const userRolesData = [];
+    for (const user of users) {
+        for (const role of [cpic_admin_role, cpic_member_role, implementer_role]) {
+            userRolesData.push({
+                user_id: user.id,
+                role_id: role.id
+            });
+        }
+    }
+
+    await prisma.userRole.createMany({
+        data: userRolesData,
+    });
+
+    
+    return true;
+
+
+}
+
 async function main() {
     //console.log(normalized_data);
 
@@ -345,8 +405,11 @@ async function main() {
     //await addStrategies()
     //await addImplementers();
     //await addImplementerStrategies();
+    await addUsersWithRoles();
 
     
+
+    /*
     const adminUser = await prisma.user.findUnique({
         where: {
             email:"adams.timothy.d@gmail.com",
@@ -365,6 +428,10 @@ async function main() {
             role_id: adminRole.id
         }
     });
+
+    */
+
+    console.log('seed completed');
   
 }
 
