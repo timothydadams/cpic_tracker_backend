@@ -9,7 +9,6 @@ export const canRead = (requesting_user, userObject = null) => {
     return (
         requesting_user.roles.includes("Admin") ||
         userObject && requesting_user.id === userObject?.id
-        //requesting_user !== undefined
     );
 }
 

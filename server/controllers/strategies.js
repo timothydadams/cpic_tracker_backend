@@ -200,7 +200,7 @@ export const createStrategy = async(req, res) =>{
 
 export const updateStrategy = async (req, res) => {
     const strategyId = parseInt(req.params.id);
-    const {implementers, ...rest} = req.body;
+    const {implementers = {}, ...rest} = req.body;
 
     const strategy = await getStrategyById(strategyId, res);
 

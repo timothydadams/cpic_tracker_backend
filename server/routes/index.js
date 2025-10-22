@@ -8,6 +8,7 @@ import PolicyRouter from './policies.js';
 import FocusAreaRouter from './focus_areas.js';
 import ImplementerRouter from './implementers.js';
 import CommentsRouter from './comments.js';
+import MetricsRouter from './metrics.js';
 
 const AppRouter = Router();
 
@@ -19,6 +20,6 @@ AppRouter.use('/policies', PolicyRouter);
 AppRouter.use('/focusareas', FocusAreaRouter);
 AppRouter.use('/implementers', ImplementerRouter);
 AppRouter.use('/comments', CommentsRouter);
-
+AppRouter.use('/metrics', MetricsRouter);
 
 export default AppRouter;
