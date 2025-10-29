@@ -150,12 +150,16 @@ SIGNIN CONTROLLER
 */
 export const handleGoogleSignIn = async(req, res) => {
     const code = req.query.code;
+
+    const clientDomain = process.env.NODE_ENV === "development" ? `http://localhost:3000` : `https://cpic.dev`;
+    const apiDomain = process.env.NODE_ENV === "development" ? `http://localhost:3500` : `https://cpic-tracker-api.onrender.com`;
+
     const { 
         persist = "SHORT"
      } = JSON.parse(decodeURIComponent(req.query.state));
 
     const duration = persist;
-    const redirectURL = `http://localhost:3500/api/auth/google-callback/`;
+    const redirectURL = `${apiDomain}/api/auth/google-callback/`;
     const goog_oauth_client = new OAuth2Client({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -225,7 +229,7 @@ export const handleGoogleSignIn = async(req, res) => {
                 : Number(process.env.COOKIE_LIFE_LONG)
         });
 
-        res.redirect(303,`http://localhost:3000`);
+        res.redirect(303, clientDomain);
 
     } catch(e) {
         //console.log(e);
