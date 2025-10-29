@@ -9,6 +9,7 @@ import {
 const MetricsRouter = Router();
 
 MetricsRouter.get("/strategies-by-status",  viewStrategyStatusMetrics);
+//MetricsRouter.get("/strategies-last-x-days", viewRecentStrategyActivity);
 MetricsRouter.get("/strategies-by-timeline", viewStrategyByTimelineMetrics);
 MetricsRouter.get("/implementer-breakdown",  viewAllImplementerMetrics);
 //MetricsRouter.post("/", [verifyToken], createComment);

@@ -12,6 +12,7 @@ import {
     school_orgs 
 } from './csv_cleanup.js';
 import * as dotenv from 'dotenv';
+
 dotenv.config();
 
 const prisma = new PrismaClient().$extends(withAccelerate())
@@ -332,11 +333,19 @@ const addImplementerStrategies = async() => {
 
 const addUsersWithRoles = async() => {
 
+    const admin_role = await prisma.role.findUnique({where: {name: 'Admin'}});
     const cpic_admin_role = await prisma.role.findUnique({where: {name: 'CPIC Admin'}});
     const cpic_member_role = await prisma.role.findUnique({where: {name: 'CPIC Member'}});
     const implementer_role = await prisma.role.findUnique({where: {name: 'Implementer'}});
     
     const testUsers = [
+        {
+            email: "admin@test.com",
+            given_name: "Global",
+            family_name: "Admin",
+            display_name: "Global Admin",
+            password_hash: hashSyncPassword(process.env.DUMMY_USR_PW),
+        },
         {
             email: "cpic_admin@test.com",
             given_name: "CPIC",
@@ -370,10 +379,25 @@ const addUsersWithRoles = async() => {
 
     const userRolesData = [];
     for (const user of users) {
-        for (const role of [cpic_admin_role, cpic_member_role, implementer_role]) {
+        if (user.email == "cpic_admin@test.com") {
             userRolesData.push({
                 user_id: user.id,
-                role_id: role.id
+                role_id: cpic_admin_role.id
+            })
+        } else if (user.email == "cpic_member@test.com") {
+            userRolesData.push({
+                user_id: user.id,
+                role_id: cpic_member_role.id
+            });
+        } else if (user.email == "cpic_implementer@test.com") {
+            userRolesData.push({
+                user_id: user.id,
+                role_id: implementer_role.id
+            });
+        } else if (user.email == "admin@test.com") {
+            userRolesData.push({
+                user_id: user.id,
+                role_id: admin_role.id
             });
         }
     }
@@ -382,10 +406,35 @@ const addUsersWithRoles = async() => {
         data: userRolesData,
     });
 
-    
     return true;
 
 
+}
+
+const addFocusAreaFkToStrategies = async() => {
+    const strategies = await prisma.strategy.findMany({
+        include: {
+            policy:true,
+        }
+    });
+
+    if (strategies) {
+        await Promise.all(strategies.map(async (s) => {
+            const { policy: {focus_area_id} } = s;
+            const updated = await prisma.strategy.update({
+                where: {
+                    id: s.id
+                },
+                data: {
+                    focus_area_id: focus_area_id
+                }
+            });
+            console.log(`updated strategy ${updated.id} - focus_area_id: ${updated.focus_area_id}`)
+        }));
+
+        return true;
+    }
+    
 }
 
 async function main() {
@@ -405,7 +454,8 @@ async function main() {
     //await addStrategies()
     //await addImplementers();
     //await addImplementerStrategies();
-    await addUsersWithRoles();
+    //await addUsersWithRoles();
+    await addFocusAreaFkToStrategies();
 
     
 

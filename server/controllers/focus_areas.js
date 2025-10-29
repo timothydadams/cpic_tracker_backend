@@ -44,7 +44,11 @@ export const viewAllFocusAreas = async(req,res) => {
     const policies = parseBoolean(req.query.policies);
 
     const includeItems = {
-        ...(policies ? { policies: true} : {}),
+        ...(policies ? { policies: {
+            orderBy: {
+                policy_number:"asc"
+            }
+        }} : {}),
     }
 
     try {

@@ -53,9 +53,12 @@ model UserRole {
 }
 
 model FocusArea {
-  id       Int        @id @default(autoincrement())
-  name     String
-  policies Policies[]
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  state_goal  String?
+  policies    Policies[]
+  strategies  Strategy[]
 }
 
 model Policies {
@@ -70,12 +73,14 @@ model Policies {
 model TimelineOptions {
   id         Int        @id @default(autoincrement())
   title      String     @unique
+  enabled    Boolean    @default(true)
   strategies Strategy[]
 }
 
 model StatusOptions {
   id         Int        @id @default(autoincrement())
   title      String     @unique
+  enabled    Boolean    @default(true)
   strategies Strategy[]
 }
 
@@ -89,6 +94,8 @@ model Strategy {
   strategy_number Int
   timeline_id     Int
   status_id       Int
+  focus_area_id   Int                   @default(1)
+  focus_area      FocusArea             @relation(fields: [focus_area_id], references: [id])
   stakeholders    Stakeholder[]
   comments        Comment[]
   timeline        TimelineOptions       @relation(fields: [timeline_id], references: [id])
@@ -148,4 +155,10 @@ model Comment {
 
   user     User     @relation(fields: [user_id], references: [id])
   strategy Strategy @relation(fields: [strategy_id], references: [id])
+}
+
+model Faq {
+  id       Int    @id @default(autoincrement())
+  question String
+  answer   String
 }

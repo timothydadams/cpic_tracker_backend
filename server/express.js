@@ -8,6 +8,7 @@ import {dirname, join} from 'path';
 import { fileURLToPath } from 'url';
 import AppRouter from "./routes/index.js";
 import { errorHandler } from "./middleware/handleErrors.js";
+import { userContextMiddleware } from "./middleware/prisma-als-middleware.js";
 
 /* Needed to support ES6 module instead of CommonJS */
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -21,6 +22,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static(join(__dirname, '../public')));
+
+// Middleware to set user context using AsyncLocalStorage
+app.use(userContextMiddleware);
 
 app.use('/api', AppRouter);
 

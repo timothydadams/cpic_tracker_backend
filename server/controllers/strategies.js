@@ -1,7 +1,7 @@
 import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../policies/strategies.js";
-import { parseBoolean } from "../utils/queryStringParsers.js";
+import { parseBoolean, buildNestedIncludeObject } from "../utils/queryStringParsers.js";
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -98,28 +98,36 @@ export const viewStrategy = async (req, res) => {
 }
 
 export const viewAllStrategies = async(req,res) => {
+    const { policy, focus_area, include } = req.query;
+
+    const where ={};
+
+    if (policy) {
+        where.policy_id = policy;
+    }
+    if (focus_area) {
+        where.focus_area_id = focus_area;
+    }
+
+    let prismaInclude = {};
+    if (include) {
+        const relations = include.split(",");
+        const parsedInclude = {}
+        for (const item of relations) {
+            const pathParts = item.split(".");
+            Object.assign(parsedInclude, buildNestedIncludeObject(pathParts))
+        }
+        prismaInclude = parsedInclude
+    }
+
+    //console.log('prisma include built:', JSON.stringify(prismaInclude, null, '\t'));
 
     const strategies = await prisma.strategy.findMany({
-        include:{
-            implementers:{
-                include: {
-                    implementer:{
-                        include: {
-                            cpic_smes:true
-                        }
-                    }
-                }
-            },
-            timeline:true,
-            policy:{
-                include:{
-                    area:true,
-                }
-            },
-            status:true,
-        }
+        where,
+        include: prismaInclude,
     });
-    handleResponse(res, 200, "strategy retrieved successfully", strategies);
+    
+    handleResponse(res, 200, "strategies retrieved successfully", strategies);
 
     /*
     authorize(canRead, strategy)(req, res, async () => {
@@ -131,7 +139,11 @@ export const viewAllStrategies = async(req,res) => {
 
 export const viewStrategyStatuses = async(req,res) => {
     try {
-        const statuses = await prisma.statusOptions.findMany();
+        const statuses = await prisma.statusOptions.findMany({
+            where: {
+                enabled:true
+            }
+        });
         handleResponse(res, 200, "strategy statuses retrieved successfully", statuses);
     } catch(e) {
         console.log("prisma error",e);
@@ -163,7 +175,11 @@ export const viewStrategyComments = async(req,res) => {
 
 export const viewTimelineOptions = async(req, res) => {
     try {
-        const timelineOpts = await prisma.timelineOptions.findMany();
+        const timelineOpts = await prisma.timelineOptions.findMany({
+            where: {
+                enabled:true
+            }
+        });
         handleResponse(res, 200, "strategy timeline options retrieved successfully", timelineOpts);
     } catch(e) {
         console.log("prisma error",e);
@@ -200,7 +216,7 @@ export const createStrategy = async(req, res) =>{
 
 export const updateStrategy = async (req, res) => {
     const strategyId = parseInt(req.params.id);
-    const {implementers = {}, ...rest} = req.body;
+    const {implementers = {}, primary_implementer = null, ...rest} = req.body;
 
     const strategy = await getStrategyById(strategyId, res);
 
@@ -211,12 +227,14 @@ export const updateStrategy = async (req, res) => {
         }
     }
 
+    /*
     console.log("attempting to update:", {
         strategyId,
         strategy,
         implementers,
         "body": rest,
     });
+    */
 
     authorize(canUpdate, strategy)(req, res, async () => {
         
@@ -224,12 +242,41 @@ export const updateStrategy = async (req, res) => {
         const { add=[], remove=[] } = implementers;
         
         if (add.length > 0) {
-            const addResult = await addImplementersToStrategy(add, strategyId);
+            await addImplementersToStrategy(add, strategyId);
         }
 
         //remove implementers if changed
         if (remove.length > 0) {
-            const deleteCount = await deleteSpecificImplementersFromStrategy(remove, strategyId);
+            await deleteSpecificImplementersFromStrategy(remove, strategyId);
+        }
+
+        if (primary_implementer) {
+            console.log('attempting to update primary', {strategyId, primary_implementer});
+            const updated = await prisma.strategyImplementer.updateManyAndReturn({
+                where: {
+                    strategy_id: strategyId
+                },
+                data: {
+                    is_primary: false,
+                }
+            });
+
+            console.log('updated imps:', updated);
+
+
+            const updatedPrimary = await prisma.strategyImplementer.update({
+                where: {
+                  implementer_id_strategy_id: {
+                    implementer_id: Number(primary_implementer),
+                    strategy_id: strategyId,
+                  },
+                },
+                data: {
+                    is_primary: true,
+                }
+            });
+
+            console.log('updated primary imp:', updatedPrimary);
         }
 
         const updatedStrategy = await prisma.strategy.update({

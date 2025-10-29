@@ -29,10 +29,6 @@ export const viewStrategyByTimelineMetrics = async (req,res) => {
           in: foreignKeyIds,
         },
       },
-      select: {
-        id: true,
-        title: true,
-      },
     });
 
     const mergedResults = strategiesByStatus.map((item) => {
@@ -43,7 +39,6 @@ export const viewStrategyByTimelineMetrics = async (req,res) => {
       };
     });
 
-    console.log(mergedResults);
     
     handleResponse(res, 200, "metrics retrieved successfully", mergedResults);
 };
@@ -67,10 +62,6 @@ export const viewStrategyStatusMetrics = async(req,res) => {
           in: foreignKeyIds,
         },
       },
-      select: {
-        id: true,
-        title: true,
-      },
     });
 
     const mergedResults = strategiesByStatus.map((item) => {
@@ -82,8 +73,6 @@ export const viewStrategyStatusMetrics = async(req,res) => {
         count: item._count.id
       };
     });
-
-    console.log(mergedResults);
     
     handleResponse(res, 200, "metrics retrieved successfully", mergedResults);
     /*
@@ -129,14 +118,11 @@ export const viewAllImplementerMetrics = async(req,res) => {
           in: foreignKeyIds,
         },
       },
-      select: {
-        id: true,
-        name: true,
-      },
     });
 
-    const mergedResults = await Promise.all(implementerBreakdown.map(async(item) => {
+    const mergedResults = implementerBreakdown.map((item) => {
       const relatedImplementer = relatedModels.find((r) => r.id === item.implementer_id);
+      /*
       const relatedStrategies = await prisma.strategyImplementer.findMany({
         where: {
             implementer_id: item.implementer_id,
@@ -146,16 +132,15 @@ export const viewAllImplementerMetrics = async(req,res) => {
             strategy:true,
         }
       });
+      */
 
       return {
         implementer_id: relatedImplementer.id,
         implementer_name: relatedImplementer.name,
         count: item._count.implementer_id,
-        strategies: relatedStrategies.map(s => s.strategy),
+        //strategies: relatedStrategies.map(s => s.strategy),
       };
-    }));
-
-    console.log(mergedResults);
+    });
     
     handleResponse(res, 200, "metrics retrieved successfully", mergedResults);
 

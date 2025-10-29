@@ -27,27 +27,30 @@ const findRoleByName = async(name) => {
     }
 }
 
-const findUserForSignIn = async (id, key = "id", include_password = false) => {
+const findUserForSignIn = async (val, key = "id") => {
+    const whereClause = {}
+    whereClause.disabled = false;
+    whereClause[key] = val;
+
+    console.log('where clause:', whereClause);
+
+    const includeItems = {
+        userRoles: {
+            include: {
+                role: {
+                    select:{
+                        name:true,
+                    }
+                },
+            }
+        },
+    }
+
     try {
         const validUser = await prisma.user.findUnique({
-                relationLoadStrategy: 'join',
-                where: {
-                    ...(key === "id" ? {id: id} : {"email":id}),
-                    disabled:false,
-                },
-                include: {
-                    ...(include_password == true ? {} : {password_hash:false}),
-                    userRoles: {
-                        include: {
-                            role: {
-                                select:{
-                                    name:true,
-                                }
-                            },
-                        }
-                    },
-                },
-            });
+            where: whereClause,
+            include: includeItems,
+        });
 
         if (!validUser) return null;
         
@@ -104,7 +107,7 @@ export const handleRefreshToken = async(req,res) => {
         async (err, decoded) => {
             
             if (err || !decoded?.id) {
-                console.log('on refresh error:', {err, decoded});
+                //console.log('on refresh error:', {err, decoded});
                 res.clearCookie('jwt_cpic', { httpOnly:true, sameSite:'lax', secure:true})
                 return res.status(401).json({message:"forbidden"});
             }
@@ -115,10 +118,10 @@ export const handleRefreshToken = async(req,res) => {
                 return res.status(401).json({ message: "No enabled user"})
             }
 
-            console.log("valid user from refresh:", validUser)
+            //console.log("valid user from refresh:", validUser)
 
             const { duration } = req.body;
-            console.log(`generated ${duration} tokens`);
+            //console.log(`generated ${duration} tokens`);
             const {refreshToken, accessToken} = createJWT(validUser, duration);
 
             const expTime = jwt.decode(token).exp * 1000 - Date.now();
@@ -185,43 +188,32 @@ export const handleGoogleSignIn = async(req, res) => {
 
         if (!id) return res.status(400).json({"error":"failed to retrieve user's google profile"});
 
-        const role = await findRoleByName("Viewer");
 
         //update to only support invited users (must already exist in user table)
-        
-        const user = await prisma.user.upsert({
+
+        const {id:userId} = await prisma.user.update({
             where: {
                 google_id: id
             },
-            update: {
+            data: {
                     auth_source: 'google',
                     email,
                     given_name,
                     family_name,
                     display_name: `${given_name} ${family_name}`,
                     profile_pic: picture,
-            },
-            create: {
-                    auth_source: 'google',
-                    profile_pic: picture,
-                    email,
-                    google_id:id,
-                    given_name,
-                    family_name,
-                    display_name: `${given_name} ${family_name}`,
-                    userRoles: {
-                        create:[
-                            {role: {connect:{id:role.id}}}
-                        ]
-                    }
             },
         });
 
-        const fullUser = await findUserForSignIn(user.id);
+        if (!userId) {
+            return res.status(401).json({error: 'unauthorized user'});
+        }
 
-        console.log('user',fullUser);
+        const userWithRoles = await findUserForSignIn(userId, "id");
 
-        const {refreshToken, accessToken} = createJWT(user, duration);
+        //console.log('user', userWithRoles);
+
+        const {refreshToken, accessToken} = createJWT(userWithRoles, duration);
 
         //send refresh token via httpOnly cookie (not accessible via js)
         res.cookie('jwt_cpic', refreshToken, { 
@@ -231,12 +223,12 @@ export const handleGoogleSignIn = async(req, res) => {
             maxAge: duration == "SHORT"
                 ? Number(process.env.COOKIE_LIFE_SHORT)
                 : Number(process.env.COOKIE_LIFE_LONG)
-        })
+        });
 
         res.redirect(303,`http://localhost:3000`);
 
     } catch(e) {
-        console.log(e);
+        //console.log(e);
         res.json({error:"there was a problem with prisma upsert google handler"})
     }
 }
@@ -244,11 +236,11 @@ export const handleGoogleSignIn = async(req, res) => {
 
 export const handleSelfSignIn = async (req,res) => {
     const { email, password, duration } = req.body;
-    console.log({email, password, duration})
+    //console.log({email, password, duration})
     
     if (!email || !password) return res.status(400).json({error: 'username and password are required'});
 
-    const validUser = await findUserForSignIn(email, "email", true);
+    const validUser = await findUserForSignIn(email, "email");
     
     if (!validUser?.id || !validUser?.password_hash) return res.sendStatus(409);
     
@@ -256,9 +248,7 @@ export const handleSelfSignIn = async (req,res) => {
 
     if (!match) return res.sendStatus(409);
 
-    delete validUser.password_hash;
-
-    console.log('new signin', {id:validUser.id, email:validUser.email, duration});
+    console.log('new login via email/pw:', {id:validUser.id, email:validUser.email, duration});
 
     const {refreshToken, accessToken} = createJWT(validUser, duration);
 

@@ -73,6 +73,11 @@ export type StrategyImplementer = $Result.DefaultSelection<Prisma.$StrategyImple
  * 
  */
 export type Comment = $Result.DefaultSelection<Prisma.$CommentPayload>
+/**
+ * Model Faq
+ * 
+ */
+export type Faq = $Result.DefaultSelection<Prisma.$FaqPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -311,6 +316,16 @@ export class PrismaClient<
     * ```
     */
   get comment(): Prisma.CommentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.faq`: Exposes CRUD operations for the **Faq** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Faqs
+    * const faqs = await prisma.faq.findMany()
+    * ```
+    */
+  get faq(): Prisma.FaqDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -762,7 +777,8 @@ export namespace Prisma {
     Implementer: 'Implementer',
     Stakeholder: 'Stakeholder',
     StrategyImplementer: 'StrategyImplementer',
-    Comment: 'Comment'
+    Comment: 'Comment',
+    Faq: 'Faq'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -781,7 +797,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "role" | "userRole" | "focusArea" | "policies" | "timelineOptions" | "statusOptions" | "strategy" | "implementer" | "stakeholder" | "strategyImplementer" | "comment"
+      modelProps: "user" | "role" | "userRole" | "focusArea" | "policies" | "timelineOptions" | "statusOptions" | "strategy" | "implementer" | "stakeholder" | "strategyImplementer" | "comment" | "faq"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1673,6 +1689,80 @@ export namespace Prisma {
           }
         }
       }
+      Faq: {
+        payload: Prisma.$FaqPayload<ExtArgs>
+        fields: Prisma.FaqFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FaqFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FaqFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload>
+          }
+          findFirst: {
+            args: Prisma.FaqFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FaqFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload>
+          }
+          findMany: {
+            args: Prisma.FaqFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload>[]
+          }
+          create: {
+            args: Prisma.FaqCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload>
+          }
+          createMany: {
+            args: Prisma.FaqCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FaqCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload>[]
+          }
+          delete: {
+            args: Prisma.FaqDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload>
+          }
+          update: {
+            args: Prisma.FaqUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload>
+          }
+          deleteMany: {
+            args: Prisma.FaqDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FaqUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FaqUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload>[]
+          }
+          upsert: {
+            args: Prisma.FaqUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaqPayload>
+          }
+          aggregate: {
+            args: Prisma.FaqAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFaq>
+          }
+          groupBy: {
+            args: Prisma.FaqGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FaqGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FaqCountArgs<ExtArgs>
+            result: $Utils.Optional<FaqCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1781,6 +1871,7 @@ export namespace Prisma {
     stakeholder?: StakeholderOmit
     strategyImplementer?: StrategyImplementerOmit
     comment?: CommentOmit
+    faq?: FaqOmit
   }
 
   /* Types for Logging */
@@ -1942,10 +2033,12 @@ export namespace Prisma {
 
   export type FocusAreaCountOutputType = {
     policies: number
+    strategies: number
   }
 
   export type FocusAreaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     policies?: boolean | FocusAreaCountOutputTypeCountPoliciesArgs
+    strategies?: boolean | FocusAreaCountOutputTypeCountStrategiesArgs
   }
 
   // Custom InputTypes
@@ -1964,6 +2057,13 @@ export namespace Prisma {
    */
   export type FocusAreaCountOutputTypeCountPoliciesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PoliciesWhereInput
+  }
+
+  /**
+   * FocusAreaCountOutputType without action
+   */
+  export type FocusAreaCountOutputTypeCountStrategiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StrategyWhereInput
   }
 
 
@@ -5548,16 +5648,22 @@ export namespace Prisma {
   export type FocusAreaMinAggregateOutputType = {
     id: number | null
     name: string | null
+    description: string | null
+    state_goal: string | null
   }
 
   export type FocusAreaMaxAggregateOutputType = {
     id: number | null
     name: string | null
+    description: string | null
+    state_goal: string | null
   }
 
   export type FocusAreaCountAggregateOutputType = {
     id: number
     name: number
+    description: number
+    state_goal: number
     _all: number
   }
 
@@ -5573,16 +5679,22 @@ export namespace Prisma {
   export type FocusAreaMinAggregateInputType = {
     id?: true
     name?: true
+    description?: true
+    state_goal?: true
   }
 
   export type FocusAreaMaxAggregateInputType = {
     id?: true
     name?: true
+    description?: true
+    state_goal?: true
   }
 
   export type FocusAreaCountAggregateInputType = {
     id?: true
     name?: true
+    description?: true
+    state_goal?: true
     _all?: true
   }
 
@@ -5675,6 +5787,8 @@ export namespace Prisma {
   export type FocusAreaGroupByOutputType = {
     id: number
     name: string
+    description: string | null
+    state_goal: string | null
     _count: FocusAreaCountAggregateOutputType | null
     _avg: FocusAreaAvgAggregateOutputType | null
     _sum: FocusAreaSumAggregateOutputType | null
@@ -5699,28 +5813,38 @@ export namespace Prisma {
   export type FocusAreaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    description?: boolean
+    state_goal?: boolean
     policies?: boolean | FocusArea$policiesArgs<ExtArgs>
+    strategies?: boolean | FocusArea$strategiesArgs<ExtArgs>
     _count?: boolean | FocusAreaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["focusArea"]>
 
   export type FocusAreaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    description?: boolean
+    state_goal?: boolean
   }, ExtArgs["result"]["focusArea"]>
 
   export type FocusAreaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    description?: boolean
+    state_goal?: boolean
   }, ExtArgs["result"]["focusArea"]>
 
   export type FocusAreaSelectScalar = {
     id?: boolean
     name?: boolean
+    description?: boolean
+    state_goal?: boolean
   }
 
-  export type FocusAreaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name", ExtArgs["result"]["focusArea"]>
+  export type FocusAreaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "state_goal", ExtArgs["result"]["focusArea"]>
   export type FocusAreaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     policies?: boolean | FocusArea$policiesArgs<ExtArgs>
+    strategies?: boolean | FocusArea$strategiesArgs<ExtArgs>
     _count?: boolean | FocusAreaCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type FocusAreaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5730,10 +5854,13 @@ export namespace Prisma {
     name: "FocusArea"
     objects: {
       policies: Prisma.$PoliciesPayload<ExtArgs>[]
+      strategies: Prisma.$StrategyPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
+      description: string | null
+      state_goal: string | null
     }, ExtArgs["result"]["focusArea"]>
     composites: {}
   }
@@ -6129,6 +6256,7 @@ export namespace Prisma {
   export interface Prisma__FocusAreaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     policies<T extends FocusArea$policiesArgs<ExtArgs> = {}>(args?: Subset<T, FocusArea$policiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PoliciesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    strategies<T extends FocusArea$strategiesArgs<ExtArgs> = {}>(args?: Subset<T, FocusArea$strategiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6160,6 +6288,8 @@ export namespace Prisma {
   interface FocusAreaFieldRefs {
     readonly id: FieldRef<"FocusArea", 'Int'>
     readonly name: FieldRef<"FocusArea", 'String'>
+    readonly description: FieldRef<"FocusArea", 'String'>
+    readonly state_goal: FieldRef<"FocusArea", 'String'>
   }
     
 
@@ -6578,6 +6708,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PoliciesScalarFieldEnum | PoliciesScalarFieldEnum[]
+  }
+
+  /**
+   * FocusArea.strategies
+   */
+  export type FocusArea$strategiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Strategy
+     */
+    select?: StrategySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Strategy
+     */
+    omit?: StrategyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyInclude<ExtArgs> | null
+    where?: StrategyWhereInput
+    orderBy?: StrategyOrderByWithRelationInput | StrategyOrderByWithRelationInput[]
+    cursor?: StrategyWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StrategyScalarFieldEnum | StrategyScalarFieldEnum[]
   }
 
   /**
@@ -7744,16 +7898,19 @@ export namespace Prisma {
   export type TimelineOptionsMinAggregateOutputType = {
     id: number | null
     title: string | null
+    enabled: boolean | null
   }
 
   export type TimelineOptionsMaxAggregateOutputType = {
     id: number | null
     title: string | null
+    enabled: boolean | null
   }
 
   export type TimelineOptionsCountAggregateOutputType = {
     id: number
     title: number
+    enabled: number
     _all: number
   }
 
@@ -7769,16 +7926,19 @@ export namespace Prisma {
   export type TimelineOptionsMinAggregateInputType = {
     id?: true
     title?: true
+    enabled?: true
   }
 
   export type TimelineOptionsMaxAggregateInputType = {
     id?: true
     title?: true
+    enabled?: true
   }
 
   export type TimelineOptionsCountAggregateInputType = {
     id?: true
     title?: true
+    enabled?: true
     _all?: true
   }
 
@@ -7871,6 +8031,7 @@ export namespace Prisma {
   export type TimelineOptionsGroupByOutputType = {
     id: number
     title: string
+    enabled: boolean
     _count: TimelineOptionsCountAggregateOutputType | null
     _avg: TimelineOptionsAvgAggregateOutputType | null
     _sum: TimelineOptionsSumAggregateOutputType | null
@@ -7895,6 +8056,7 @@ export namespace Prisma {
   export type TimelineOptionsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     title?: boolean
+    enabled?: boolean
     strategies?: boolean | TimelineOptions$strategiesArgs<ExtArgs>
     _count?: boolean | TimelineOptionsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["timelineOptions"]>
@@ -7902,19 +8064,22 @@ export namespace Prisma {
   export type TimelineOptionsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     title?: boolean
+    enabled?: boolean
   }, ExtArgs["result"]["timelineOptions"]>
 
   export type TimelineOptionsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     title?: boolean
+    enabled?: boolean
   }, ExtArgs["result"]["timelineOptions"]>
 
   export type TimelineOptionsSelectScalar = {
     id?: boolean
     title?: boolean
+    enabled?: boolean
   }
 
-  export type TimelineOptionsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title", ExtArgs["result"]["timelineOptions"]>
+  export type TimelineOptionsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "enabled", ExtArgs["result"]["timelineOptions"]>
   export type TimelineOptionsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     strategies?: boolean | TimelineOptions$strategiesArgs<ExtArgs>
     _count?: boolean | TimelineOptionsCountOutputTypeDefaultArgs<ExtArgs>
@@ -7930,6 +8095,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       title: string
+      enabled: boolean
     }, ExtArgs["result"]["timelineOptions"]>
     composites: {}
   }
@@ -8356,6 +8522,7 @@ export namespace Prisma {
   interface TimelineOptionsFieldRefs {
     readonly id: FieldRef<"TimelineOptions", 'Int'>
     readonly title: FieldRef<"TimelineOptions", 'String'>
+    readonly enabled: FieldRef<"TimelineOptions", 'Boolean'>
   }
     
 
@@ -8818,16 +8985,19 @@ export namespace Prisma {
   export type StatusOptionsMinAggregateOutputType = {
     id: number | null
     title: string | null
+    enabled: boolean | null
   }
 
   export type StatusOptionsMaxAggregateOutputType = {
     id: number | null
     title: string | null
+    enabled: boolean | null
   }
 
   export type StatusOptionsCountAggregateOutputType = {
     id: number
     title: number
+    enabled: number
     _all: number
   }
 
@@ -8843,16 +9013,19 @@ export namespace Prisma {
   export type StatusOptionsMinAggregateInputType = {
     id?: true
     title?: true
+    enabled?: true
   }
 
   export type StatusOptionsMaxAggregateInputType = {
     id?: true
     title?: true
+    enabled?: true
   }
 
   export type StatusOptionsCountAggregateInputType = {
     id?: true
     title?: true
+    enabled?: true
     _all?: true
   }
 
@@ -8945,6 +9118,7 @@ export namespace Prisma {
   export type StatusOptionsGroupByOutputType = {
     id: number
     title: string
+    enabled: boolean
     _count: StatusOptionsCountAggregateOutputType | null
     _avg: StatusOptionsAvgAggregateOutputType | null
     _sum: StatusOptionsSumAggregateOutputType | null
@@ -8969,6 +9143,7 @@ export namespace Prisma {
   export type StatusOptionsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     title?: boolean
+    enabled?: boolean
     strategies?: boolean | StatusOptions$strategiesArgs<ExtArgs>
     _count?: boolean | StatusOptionsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["statusOptions"]>
@@ -8976,19 +9151,22 @@ export namespace Prisma {
   export type StatusOptionsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     title?: boolean
+    enabled?: boolean
   }, ExtArgs["result"]["statusOptions"]>
 
   export type StatusOptionsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     title?: boolean
+    enabled?: boolean
   }, ExtArgs["result"]["statusOptions"]>
 
   export type StatusOptionsSelectScalar = {
     id?: boolean
     title?: boolean
+    enabled?: boolean
   }
 
-  export type StatusOptionsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title", ExtArgs["result"]["statusOptions"]>
+  export type StatusOptionsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "enabled", ExtArgs["result"]["statusOptions"]>
   export type StatusOptionsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     strategies?: boolean | StatusOptions$strategiesArgs<ExtArgs>
     _count?: boolean | StatusOptionsCountOutputTypeDefaultArgs<ExtArgs>
@@ -9004,6 +9182,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       title: string
+      enabled: boolean
     }, ExtArgs["result"]["statusOptions"]>
     composites: {}
   }
@@ -9430,6 +9609,7 @@ export namespace Prisma {
   interface StatusOptionsFieldRefs {
     readonly id: FieldRef<"StatusOptions", 'Int'>
     readonly title: FieldRef<"StatusOptions", 'String'>
+    readonly enabled: FieldRef<"StatusOptions", 'Boolean'>
   }
     
 
@@ -9886,6 +10066,7 @@ export namespace Prisma {
     strategy_number: number | null
     timeline_id: number | null
     status_id: number | null
+    focus_area_id: number | null
   }
 
   export type StrategySumAggregateOutputType = {
@@ -9893,6 +10074,7 @@ export namespace Prisma {
     strategy_number: number | null
     timeline_id: number | null
     status_id: number | null
+    focus_area_id: number | null
   }
 
   export type StrategyMinAggregateOutputType = {
@@ -9905,6 +10087,7 @@ export namespace Prisma {
     strategy_number: number | null
     timeline_id: number | null
     status_id: number | null
+    focus_area_id: number | null
   }
 
   export type StrategyMaxAggregateOutputType = {
@@ -9917,6 +10100,7 @@ export namespace Prisma {
     strategy_number: number | null
     timeline_id: number | null
     status_id: number | null
+    focus_area_id: number | null
   }
 
   export type StrategyCountAggregateOutputType = {
@@ -9929,6 +10113,7 @@ export namespace Prisma {
     strategy_number: number
     timeline_id: number
     status_id: number
+    focus_area_id: number
     _all: number
   }
 
@@ -9938,6 +10123,7 @@ export namespace Prisma {
     strategy_number?: true
     timeline_id?: true
     status_id?: true
+    focus_area_id?: true
   }
 
   export type StrategySumAggregateInputType = {
@@ -9945,6 +10131,7 @@ export namespace Prisma {
     strategy_number?: true
     timeline_id?: true
     status_id?: true
+    focus_area_id?: true
   }
 
   export type StrategyMinAggregateInputType = {
@@ -9957,6 +10144,7 @@ export namespace Prisma {
     strategy_number?: true
     timeline_id?: true
     status_id?: true
+    focus_area_id?: true
   }
 
   export type StrategyMaxAggregateInputType = {
@@ -9969,6 +10157,7 @@ export namespace Prisma {
     strategy_number?: true
     timeline_id?: true
     status_id?: true
+    focus_area_id?: true
   }
 
   export type StrategyCountAggregateInputType = {
@@ -9981,6 +10170,7 @@ export namespace Prisma {
     strategy_number?: true
     timeline_id?: true
     status_id?: true
+    focus_area_id?: true
     _all?: true
   }
 
@@ -10080,6 +10270,7 @@ export namespace Prisma {
     strategy_number: number
     timeline_id: number
     status_id: number
+    focus_area_id: number
     _count: StrategyCountAggregateOutputType | null
     _avg: StrategyAvgAggregateOutputType | null
     _sum: StrategySumAggregateOutputType | null
@@ -10111,6 +10302,8 @@ export namespace Prisma {
     strategy_number?: boolean
     timeline_id?: boolean
     status_id?: boolean
+    focus_area_id?: boolean
+    focus_area?: boolean | FocusAreaDefaultArgs<ExtArgs>
     stakeholders?: boolean | Strategy$stakeholdersArgs<ExtArgs>
     comments?: boolean | Strategy$commentsArgs<ExtArgs>
     timeline?: boolean | TimelineOptionsDefaultArgs<ExtArgs>
@@ -10130,6 +10323,8 @@ export namespace Prisma {
     strategy_number?: boolean
     timeline_id?: boolean
     status_id?: boolean
+    focus_area_id?: boolean
+    focus_area?: boolean | FocusAreaDefaultArgs<ExtArgs>
     timeline?: boolean | TimelineOptionsDefaultArgs<ExtArgs>
     status?: boolean | StatusOptionsDefaultArgs<ExtArgs>
     policy?: boolean | PoliciesDefaultArgs<ExtArgs>
@@ -10145,6 +10340,8 @@ export namespace Prisma {
     strategy_number?: boolean
     timeline_id?: boolean
     status_id?: boolean
+    focus_area_id?: boolean
+    focus_area?: boolean | FocusAreaDefaultArgs<ExtArgs>
     timeline?: boolean | TimelineOptionsDefaultArgs<ExtArgs>
     status?: boolean | StatusOptionsDefaultArgs<ExtArgs>
     policy?: boolean | PoliciesDefaultArgs<ExtArgs>
@@ -10160,10 +10357,12 @@ export namespace Prisma {
     strategy_number?: boolean
     timeline_id?: boolean
     status_id?: boolean
+    focus_area_id?: boolean
   }
 
-  export type StrategyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "content" | "last_comms_date" | "createdAt" | "updatedAt" | "policy_id" | "strategy_number" | "timeline_id" | "status_id", ExtArgs["result"]["strategy"]>
+  export type StrategyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "content" | "last_comms_date" | "createdAt" | "updatedAt" | "policy_id" | "strategy_number" | "timeline_id" | "status_id" | "focus_area_id", ExtArgs["result"]["strategy"]>
   export type StrategyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    focus_area?: boolean | FocusAreaDefaultArgs<ExtArgs>
     stakeholders?: boolean | Strategy$stakeholdersArgs<ExtArgs>
     comments?: boolean | Strategy$commentsArgs<ExtArgs>
     timeline?: boolean | TimelineOptionsDefaultArgs<ExtArgs>
@@ -10173,11 +10372,13 @@ export namespace Prisma {
     _count?: boolean | StrategyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StrategyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    focus_area?: boolean | FocusAreaDefaultArgs<ExtArgs>
     timeline?: boolean | TimelineOptionsDefaultArgs<ExtArgs>
     status?: boolean | StatusOptionsDefaultArgs<ExtArgs>
     policy?: boolean | PoliciesDefaultArgs<ExtArgs>
   }
   export type StrategyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    focus_area?: boolean | FocusAreaDefaultArgs<ExtArgs>
     timeline?: boolean | TimelineOptionsDefaultArgs<ExtArgs>
     status?: boolean | StatusOptionsDefaultArgs<ExtArgs>
     policy?: boolean | PoliciesDefaultArgs<ExtArgs>
@@ -10186,6 +10387,7 @@ export namespace Prisma {
   export type $StrategyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Strategy"
     objects: {
+      focus_area: Prisma.$FocusAreaPayload<ExtArgs>
       stakeholders: Prisma.$StakeholderPayload<ExtArgs>[]
       comments: Prisma.$CommentPayload<ExtArgs>[]
       timeline: Prisma.$TimelineOptionsPayload<ExtArgs>
@@ -10203,6 +10405,7 @@ export namespace Prisma {
       strategy_number: number
       timeline_id: number
       status_id: number
+      focus_area_id: number
     }, ExtArgs["result"]["strategy"]>
     composites: {}
   }
@@ -10597,6 +10800,7 @@ export namespace Prisma {
    */
   export interface Prisma__StrategyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    focus_area<T extends FocusAreaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FocusAreaDefaultArgs<ExtArgs>>): Prisma__FocusAreaClient<$Result.GetResult<Prisma.$FocusAreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     stakeholders<T extends Strategy$stakeholdersArgs<ExtArgs> = {}>(args?: Subset<T, Strategy$stakeholdersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     comments<T extends Strategy$commentsArgs<ExtArgs> = {}>(args?: Subset<T, Strategy$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     timeline<T extends TimelineOptionsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TimelineOptionsDefaultArgs<ExtArgs>>): Prisma__TimelineOptionsClient<$Result.GetResult<Prisma.$TimelineOptionsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
@@ -10641,6 +10845,7 @@ export namespace Prisma {
     readonly strategy_number: FieldRef<"Strategy", 'Int'>
     readonly timeline_id: FieldRef<"Strategy", 'Int'>
     readonly status_id: FieldRef<"Strategy", 'Int'>
+    readonly focus_area_id: FieldRef<"Strategy", 'Int'>
   }
     
 
@@ -15762,6 +15967,1018 @@ export namespace Prisma {
 
 
   /**
+   * Model Faq
+   */
+
+  export type AggregateFaq = {
+    _count: FaqCountAggregateOutputType | null
+    _avg: FaqAvgAggregateOutputType | null
+    _sum: FaqSumAggregateOutputType | null
+    _min: FaqMinAggregateOutputType | null
+    _max: FaqMaxAggregateOutputType | null
+  }
+
+  export type FaqAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FaqSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type FaqMinAggregateOutputType = {
+    id: number | null
+    question: string | null
+    answer: string | null
+  }
+
+  export type FaqMaxAggregateOutputType = {
+    id: number | null
+    question: string | null
+    answer: string | null
+  }
+
+  export type FaqCountAggregateOutputType = {
+    id: number
+    question: number
+    answer: number
+    _all: number
+  }
+
+
+  export type FaqAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type FaqSumAggregateInputType = {
+    id?: true
+  }
+
+  export type FaqMinAggregateInputType = {
+    id?: true
+    question?: true
+    answer?: true
+  }
+
+  export type FaqMaxAggregateInputType = {
+    id?: true
+    question?: true
+    answer?: true
+  }
+
+  export type FaqCountAggregateInputType = {
+    id?: true
+    question?: true
+    answer?: true
+    _all?: true
+  }
+
+  export type FaqAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Faq to aggregate.
+     */
+    where?: FaqWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Faqs to fetch.
+     */
+    orderBy?: FaqOrderByWithRelationInput | FaqOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FaqWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Faqs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Faqs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Faqs
+    **/
+    _count?: true | FaqCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FaqAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FaqSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FaqMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FaqMaxAggregateInputType
+  }
+
+  export type GetFaqAggregateType<T extends FaqAggregateArgs> = {
+        [P in keyof T & keyof AggregateFaq]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFaq[P]>
+      : GetScalarType<T[P], AggregateFaq[P]>
+  }
+
+
+
+
+  export type FaqGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FaqWhereInput
+    orderBy?: FaqOrderByWithAggregationInput | FaqOrderByWithAggregationInput[]
+    by: FaqScalarFieldEnum[] | FaqScalarFieldEnum
+    having?: FaqScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FaqCountAggregateInputType | true
+    _avg?: FaqAvgAggregateInputType
+    _sum?: FaqSumAggregateInputType
+    _min?: FaqMinAggregateInputType
+    _max?: FaqMaxAggregateInputType
+  }
+
+  export type FaqGroupByOutputType = {
+    id: number
+    question: string
+    answer: string
+    _count: FaqCountAggregateOutputType | null
+    _avg: FaqAvgAggregateOutputType | null
+    _sum: FaqSumAggregateOutputType | null
+    _min: FaqMinAggregateOutputType | null
+    _max: FaqMaxAggregateOutputType | null
+  }
+
+  type GetFaqGroupByPayload<T extends FaqGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FaqGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FaqGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FaqGroupByOutputType[P]>
+            : GetScalarType<T[P], FaqGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FaqSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    question?: boolean
+    answer?: boolean
+  }, ExtArgs["result"]["faq"]>
+
+  export type FaqSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    question?: boolean
+    answer?: boolean
+  }, ExtArgs["result"]["faq"]>
+
+  export type FaqSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    question?: boolean
+    answer?: boolean
+  }, ExtArgs["result"]["faq"]>
+
+  export type FaqSelectScalar = {
+    id?: boolean
+    question?: boolean
+    answer?: boolean
+  }
+
+  export type FaqOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "question" | "answer", ExtArgs["result"]["faq"]>
+
+  export type $FaqPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Faq"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      question: string
+      answer: string
+    }, ExtArgs["result"]["faq"]>
+    composites: {}
+  }
+
+  type FaqGetPayload<S extends boolean | null | undefined | FaqDefaultArgs> = $Result.GetResult<Prisma.$FaqPayload, S>
+
+  type FaqCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FaqFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
+      select?: FaqCountAggregateInputType | true
+    }
+
+  export interface FaqDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Faq'], meta: { name: 'Faq' } }
+    /**
+     * Find zero or one Faq that matches the filter.
+     * @param {FaqFindUniqueArgs} args - Arguments to find a Faq
+     * @example
+     * // Get one Faq
+     * const faq = await prisma.faq.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FaqFindUniqueArgs>(args: SelectSubset<T, FaqFindUniqueArgs<ExtArgs>>): Prisma__FaqClient<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Faq that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FaqFindUniqueOrThrowArgs} args - Arguments to find a Faq
+     * @example
+     * // Get one Faq
+     * const faq = await prisma.faq.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FaqFindUniqueOrThrowArgs>(args: SelectSubset<T, FaqFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FaqClient<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Faq that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaqFindFirstArgs} args - Arguments to find a Faq
+     * @example
+     * // Get one Faq
+     * const faq = await prisma.faq.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FaqFindFirstArgs>(args?: SelectSubset<T, FaqFindFirstArgs<ExtArgs>>): Prisma__FaqClient<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Faq that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaqFindFirstOrThrowArgs} args - Arguments to find a Faq
+     * @example
+     * // Get one Faq
+     * const faq = await prisma.faq.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FaqFindFirstOrThrowArgs>(args?: SelectSubset<T, FaqFindFirstOrThrowArgs<ExtArgs>>): Prisma__FaqClient<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Faqs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaqFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Faqs
+     * const faqs = await prisma.faq.findMany()
+     * 
+     * // Get first 10 Faqs
+     * const faqs = await prisma.faq.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const faqWithIdOnly = await prisma.faq.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FaqFindManyArgs>(args?: SelectSubset<T, FaqFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Faq.
+     * @param {FaqCreateArgs} args - Arguments to create a Faq.
+     * @example
+     * // Create one Faq
+     * const Faq = await prisma.faq.create({
+     *   data: {
+     *     // ... data to create a Faq
+     *   }
+     * })
+     * 
+     */
+    create<T extends FaqCreateArgs>(args: SelectSubset<T, FaqCreateArgs<ExtArgs>>): Prisma__FaqClient<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Faqs.
+     * @param {FaqCreateManyArgs} args - Arguments to create many Faqs.
+     * @example
+     * // Create many Faqs
+     * const faq = await prisma.faq.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FaqCreateManyArgs>(args?: SelectSubset<T, FaqCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Faqs and returns the data saved in the database.
+     * @param {FaqCreateManyAndReturnArgs} args - Arguments to create many Faqs.
+     * @example
+     * // Create many Faqs
+     * const faq = await prisma.faq.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Faqs and only return the `id`
+     * const faqWithIdOnly = await prisma.faq.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FaqCreateManyAndReturnArgs>(args?: SelectSubset<T, FaqCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Faq.
+     * @param {FaqDeleteArgs} args - Arguments to delete one Faq.
+     * @example
+     * // Delete one Faq
+     * const Faq = await prisma.faq.delete({
+     *   where: {
+     *     // ... filter to delete one Faq
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FaqDeleteArgs>(args: SelectSubset<T, FaqDeleteArgs<ExtArgs>>): Prisma__FaqClient<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Faq.
+     * @param {FaqUpdateArgs} args - Arguments to update one Faq.
+     * @example
+     * // Update one Faq
+     * const faq = await prisma.faq.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FaqUpdateArgs>(args: SelectSubset<T, FaqUpdateArgs<ExtArgs>>): Prisma__FaqClient<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Faqs.
+     * @param {FaqDeleteManyArgs} args - Arguments to filter Faqs to delete.
+     * @example
+     * // Delete a few Faqs
+     * const { count } = await prisma.faq.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FaqDeleteManyArgs>(args?: SelectSubset<T, FaqDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Faqs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaqUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Faqs
+     * const faq = await prisma.faq.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FaqUpdateManyArgs>(args: SelectSubset<T, FaqUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Faqs and returns the data updated in the database.
+     * @param {FaqUpdateManyAndReturnArgs} args - Arguments to update many Faqs.
+     * @example
+     * // Update many Faqs
+     * const faq = await prisma.faq.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Faqs and only return the `id`
+     * const faqWithIdOnly = await prisma.faq.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FaqUpdateManyAndReturnArgs>(args: SelectSubset<T, FaqUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Faq.
+     * @param {FaqUpsertArgs} args - Arguments to update or create a Faq.
+     * @example
+     * // Update or create a Faq
+     * const faq = await prisma.faq.upsert({
+     *   create: {
+     *     // ... data to create a Faq
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Faq we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FaqUpsertArgs>(args: SelectSubset<T, FaqUpsertArgs<ExtArgs>>): Prisma__FaqClient<$Result.GetResult<Prisma.$FaqPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Faqs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaqCountArgs} args - Arguments to filter Faqs to count.
+     * @example
+     * // Count the number of Faqs
+     * const count = await prisma.faq.count({
+     *   where: {
+     *     // ... the filter for the Faqs we want to count
+     *   }
+     * })
+    **/
+    count<T extends FaqCountArgs>(
+      args?: Subset<T, FaqCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FaqCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Faq.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaqAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FaqAggregateArgs>(args: Subset<T, FaqAggregateArgs>): Prisma.PrismaPromise<GetFaqAggregateType<T>>
+
+    /**
+     * Group by Faq.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FaqGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FaqGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FaqGroupByArgs['orderBy'] }
+        : { orderBy?: FaqGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FaqGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFaqGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Faq model
+   */
+  readonly fields: FaqFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Faq.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FaqClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Faq model
+   */
+  interface FaqFieldRefs {
+    readonly id: FieldRef<"Faq", 'Int'>
+    readonly question: FieldRef<"Faq", 'String'>
+    readonly answer: FieldRef<"Faq", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Faq findUnique
+   */
+  export type FaqFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * Filter, which Faq to fetch.
+     */
+    where: FaqWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * Faq findUniqueOrThrow
+   */
+  export type FaqFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * Filter, which Faq to fetch.
+     */
+    where: FaqWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * Faq findFirst
+   */
+  export type FaqFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * Filter, which Faq to fetch.
+     */
+    where?: FaqWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Faqs to fetch.
+     */
+    orderBy?: FaqOrderByWithRelationInput | FaqOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Faqs.
+     */
+    cursor?: FaqWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Faqs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Faqs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Faqs.
+     */
+    distinct?: FaqScalarFieldEnum | FaqScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * Faq findFirstOrThrow
+   */
+  export type FaqFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * Filter, which Faq to fetch.
+     */
+    where?: FaqWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Faqs to fetch.
+     */
+    orderBy?: FaqOrderByWithRelationInput | FaqOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Faqs.
+     */
+    cursor?: FaqWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Faqs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Faqs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Faqs.
+     */
+    distinct?: FaqScalarFieldEnum | FaqScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * Faq findMany
+   */
+  export type FaqFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * Filter, which Faqs to fetch.
+     */
+    where?: FaqWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Faqs to fetch.
+     */
+    orderBy?: FaqOrderByWithRelationInput | FaqOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Faqs.
+     */
+    cursor?: FaqWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Faqs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Faqs.
+     */
+    skip?: number
+    distinct?: FaqScalarFieldEnum | FaqScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * Faq create
+   */
+  export type FaqCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Faq.
+     */
+    data: XOR<FaqCreateInput, FaqUncheckedCreateInput>
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * Faq createMany
+   */
+  export type FaqCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Faqs.
+     */
+    data: FaqCreateManyInput | FaqCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Faq createManyAndReturn
+   */
+  export type FaqCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * The data used to create many Faqs.
+     */
+    data: FaqCreateManyInput | FaqCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Faq update
+   */
+  export type FaqUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Faq.
+     */
+    data: XOR<FaqUpdateInput, FaqUncheckedUpdateInput>
+    /**
+     * Choose, which Faq to update.
+     */
+    where: FaqWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * Faq updateMany
+   */
+  export type FaqUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Faqs.
+     */
+    data: XOR<FaqUpdateManyMutationInput, FaqUncheckedUpdateManyInput>
+    /**
+     * Filter which Faqs to update
+     */
+    where?: FaqWhereInput
+    /**
+     * Limit how many Faqs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Faq updateManyAndReturn
+   */
+  export type FaqUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * The data used to update Faqs.
+     */
+    data: XOR<FaqUpdateManyMutationInput, FaqUncheckedUpdateManyInput>
+    /**
+     * Filter which Faqs to update
+     */
+    where?: FaqWhereInput
+    /**
+     * Limit how many Faqs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Faq upsert
+   */
+  export type FaqUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Faq to update in case it exists.
+     */
+    where: FaqWhereUniqueInput
+    /**
+     * In case the Faq found by the `where` argument doesn't exist, create a new Faq with this data.
+     */
+    create: XOR<FaqCreateInput, FaqUncheckedCreateInput>
+    /**
+     * In case the Faq was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FaqUpdateInput, FaqUncheckedUpdateInput>
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * Faq delete
+   */
+  export type FaqDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+    /**
+     * Filter which Faq to delete.
+     */
+    where: FaqWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * Faq deleteMany
+   */
+  export type FaqDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Faqs to delete
+     */
+    where?: FaqWhereInput
+    /**
+     * Limit how many Faqs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Faq without action
+   */
+  export type FaqDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Faq
+     */
+    select?: FaqSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Faq
+     */
+    omit?: FaqOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -15822,7 +17039,9 @@ export namespace Prisma {
 
   export const FocusAreaScalarFieldEnum: {
     id: 'id',
-    name: 'name'
+    name: 'name',
+    description: 'description',
+    state_goal: 'state_goal'
   };
 
   export type FocusAreaScalarFieldEnum = (typeof FocusAreaScalarFieldEnum)[keyof typeof FocusAreaScalarFieldEnum]
@@ -15840,7 +17059,8 @@ export namespace Prisma {
 
   export const TimelineOptionsScalarFieldEnum: {
     id: 'id',
-    title: 'title'
+    title: 'title',
+    enabled: 'enabled'
   };
 
   export type TimelineOptionsScalarFieldEnum = (typeof TimelineOptionsScalarFieldEnum)[keyof typeof TimelineOptionsScalarFieldEnum]
@@ -15848,7 +17068,8 @@ export namespace Prisma {
 
   export const StatusOptionsScalarFieldEnum: {
     id: 'id',
-    title: 'title'
+    title: 'title',
+    enabled: 'enabled'
   };
 
   export type StatusOptionsScalarFieldEnum = (typeof StatusOptionsScalarFieldEnum)[keyof typeof StatusOptionsScalarFieldEnum]
@@ -15863,7 +17084,8 @@ export namespace Prisma {
     policy_id: 'policy_id',
     strategy_number: 'strategy_number',
     timeline_id: 'timeline_id',
-    status_id: 'status_id'
+    status_id: 'status_id',
+    focus_area_id: 'focus_area_id'
   };
 
   export type StrategyScalarFieldEnum = (typeof StrategyScalarFieldEnum)[keyof typeof StrategyScalarFieldEnum]
@@ -15919,6 +17141,15 @@ export namespace Prisma {
   };
 
   export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
+
+
+  export const FaqScalarFieldEnum: {
+    id: 'id',
+    question: 'question',
+    answer: 'answer'
+  };
+
+  export type FaqScalarFieldEnum = (typeof FaqScalarFieldEnum)[keyof typeof FaqScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -16217,13 +17448,19 @@ export namespace Prisma {
     NOT?: FocusAreaWhereInput | FocusAreaWhereInput[]
     id?: IntFilter<"FocusArea"> | number
     name?: StringFilter<"FocusArea"> | string
+    description?: StringNullableFilter<"FocusArea"> | string | null
+    state_goal?: StringNullableFilter<"FocusArea"> | string | null
     policies?: PoliciesListRelationFilter
+    strategies?: StrategyListRelationFilter
   }
 
   export type FocusAreaOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    state_goal?: SortOrderInput | SortOrder
     policies?: PoliciesOrderByRelationAggregateInput
+    strategies?: StrategyOrderByRelationAggregateInput
   }
 
   export type FocusAreaWhereUniqueInput = Prisma.AtLeast<{
@@ -16232,12 +17469,17 @@ export namespace Prisma {
     OR?: FocusAreaWhereInput[]
     NOT?: FocusAreaWhereInput | FocusAreaWhereInput[]
     name?: StringFilter<"FocusArea"> | string
+    description?: StringNullableFilter<"FocusArea"> | string | null
+    state_goal?: StringNullableFilter<"FocusArea"> | string | null
     policies?: PoliciesListRelationFilter
+    strategies?: StrategyListRelationFilter
   }, "id">
 
   export type FocusAreaOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    state_goal?: SortOrderInput | SortOrder
     _count?: FocusAreaCountOrderByAggregateInput
     _avg?: FocusAreaAvgOrderByAggregateInput
     _max?: FocusAreaMaxOrderByAggregateInput
@@ -16251,6 +17493,8 @@ export namespace Prisma {
     NOT?: FocusAreaScalarWhereWithAggregatesInput | FocusAreaScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"FocusArea"> | number
     name?: StringWithAggregatesFilter<"FocusArea"> | string
+    description?: StringNullableWithAggregatesFilter<"FocusArea"> | string | null
+    state_goal?: StringNullableWithAggregatesFilter<"FocusArea"> | string | null
   }
 
   export type PoliciesWhereInput = {
@@ -16314,12 +17558,14 @@ export namespace Prisma {
     NOT?: TimelineOptionsWhereInput | TimelineOptionsWhereInput[]
     id?: IntFilter<"TimelineOptions"> | number
     title?: StringFilter<"TimelineOptions"> | string
+    enabled?: BoolFilter<"TimelineOptions"> | boolean
     strategies?: StrategyListRelationFilter
   }
 
   export type TimelineOptionsOrderByWithRelationInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
     strategies?: StrategyOrderByRelationAggregateInput
   }
 
@@ -16329,12 +17575,14 @@ export namespace Prisma {
     AND?: TimelineOptionsWhereInput | TimelineOptionsWhereInput[]
     OR?: TimelineOptionsWhereInput[]
     NOT?: TimelineOptionsWhereInput | TimelineOptionsWhereInput[]
+    enabled?: BoolFilter<"TimelineOptions"> | boolean
     strategies?: StrategyListRelationFilter
   }, "id" | "title">
 
   export type TimelineOptionsOrderByWithAggregationInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
     _count?: TimelineOptionsCountOrderByAggregateInput
     _avg?: TimelineOptionsAvgOrderByAggregateInput
     _max?: TimelineOptionsMaxOrderByAggregateInput
@@ -16348,6 +17596,7 @@ export namespace Prisma {
     NOT?: TimelineOptionsScalarWhereWithAggregatesInput | TimelineOptionsScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"TimelineOptions"> | number
     title?: StringWithAggregatesFilter<"TimelineOptions"> | string
+    enabled?: BoolWithAggregatesFilter<"TimelineOptions"> | boolean
   }
 
   export type StatusOptionsWhereInput = {
@@ -16356,12 +17605,14 @@ export namespace Prisma {
     NOT?: StatusOptionsWhereInput | StatusOptionsWhereInput[]
     id?: IntFilter<"StatusOptions"> | number
     title?: StringFilter<"StatusOptions"> | string
+    enabled?: BoolFilter<"StatusOptions"> | boolean
     strategies?: StrategyListRelationFilter
   }
 
   export type StatusOptionsOrderByWithRelationInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
     strategies?: StrategyOrderByRelationAggregateInput
   }
 
@@ -16371,12 +17622,14 @@ export namespace Prisma {
     AND?: StatusOptionsWhereInput | StatusOptionsWhereInput[]
     OR?: StatusOptionsWhereInput[]
     NOT?: StatusOptionsWhereInput | StatusOptionsWhereInput[]
+    enabled?: BoolFilter<"StatusOptions"> | boolean
     strategies?: StrategyListRelationFilter
   }, "id" | "title">
 
   export type StatusOptionsOrderByWithAggregationInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
     _count?: StatusOptionsCountOrderByAggregateInput
     _avg?: StatusOptionsAvgOrderByAggregateInput
     _max?: StatusOptionsMaxOrderByAggregateInput
@@ -16390,6 +17643,7 @@ export namespace Prisma {
     NOT?: StatusOptionsScalarWhereWithAggregatesInput | StatusOptionsScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"StatusOptions"> | number
     title?: StringWithAggregatesFilter<"StatusOptions"> | string
+    enabled?: BoolWithAggregatesFilter<"StatusOptions"> | boolean
   }
 
   export type StrategyWhereInput = {
@@ -16405,6 +17659,8 @@ export namespace Prisma {
     strategy_number?: IntFilter<"Strategy"> | number
     timeline_id?: IntFilter<"Strategy"> | number
     status_id?: IntFilter<"Strategy"> | number
+    focus_area_id?: IntFilter<"Strategy"> | number
+    focus_area?: XOR<FocusAreaScalarRelationFilter, FocusAreaWhereInput>
     stakeholders?: StakeholderListRelationFilter
     comments?: CommentListRelationFilter
     timeline?: XOR<TimelineOptionsScalarRelationFilter, TimelineOptionsWhereInput>
@@ -16423,6 +17679,8 @@ export namespace Prisma {
     strategy_number?: SortOrder
     timeline_id?: SortOrder
     status_id?: SortOrder
+    focus_area_id?: SortOrder
+    focus_area?: FocusAreaOrderByWithRelationInput
     stakeholders?: StakeholderOrderByRelationAggregateInput
     comments?: CommentOrderByRelationAggregateInput
     timeline?: TimelineOptionsOrderByWithRelationInput
@@ -16444,6 +17702,8 @@ export namespace Prisma {
     strategy_number?: IntFilter<"Strategy"> | number
     timeline_id?: IntFilter<"Strategy"> | number
     status_id?: IntFilter<"Strategy"> | number
+    focus_area_id?: IntFilter<"Strategy"> | number
+    focus_area?: XOR<FocusAreaScalarRelationFilter, FocusAreaWhereInput>
     stakeholders?: StakeholderListRelationFilter
     comments?: CommentListRelationFilter
     timeline?: XOR<TimelineOptionsScalarRelationFilter, TimelineOptionsWhereInput>
@@ -16462,6 +17722,7 @@ export namespace Prisma {
     strategy_number?: SortOrder
     timeline_id?: SortOrder
     status_id?: SortOrder
+    focus_area_id?: SortOrder
     _count?: StrategyCountOrderByAggregateInput
     _avg?: StrategyAvgOrderByAggregateInput
     _max?: StrategyMaxOrderByAggregateInput
@@ -16482,6 +17743,7 @@ export namespace Prisma {
     strategy_number?: IntWithAggregatesFilter<"Strategy"> | number
     timeline_id?: IntWithAggregatesFilter<"Strategy"> | number
     status_id?: IntWithAggregatesFilter<"Strategy"> | number
+    focus_area_id?: IntWithAggregatesFilter<"Strategy"> | number
   }
 
   export type ImplementerWhereInput = {
@@ -16768,6 +18030,50 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Comment"> | Date | string
   }
 
+  export type FaqWhereInput = {
+    AND?: FaqWhereInput | FaqWhereInput[]
+    OR?: FaqWhereInput[]
+    NOT?: FaqWhereInput | FaqWhereInput[]
+    id?: IntFilter<"Faq"> | number
+    question?: StringFilter<"Faq"> | string
+    answer?: StringFilter<"Faq"> | string
+  }
+
+  export type FaqOrderByWithRelationInput = {
+    id?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+  }
+
+  export type FaqWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: FaqWhereInput | FaqWhereInput[]
+    OR?: FaqWhereInput[]
+    NOT?: FaqWhereInput | FaqWhereInput[]
+    question?: StringFilter<"Faq"> | string
+    answer?: StringFilter<"Faq"> | string
+  }, "id">
+
+  export type FaqOrderByWithAggregationInput = {
+    id?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+    _count?: FaqCountOrderByAggregateInput
+    _avg?: FaqAvgOrderByAggregateInput
+    _max?: FaqMaxOrderByAggregateInput
+    _min?: FaqMinOrderByAggregateInput
+    _sum?: FaqSumOrderByAggregateInput
+  }
+
+  export type FaqScalarWhereWithAggregatesInput = {
+    AND?: FaqScalarWhereWithAggregatesInput | FaqScalarWhereWithAggregatesInput[]
+    OR?: FaqScalarWhereWithAggregatesInput[]
+    NOT?: FaqScalarWhereWithAggregatesInput | FaqScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Faq"> | number
+    question?: StringWithAggregatesFilter<"Faq"> | string
+    answer?: StringWithAggregatesFilter<"Faq"> | string
+  }
+
   export type UserCreateInput = {
     id?: string
     auth_source?: string
@@ -16980,38 +18286,56 @@ export namespace Prisma {
 
   export type FocusAreaCreateInput = {
     name: string
+    description?: string | null
+    state_goal?: string | null
     policies?: PoliciesCreateNestedManyWithoutAreaInput
+    strategies?: StrategyCreateNestedManyWithoutFocus_areaInput
   }
 
   export type FocusAreaUncheckedCreateInput = {
     id?: number
     name: string
+    description?: string | null
+    state_goal?: string | null
     policies?: PoliciesUncheckedCreateNestedManyWithoutAreaInput
+    strategies?: StrategyUncheckedCreateNestedManyWithoutFocus_areaInput
   }
 
   export type FocusAreaUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state_goal?: NullableStringFieldUpdateOperationsInput | string | null
     policies?: PoliciesUpdateManyWithoutAreaNestedInput
+    strategies?: StrategyUpdateManyWithoutFocus_areaNestedInput
   }
 
   export type FocusAreaUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state_goal?: NullableStringFieldUpdateOperationsInput | string | null
     policies?: PoliciesUncheckedUpdateManyWithoutAreaNestedInput
+    strategies?: StrategyUncheckedUpdateManyWithoutFocus_areaNestedInput
   }
 
   export type FocusAreaCreateManyInput = {
     id?: number
     name: string
+    description?: string | null
+    state_goal?: string | null
   }
 
   export type FocusAreaUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state_goal?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FocusAreaUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state_goal?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PoliciesCreateInput = {
@@ -17068,74 +18392,88 @@ export namespace Prisma {
 
   export type TimelineOptionsCreateInput = {
     title: string
+    enabled?: boolean
     strategies?: StrategyCreateNestedManyWithoutTimelineInput
   }
 
   export type TimelineOptionsUncheckedCreateInput = {
     id?: number
     title: string
+    enabled?: boolean
     strategies?: StrategyUncheckedCreateNestedManyWithoutTimelineInput
   }
 
   export type TimelineOptionsUpdateInput = {
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
     strategies?: StrategyUpdateManyWithoutTimelineNestedInput
   }
 
   export type TimelineOptionsUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
     strategies?: StrategyUncheckedUpdateManyWithoutTimelineNestedInput
   }
 
   export type TimelineOptionsCreateManyInput = {
     id?: number
     title: string
+    enabled?: boolean
   }
 
   export type TimelineOptionsUpdateManyMutationInput = {
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TimelineOptionsUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type StatusOptionsCreateInput = {
     title: string
+    enabled?: boolean
     strategies?: StrategyCreateNestedManyWithoutStatusInput
   }
 
   export type StatusOptionsUncheckedCreateInput = {
     id?: number
     title: string
+    enabled?: boolean
     strategies?: StrategyUncheckedCreateNestedManyWithoutStatusInput
   }
 
   export type StatusOptionsUpdateInput = {
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
     strategies?: StrategyUpdateManyWithoutStatusNestedInput
   }
 
   export type StatusOptionsUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
     strategies?: StrategyUncheckedUpdateManyWithoutStatusNestedInput
   }
 
   export type StatusOptionsCreateManyInput = {
     id?: number
     title: string
+    enabled?: boolean
   }
 
   export type StatusOptionsUpdateManyMutationInput = {
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type StatusOptionsUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type StrategyCreateInput = {
@@ -17144,6 +18482,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     strategy_number: number
+    focus_area?: FocusAreaCreateNestedOneWithoutStrategiesInput
     stakeholders?: StakeholderCreateNestedManyWithoutStrategyInput
     comments?: CommentCreateNestedManyWithoutStrategyInput
     timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
@@ -17162,6 +18501,7 @@ export namespace Prisma {
     strategy_number: number
     timeline_id: number
     status_id: number
+    focus_area_id?: number
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
@@ -17173,6 +18513,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     strategy_number?: IntFieldUpdateOperationsInput | number
+    focus_area?: FocusAreaUpdateOneRequiredWithoutStrategiesNestedInput
     stakeholders?: StakeholderUpdateManyWithoutStrategyNestedInput
     comments?: CommentUpdateManyWithoutStrategyNestedInput
     timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
@@ -17191,6 +18532,7 @@ export namespace Prisma {
     strategy_number?: IntFieldUpdateOperationsInput | number
     timeline_id?: IntFieldUpdateOperationsInput | number
     status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
@@ -17206,6 +18548,7 @@ export namespace Prisma {
     strategy_number: number
     timeline_id: number
     status_id: number
+    focus_area_id?: number
   }
 
   export type StrategyUpdateManyMutationInput = {
@@ -17226,6 +18569,7 @@ export namespace Prisma {
     strategy_number?: IntFieldUpdateOperationsInput | number
     timeline_id?: IntFieldUpdateOperationsInput | number
     status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
   }
 
   export type ImplementerCreateInput = {
@@ -17505,6 +18849,45 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FaqCreateInput = {
+    question: string
+    answer: string
+  }
+
+  export type FaqUncheckedCreateInput = {
+    id?: number
+    question: string
+    answer: string
+  }
+
+  export type FaqUpdateInput = {
+    question?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FaqUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    question?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FaqCreateManyInput = {
+    id?: number
+    question: string
+    answer: string
+  }
+
+  export type FaqUpdateManyMutationInput = {
+    question?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FaqUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    question?: StringFieldUpdateOperationsInput | string
+    answer?: StringFieldUpdateOperationsInput | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -17760,13 +19143,25 @@ export namespace Prisma {
     none?: PoliciesWhereInput
   }
 
+  export type StrategyListRelationFilter = {
+    every?: StrategyWhereInput
+    some?: StrategyWhereInput
+    none?: StrategyWhereInput
+  }
+
   export type PoliciesOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type StrategyOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type FocusAreaCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrder
+    state_goal?: SortOrder
   }
 
   export type FocusAreaAvgOrderByAggregateInput = {
@@ -17776,11 +19171,15 @@ export namespace Prisma {
   export type FocusAreaMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrder
+    state_goal?: SortOrder
   }
 
   export type FocusAreaMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrder
+    state_goal?: SortOrder
   }
 
   export type FocusAreaSumOrderByAggregateInput = {
@@ -17806,16 +19205,6 @@ export namespace Prisma {
   export type FocusAreaScalarRelationFilter = {
     is?: FocusAreaWhereInput
     isNot?: FocusAreaWhereInput
-  }
-
-  export type StrategyListRelationFilter = {
-    every?: StrategyWhereInput
-    some?: StrategyWhereInput
-    none?: StrategyWhereInput
-  }
-
-  export type StrategyOrderByRelationAggregateInput = {
-    _count?: SortOrder
   }
 
   export type PoliciesCountOrderByAggregateInput = {
@@ -17852,6 +19241,7 @@ export namespace Prisma {
   export type TimelineOptionsCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
   }
 
   export type TimelineOptionsAvgOrderByAggregateInput = {
@@ -17861,11 +19251,13 @@ export namespace Prisma {
   export type TimelineOptionsMaxOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
   }
 
   export type TimelineOptionsMinOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
   }
 
   export type TimelineOptionsSumOrderByAggregateInput = {
@@ -17875,6 +19267,7 @@ export namespace Prisma {
   export type StatusOptionsCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
   }
 
   export type StatusOptionsAvgOrderByAggregateInput = {
@@ -17884,11 +19277,13 @@ export namespace Prisma {
   export type StatusOptionsMaxOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
   }
 
   export type StatusOptionsMinOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
+    enabled?: SortOrder
   }
 
   export type StatusOptionsSumOrderByAggregateInput = {
@@ -17951,6 +19346,7 @@ export namespace Prisma {
     strategy_number?: SortOrder
     timeline_id?: SortOrder
     status_id?: SortOrder
+    focus_area_id?: SortOrder
   }
 
   export type StrategyAvgOrderByAggregateInput = {
@@ -17958,6 +19354,7 @@ export namespace Prisma {
     strategy_number?: SortOrder
     timeline_id?: SortOrder
     status_id?: SortOrder
+    focus_area_id?: SortOrder
   }
 
   export type StrategyMaxOrderByAggregateInput = {
@@ -17970,6 +19367,7 @@ export namespace Prisma {
     strategy_number?: SortOrder
     timeline_id?: SortOrder
     status_id?: SortOrder
+    focus_area_id?: SortOrder
   }
 
   export type StrategyMinOrderByAggregateInput = {
@@ -17982,6 +19380,7 @@ export namespace Prisma {
     strategy_number?: SortOrder
     timeline_id?: SortOrder
     status_id?: SortOrder
+    focus_area_id?: SortOrder
   }
 
   export type StrategySumOrderByAggregateInput = {
@@ -17989,6 +19388,7 @@ export namespace Prisma {
     strategy_number?: SortOrder
     timeline_id?: SortOrder
     status_id?: SortOrder
+    focus_area_id?: SortOrder
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -18224,6 +19624,32 @@ export namespace Prisma {
     parent_id?: SortOrder
   }
 
+  export type FaqCountOrderByAggregateInput = {
+    id?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+  }
+
+  export type FaqAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type FaqMaxOrderByAggregateInput = {
+    id?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+  }
+
+  export type FaqMinOrderByAggregateInput = {
+    id?: SortOrder
+    question?: SortOrder
+    answer?: SortOrder
+  }
+
+  export type FaqSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
   export type ImplementerCreateNestedManyWithoutCpic_smesInput = {
     create?: XOR<ImplementerCreateWithoutCpic_smesInput, ImplementerUncheckedCreateWithoutCpic_smesInput> | ImplementerCreateWithoutCpic_smesInput[] | ImplementerUncheckedCreateWithoutCpic_smesInput[]
     connectOrCreate?: ImplementerCreateOrConnectWithoutCpic_smesInput | ImplementerCreateOrConnectWithoutCpic_smesInput[]
@@ -18439,11 +19865,25 @@ export namespace Prisma {
     connect?: PoliciesWhereUniqueInput | PoliciesWhereUniqueInput[]
   }
 
+  export type StrategyCreateNestedManyWithoutFocus_areaInput = {
+    create?: XOR<StrategyCreateWithoutFocus_areaInput, StrategyUncheckedCreateWithoutFocus_areaInput> | StrategyCreateWithoutFocus_areaInput[] | StrategyUncheckedCreateWithoutFocus_areaInput[]
+    connectOrCreate?: StrategyCreateOrConnectWithoutFocus_areaInput | StrategyCreateOrConnectWithoutFocus_areaInput[]
+    createMany?: StrategyCreateManyFocus_areaInputEnvelope
+    connect?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
+  }
+
   export type PoliciesUncheckedCreateNestedManyWithoutAreaInput = {
     create?: XOR<PoliciesCreateWithoutAreaInput, PoliciesUncheckedCreateWithoutAreaInput> | PoliciesCreateWithoutAreaInput[] | PoliciesUncheckedCreateWithoutAreaInput[]
     connectOrCreate?: PoliciesCreateOrConnectWithoutAreaInput | PoliciesCreateOrConnectWithoutAreaInput[]
     createMany?: PoliciesCreateManyAreaInputEnvelope
     connect?: PoliciesWhereUniqueInput | PoliciesWhereUniqueInput[]
+  }
+
+  export type StrategyUncheckedCreateNestedManyWithoutFocus_areaInput = {
+    create?: XOR<StrategyCreateWithoutFocus_areaInput, StrategyUncheckedCreateWithoutFocus_areaInput> | StrategyCreateWithoutFocus_areaInput[] | StrategyUncheckedCreateWithoutFocus_areaInput[]
+    connectOrCreate?: StrategyCreateOrConnectWithoutFocus_areaInput | StrategyCreateOrConnectWithoutFocus_areaInput[]
+    createMany?: StrategyCreateManyFocus_areaInputEnvelope
+    connect?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
   }
 
   export type PoliciesUpdateManyWithoutAreaNestedInput = {
@@ -18458,6 +19898,20 @@ export namespace Prisma {
     update?: PoliciesUpdateWithWhereUniqueWithoutAreaInput | PoliciesUpdateWithWhereUniqueWithoutAreaInput[]
     updateMany?: PoliciesUpdateManyWithWhereWithoutAreaInput | PoliciesUpdateManyWithWhereWithoutAreaInput[]
     deleteMany?: PoliciesScalarWhereInput | PoliciesScalarWhereInput[]
+  }
+
+  export type StrategyUpdateManyWithoutFocus_areaNestedInput = {
+    create?: XOR<StrategyCreateWithoutFocus_areaInput, StrategyUncheckedCreateWithoutFocus_areaInput> | StrategyCreateWithoutFocus_areaInput[] | StrategyUncheckedCreateWithoutFocus_areaInput[]
+    connectOrCreate?: StrategyCreateOrConnectWithoutFocus_areaInput | StrategyCreateOrConnectWithoutFocus_areaInput[]
+    upsert?: StrategyUpsertWithWhereUniqueWithoutFocus_areaInput | StrategyUpsertWithWhereUniqueWithoutFocus_areaInput[]
+    createMany?: StrategyCreateManyFocus_areaInputEnvelope
+    set?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
+    disconnect?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
+    delete?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
+    connect?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
+    update?: StrategyUpdateWithWhereUniqueWithoutFocus_areaInput | StrategyUpdateWithWhereUniqueWithoutFocus_areaInput[]
+    updateMany?: StrategyUpdateManyWithWhereWithoutFocus_areaInput | StrategyUpdateManyWithWhereWithoutFocus_areaInput[]
+    deleteMany?: StrategyScalarWhereInput | StrategyScalarWhereInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -18480,6 +19934,20 @@ export namespace Prisma {
     update?: PoliciesUpdateWithWhereUniqueWithoutAreaInput | PoliciesUpdateWithWhereUniqueWithoutAreaInput[]
     updateMany?: PoliciesUpdateManyWithWhereWithoutAreaInput | PoliciesUpdateManyWithWhereWithoutAreaInput[]
     deleteMany?: PoliciesScalarWhereInput | PoliciesScalarWhereInput[]
+  }
+
+  export type StrategyUncheckedUpdateManyWithoutFocus_areaNestedInput = {
+    create?: XOR<StrategyCreateWithoutFocus_areaInput, StrategyUncheckedCreateWithoutFocus_areaInput> | StrategyCreateWithoutFocus_areaInput[] | StrategyUncheckedCreateWithoutFocus_areaInput[]
+    connectOrCreate?: StrategyCreateOrConnectWithoutFocus_areaInput | StrategyCreateOrConnectWithoutFocus_areaInput[]
+    upsert?: StrategyUpsertWithWhereUniqueWithoutFocus_areaInput | StrategyUpsertWithWhereUniqueWithoutFocus_areaInput[]
+    createMany?: StrategyCreateManyFocus_areaInputEnvelope
+    set?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
+    disconnect?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
+    delete?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
+    connect?: StrategyWhereUniqueInput | StrategyWhereUniqueInput[]
+    update?: StrategyUpdateWithWhereUniqueWithoutFocus_areaInput | StrategyUpdateWithWhereUniqueWithoutFocus_areaInput[]
+    updateMany?: StrategyUpdateManyWithWhereWithoutFocus_areaInput | StrategyUpdateManyWithWhereWithoutFocus_areaInput[]
+    deleteMany?: StrategyScalarWhereInput | StrategyScalarWhereInput[]
   }
 
   export type FocusAreaCreateNestedOneWithoutPoliciesInput = {
@@ -18622,6 +20090,12 @@ export namespace Prisma {
     deleteMany?: StrategyScalarWhereInput | StrategyScalarWhereInput[]
   }
 
+  export type FocusAreaCreateNestedOneWithoutStrategiesInput = {
+    create?: XOR<FocusAreaCreateWithoutStrategiesInput, FocusAreaUncheckedCreateWithoutStrategiesInput>
+    connectOrCreate?: FocusAreaCreateOrConnectWithoutStrategiesInput
+    connect?: FocusAreaWhereUniqueInput
+  }
+
   export type StakeholderCreateNestedManyWithoutStrategyInput = {
     create?: XOR<StakeholderCreateWithoutStrategyInput, StakeholderUncheckedCreateWithoutStrategyInput> | StakeholderCreateWithoutStrategyInput[] | StakeholderUncheckedCreateWithoutStrategyInput[]
     connectOrCreate?: StakeholderCreateOrConnectWithoutStrategyInput | StakeholderCreateOrConnectWithoutStrategyInput[]
@@ -18684,6 +20158,14 @@ export namespace Prisma {
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
+  }
+
+  export type FocusAreaUpdateOneRequiredWithoutStrategiesNestedInput = {
+    create?: XOR<FocusAreaCreateWithoutStrategiesInput, FocusAreaUncheckedCreateWithoutStrategiesInput>
+    connectOrCreate?: FocusAreaCreateOrConnectWithoutStrategiesInput
+    upsert?: FocusAreaUpsertWithoutStrategiesInput
+    connect?: FocusAreaWhereUniqueInput
+    update?: XOR<XOR<FocusAreaUpdateToOneWithWhereWithoutStrategiesInput, FocusAreaUpdateWithoutStrategiesInput>, FocusAreaUncheckedUpdateWithoutStrategiesInput>
   }
 
   export type StakeholderUpdateManyWithoutStrategyNestedInput = {
@@ -19599,6 +21081,45 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type StrategyCreateWithoutFocus_areaInput = {
+    content: string
+    last_comms_date?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    strategy_number: number
+    stakeholders?: StakeholderCreateNestedManyWithoutStrategyInput
+    comments?: CommentCreateNestedManyWithoutStrategyInput
+    timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
+    status: StatusOptionsCreateNestedOneWithoutStrategiesInput
+    policy: PoliciesCreateNestedOneWithoutStrategiesInput
+    implementers?: StrategyImplementerCreateNestedManyWithoutStrategyInput
+  }
+
+  export type StrategyUncheckedCreateWithoutFocus_areaInput = {
+    id?: number
+    content: string
+    last_comms_date?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    policy_id: string
+    strategy_number: number
+    timeline_id: number
+    status_id: number
+    stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
+    comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
+    implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
+  }
+
+  export type StrategyCreateOrConnectWithoutFocus_areaInput = {
+    where: StrategyWhereUniqueInput
+    create: XOR<StrategyCreateWithoutFocus_areaInput, StrategyUncheckedCreateWithoutFocus_areaInput>
+  }
+
+  export type StrategyCreateManyFocus_areaInputEnvelope = {
+    data: StrategyCreateManyFocus_areaInput | StrategyCreateManyFocus_areaInput[]
+    skipDuplicates?: boolean
+  }
+
   export type PoliciesUpsertWithWhereUniqueWithoutAreaInput = {
     where: PoliciesWhereUniqueInput
     update: XOR<PoliciesUpdateWithoutAreaInput, PoliciesUncheckedUpdateWithoutAreaInput>
@@ -19625,13 +21146,51 @@ export namespace Prisma {
     focus_area_id?: IntFilter<"Policies"> | number
   }
 
+  export type StrategyUpsertWithWhereUniqueWithoutFocus_areaInput = {
+    where: StrategyWhereUniqueInput
+    update: XOR<StrategyUpdateWithoutFocus_areaInput, StrategyUncheckedUpdateWithoutFocus_areaInput>
+    create: XOR<StrategyCreateWithoutFocus_areaInput, StrategyUncheckedCreateWithoutFocus_areaInput>
+  }
+
+  export type StrategyUpdateWithWhereUniqueWithoutFocus_areaInput = {
+    where: StrategyWhereUniqueInput
+    data: XOR<StrategyUpdateWithoutFocus_areaInput, StrategyUncheckedUpdateWithoutFocus_areaInput>
+  }
+
+  export type StrategyUpdateManyWithWhereWithoutFocus_areaInput = {
+    where: StrategyScalarWhereInput
+    data: XOR<StrategyUpdateManyMutationInput, StrategyUncheckedUpdateManyWithoutFocus_areaInput>
+  }
+
+  export type StrategyScalarWhereInput = {
+    AND?: StrategyScalarWhereInput | StrategyScalarWhereInput[]
+    OR?: StrategyScalarWhereInput[]
+    NOT?: StrategyScalarWhereInput | StrategyScalarWhereInput[]
+    id?: IntFilter<"Strategy"> | number
+    content?: StringFilter<"Strategy"> | string
+    last_comms_date?: DateTimeNullableFilter<"Strategy"> | Date | string | null
+    createdAt?: DateTimeFilter<"Strategy"> | Date | string
+    updatedAt?: DateTimeFilter<"Strategy"> | Date | string
+    policy_id?: StringFilter<"Strategy"> | string
+    strategy_number?: IntFilter<"Strategy"> | number
+    timeline_id?: IntFilter<"Strategy"> | number
+    status_id?: IntFilter<"Strategy"> | number
+    focus_area_id?: IntFilter<"Strategy"> | number
+  }
+
   export type FocusAreaCreateWithoutPoliciesInput = {
     name: string
+    description?: string | null
+    state_goal?: string | null
+    strategies?: StrategyCreateNestedManyWithoutFocus_areaInput
   }
 
   export type FocusAreaUncheckedCreateWithoutPoliciesInput = {
     id?: number
     name: string
+    description?: string | null
+    state_goal?: string | null
+    strategies?: StrategyUncheckedCreateNestedManyWithoutFocus_areaInput
   }
 
   export type FocusAreaCreateOrConnectWithoutPoliciesInput = {
@@ -19645,6 +21204,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     strategy_number: number
+    focus_area?: FocusAreaCreateNestedOneWithoutStrategiesInput
     stakeholders?: StakeholderCreateNestedManyWithoutStrategyInput
     comments?: CommentCreateNestedManyWithoutStrategyInput
     timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
@@ -19661,6 +21221,7 @@ export namespace Prisma {
     strategy_number: number
     timeline_id: number
     status_id: number
+    focus_area_id?: number
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
@@ -19689,11 +21250,17 @@ export namespace Prisma {
 
   export type FocusAreaUpdateWithoutPoliciesInput = {
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state_goal?: NullableStringFieldUpdateOperationsInput | string | null
+    strategies?: StrategyUpdateManyWithoutFocus_areaNestedInput
   }
 
   export type FocusAreaUncheckedUpdateWithoutPoliciesInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state_goal?: NullableStringFieldUpdateOperationsInput | string | null
+    strategies?: StrategyUncheckedUpdateManyWithoutFocus_areaNestedInput
   }
 
   export type StrategyUpsertWithWhereUniqueWithoutPolicyInput = {
@@ -19712,27 +21279,13 @@ export namespace Prisma {
     data: XOR<StrategyUpdateManyMutationInput, StrategyUncheckedUpdateManyWithoutPolicyInput>
   }
 
-  export type StrategyScalarWhereInput = {
-    AND?: StrategyScalarWhereInput | StrategyScalarWhereInput[]
-    OR?: StrategyScalarWhereInput[]
-    NOT?: StrategyScalarWhereInput | StrategyScalarWhereInput[]
-    id?: IntFilter<"Strategy"> | number
-    content?: StringFilter<"Strategy"> | string
-    last_comms_date?: DateTimeNullableFilter<"Strategy"> | Date | string | null
-    createdAt?: DateTimeFilter<"Strategy"> | Date | string
-    updatedAt?: DateTimeFilter<"Strategy"> | Date | string
-    policy_id?: StringFilter<"Strategy"> | string
-    strategy_number?: IntFilter<"Strategy"> | number
-    timeline_id?: IntFilter<"Strategy"> | number
-    status_id?: IntFilter<"Strategy"> | number
-  }
-
   export type StrategyCreateWithoutTimelineInput = {
     content: string
     last_comms_date?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     strategy_number: number
+    focus_area?: FocusAreaCreateNestedOneWithoutStrategiesInput
     stakeholders?: StakeholderCreateNestedManyWithoutStrategyInput
     comments?: CommentCreateNestedManyWithoutStrategyInput
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
@@ -19749,6 +21302,7 @@ export namespace Prisma {
     policy_id: string
     strategy_number: number
     status_id: number
+    focus_area_id?: number
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
@@ -19786,6 +21340,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     strategy_number: number
+    focus_area?: FocusAreaCreateNestedOneWithoutStrategiesInput
     stakeholders?: StakeholderCreateNestedManyWithoutStrategyInput
     comments?: CommentCreateNestedManyWithoutStrategyInput
     timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
@@ -19802,6 +21357,7 @@ export namespace Prisma {
     policy_id: string
     strategy_number: number
     timeline_id: number
+    focus_area_id?: number
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
@@ -19831,6 +21387,26 @@ export namespace Prisma {
   export type StrategyUpdateManyWithWhereWithoutStatusInput = {
     where: StrategyScalarWhereInput
     data: XOR<StrategyUpdateManyMutationInput, StrategyUncheckedUpdateManyWithoutStatusInput>
+  }
+
+  export type FocusAreaCreateWithoutStrategiesInput = {
+    name: string
+    description?: string | null
+    state_goal?: string | null
+    policies?: PoliciesCreateNestedManyWithoutAreaInput
+  }
+
+  export type FocusAreaUncheckedCreateWithoutStrategiesInput = {
+    id?: number
+    name: string
+    description?: string | null
+    state_goal?: string | null
+    policies?: PoliciesUncheckedCreateNestedManyWithoutAreaInput
+  }
+
+  export type FocusAreaCreateOrConnectWithoutStrategiesInput = {
+    where: FocusAreaWhereUniqueInput
+    create: XOR<FocusAreaCreateWithoutStrategiesInput, FocusAreaUncheckedCreateWithoutStrategiesInput>
   }
 
   export type StakeholderCreateWithoutStrategyInput = {
@@ -19889,11 +21465,13 @@ export namespace Prisma {
 
   export type TimelineOptionsCreateWithoutStrategiesInput = {
     title: string
+    enabled?: boolean
   }
 
   export type TimelineOptionsUncheckedCreateWithoutStrategiesInput = {
     id?: number
     title: string
+    enabled?: boolean
   }
 
   export type TimelineOptionsCreateOrConnectWithoutStrategiesInput = {
@@ -19903,11 +21481,13 @@ export namespace Prisma {
 
   export type StatusOptionsCreateWithoutStrategiesInput = {
     title: string
+    enabled?: boolean
   }
 
   export type StatusOptionsUncheckedCreateWithoutStrategiesInput = {
     id?: number
     title: string
+    enabled?: boolean
   }
 
   export type StatusOptionsCreateOrConnectWithoutStrategiesInput = {
@@ -19958,6 +21538,32 @@ export namespace Prisma {
   export type StrategyImplementerCreateManyStrategyInputEnvelope = {
     data: StrategyImplementerCreateManyStrategyInput | StrategyImplementerCreateManyStrategyInput[]
     skipDuplicates?: boolean
+  }
+
+  export type FocusAreaUpsertWithoutStrategiesInput = {
+    update: XOR<FocusAreaUpdateWithoutStrategiesInput, FocusAreaUncheckedUpdateWithoutStrategiesInput>
+    create: XOR<FocusAreaCreateWithoutStrategiesInput, FocusAreaUncheckedCreateWithoutStrategiesInput>
+    where?: FocusAreaWhereInput
+  }
+
+  export type FocusAreaUpdateToOneWithWhereWithoutStrategiesInput = {
+    where?: FocusAreaWhereInput
+    data: XOR<FocusAreaUpdateWithoutStrategiesInput, FocusAreaUncheckedUpdateWithoutStrategiesInput>
+  }
+
+  export type FocusAreaUpdateWithoutStrategiesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state_goal?: NullableStringFieldUpdateOperationsInput | string | null
+    policies?: PoliciesUpdateManyWithoutAreaNestedInput
+  }
+
+  export type FocusAreaUncheckedUpdateWithoutStrategiesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    state_goal?: NullableStringFieldUpdateOperationsInput | string | null
+    policies?: PoliciesUncheckedUpdateManyWithoutAreaNestedInput
   }
 
   export type StakeholderUpsertWithWhereUniqueWithoutStrategyInput = {
@@ -20017,11 +21623,13 @@ export namespace Prisma {
 
   export type TimelineOptionsUpdateWithoutStrategiesInput = {
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TimelineOptionsUncheckedUpdateWithoutStrategiesInput = {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type StatusOptionsUpsertWithoutStrategiesInput = {
@@ -20037,11 +21645,13 @@ export namespace Prisma {
 
   export type StatusOptionsUpdateWithoutStrategiesInput = {
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type StatusOptionsUncheckedUpdateWithoutStrategiesInput = {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type PoliciesUpsertWithoutStrategiesInput = {
@@ -20221,6 +21831,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     strategy_number: number
+    focus_area?: FocusAreaCreateNestedOneWithoutStrategiesInput
     comments?: CommentCreateNestedManyWithoutStrategyInput
     timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
@@ -20238,6 +21849,7 @@ export namespace Prisma {
     strategy_number: number
     timeline_id: number
     status_id: number
+    focus_area_id?: number
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
   }
@@ -20264,6 +21876,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     strategy_number?: IntFieldUpdateOperationsInput | number
+    focus_area?: FocusAreaUpdateOneRequiredWithoutStrategiesNestedInput
     comments?: CommentUpdateManyWithoutStrategyNestedInput
     timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
@@ -20281,6 +21894,7 @@ export namespace Prisma {
     strategy_number?: IntFieldUpdateOperationsInput | number
     timeline_id?: IntFieldUpdateOperationsInput | number
     status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
   }
@@ -20321,6 +21935,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     strategy_number: number
+    focus_area?: FocusAreaCreateNestedOneWithoutStrategiesInput
     stakeholders?: StakeholderCreateNestedManyWithoutStrategyInput
     comments?: CommentCreateNestedManyWithoutStrategyInput
     timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
@@ -20338,6 +21953,7 @@ export namespace Prisma {
     strategy_number: number
     timeline_id: number
     status_id: number
+    focus_area_id?: number
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
   }
@@ -20400,6 +22016,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     strategy_number?: IntFieldUpdateOperationsInput | number
+    focus_area?: FocusAreaUpdateOneRequiredWithoutStrategiesNestedInput
     stakeholders?: StakeholderUpdateManyWithoutStrategyNestedInput
     comments?: CommentUpdateManyWithoutStrategyNestedInput
     timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
@@ -20417,6 +22034,7 @@ export namespace Prisma {
     strategy_number?: IntFieldUpdateOperationsInput | number
     timeline_id?: IntFieldUpdateOperationsInput | number
     status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
   }
@@ -20521,6 +22139,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     strategy_number: number
+    focus_area?: FocusAreaCreateNestedOneWithoutStrategiesInput
     stakeholders?: StakeholderCreateNestedManyWithoutStrategyInput
     timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
@@ -20538,6 +22157,7 @@ export namespace Prisma {
     strategy_number: number
     timeline_id: number
     status_id: number
+    focus_area_id?: number
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
   }
@@ -20657,6 +22277,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     strategy_number?: IntFieldUpdateOperationsInput | number
+    focus_area?: FocusAreaUpdateOneRequiredWithoutStrategiesNestedInput
     stakeholders?: StakeholderUpdateManyWithoutStrategyNestedInput
     timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
@@ -20674,6 +22295,7 @@ export namespace Prisma {
     strategy_number?: IntFieldUpdateOperationsInput | number
     timeline_id?: IntFieldUpdateOperationsInput | number
     status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
   }
@@ -20798,6 +22420,18 @@ export namespace Prisma {
     policy_number: number
   }
 
+  export type StrategyCreateManyFocus_areaInput = {
+    id?: number
+    content: string
+    last_comms_date?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    policy_id: string
+    strategy_number: number
+    timeline_id: number
+    status_id: number
+  }
+
   export type PoliciesUpdateWithoutAreaInput = {
     id?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
@@ -20818,6 +22452,47 @@ export namespace Prisma {
     policy_number?: IntFieldUpdateOperationsInput | number
   }
 
+  export type StrategyUpdateWithoutFocus_areaInput = {
+    content?: StringFieldUpdateOperationsInput | string
+    last_comms_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    strategy_number?: IntFieldUpdateOperationsInput | number
+    stakeholders?: StakeholderUpdateManyWithoutStrategyNestedInput
+    comments?: CommentUpdateManyWithoutStrategyNestedInput
+    timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
+    status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
+    policy?: PoliciesUpdateOneRequiredWithoutStrategiesNestedInput
+    implementers?: StrategyImplementerUpdateManyWithoutStrategyNestedInput
+  }
+
+  export type StrategyUncheckedUpdateWithoutFocus_areaInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    content?: StringFieldUpdateOperationsInput | string
+    last_comms_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    policy_id?: StringFieldUpdateOperationsInput | string
+    strategy_number?: IntFieldUpdateOperationsInput | number
+    timeline_id?: IntFieldUpdateOperationsInput | number
+    status_id?: IntFieldUpdateOperationsInput | number
+    stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
+    comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
+    implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
+  }
+
+  export type StrategyUncheckedUpdateManyWithoutFocus_areaInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    content?: StringFieldUpdateOperationsInput | string
+    last_comms_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    policy_id?: StringFieldUpdateOperationsInput | string
+    strategy_number?: IntFieldUpdateOperationsInput | number
+    timeline_id?: IntFieldUpdateOperationsInput | number
+    status_id?: IntFieldUpdateOperationsInput | number
+  }
+
   export type StrategyCreateManyPolicyInput = {
     id?: number
     content: string
@@ -20827,6 +22502,7 @@ export namespace Prisma {
     strategy_number: number
     timeline_id: number
     status_id: number
+    focus_area_id?: number
   }
 
   export type StrategyUpdateWithoutPolicyInput = {
@@ -20835,6 +22511,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     strategy_number?: IntFieldUpdateOperationsInput | number
+    focus_area?: FocusAreaUpdateOneRequiredWithoutStrategiesNestedInput
     stakeholders?: StakeholderUpdateManyWithoutStrategyNestedInput
     comments?: CommentUpdateManyWithoutStrategyNestedInput
     timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
@@ -20851,6 +22528,7 @@ export namespace Prisma {
     strategy_number?: IntFieldUpdateOperationsInput | number
     timeline_id?: IntFieldUpdateOperationsInput | number
     status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
@@ -20865,6 +22543,7 @@ export namespace Prisma {
     strategy_number?: IntFieldUpdateOperationsInput | number
     timeline_id?: IntFieldUpdateOperationsInput | number
     status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
   }
 
   export type StrategyCreateManyTimelineInput = {
@@ -20876,6 +22555,7 @@ export namespace Prisma {
     policy_id: string
     strategy_number: number
     status_id: number
+    focus_area_id?: number
   }
 
   export type StrategyUpdateWithoutTimelineInput = {
@@ -20884,6 +22564,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     strategy_number?: IntFieldUpdateOperationsInput | number
+    focus_area?: FocusAreaUpdateOneRequiredWithoutStrategiesNestedInput
     stakeholders?: StakeholderUpdateManyWithoutStrategyNestedInput
     comments?: CommentUpdateManyWithoutStrategyNestedInput
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
@@ -20900,6 +22581,7 @@ export namespace Prisma {
     policy_id?: StringFieldUpdateOperationsInput | string
     strategy_number?: IntFieldUpdateOperationsInput | number
     status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
@@ -20914,6 +22596,7 @@ export namespace Prisma {
     policy_id?: StringFieldUpdateOperationsInput | string
     strategy_number?: IntFieldUpdateOperationsInput | number
     status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
   }
 
   export type StrategyCreateManyStatusInput = {
@@ -20925,6 +22608,7 @@ export namespace Prisma {
     policy_id: string
     strategy_number: number
     timeline_id: number
+    focus_area_id?: number
   }
 
   export type StrategyUpdateWithoutStatusInput = {
@@ -20933,6 +22617,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     strategy_number?: IntFieldUpdateOperationsInput | number
+    focus_area?: FocusAreaUpdateOneRequiredWithoutStrategiesNestedInput
     stakeholders?: StakeholderUpdateManyWithoutStrategyNestedInput
     comments?: CommentUpdateManyWithoutStrategyNestedInput
     timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
@@ -20949,6 +22634,7 @@ export namespace Prisma {
     policy_id?: StringFieldUpdateOperationsInput | string
     strategy_number?: IntFieldUpdateOperationsInput | number
     timeline_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
@@ -20963,6 +22649,7 @@ export namespace Prisma {
     policy_id?: StringFieldUpdateOperationsInput | string
     strategy_number?: IntFieldUpdateOperationsInput | number
     timeline_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
   }
 
   export type StakeholderCreateManyStrategyInput = {

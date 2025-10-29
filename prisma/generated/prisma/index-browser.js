@@ -155,7 +155,9 @@ exports.Prisma.UserRoleScalarFieldEnum = {
 
 exports.Prisma.FocusAreaScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  name: 'name',
+  description: 'description',
+  state_goal: 'state_goal'
 };
 
 exports.Prisma.PoliciesScalarFieldEnum = {
@@ -167,12 +169,14 @@ exports.Prisma.PoliciesScalarFieldEnum = {
 
 exports.Prisma.TimelineOptionsScalarFieldEnum = {
   id: 'id',
-  title: 'title'
+  title: 'title',
+  enabled: 'enabled'
 };
 
 exports.Prisma.StatusOptionsScalarFieldEnum = {
   id: 'id',
-  title: 'title'
+  title: 'title',
+  enabled: 'enabled'
 };
 
 exports.Prisma.StrategyScalarFieldEnum = {
@@ -184,7 +188,8 @@ exports.Prisma.StrategyScalarFieldEnum = {
   policy_id: 'policy_id',
   strategy_number: 'strategy_number',
   timeline_id: 'timeline_id',
-  status_id: 'status_id'
+  status_id: 'status_id',
+  focus_area_id: 'focus_area_id'
 };
 
 exports.Prisma.ImplementerScalarFieldEnum = {
@@ -227,6 +232,12 @@ exports.Prisma.CommentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.FaqScalarFieldEnum = {
+  id: 'id',
+  question: 'question',
+  answer: 'answer'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -255,7 +266,8 @@ exports.Prisma.ModelName = {
   Implementer: 'Implementer',
   Stakeholder: 'Stakeholder',
   StrategyImplementer: 'StrategyImplementer',
-  Comment: 'Comment'
+  Comment: 'Comment',
+  Faq: 'Faq'
 };
 
 /**

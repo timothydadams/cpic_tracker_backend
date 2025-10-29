@@ -50,4 +50,3 @@ AuthRouter.post('/refresh', handleRefreshToken);
 
 export default AuthRouter;
 
-//app.use('/api', [protect], apiRouter)
