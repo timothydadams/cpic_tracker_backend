@@ -6,28 +6,27 @@
 */
 
 
-export const canCreate = (user, strategy) => {
+export const canCreate = (user, resource) => {
     return (
         user.roles.includes("Admin") ||
         user.roles.includes("CPIC Admin")
     );
 }
 
-export const canRead = (user=null, strategy=null) => {
+export const canRead = (user=null, resource=null) => {
     return (
         true
     );
 }
 
-export const canUpdate = (user, strategy) => {
+export const canUpdate = (user, resource) => {
     return (
         user.roles.includes("Admin") ||
-        user.roles.includes("CPIC Admin") ||
-        user.roles.includes("CPIC Member")
+        user.roles.includes("CPIC Admin")
     )
 }
 
-export const canDelete = (user, strategy) => {
+export const canDelete = (user, resource) => {
     return (
         user.roles.includes("Admin")
     );

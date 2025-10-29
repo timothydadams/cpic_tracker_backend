@@ -15,7 +15,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
-app.use(morgan('dev'));
+app.use(morgan('common'));
 app.use(helmet());
 app.use(cors(corsOptionsDelegate));
 app.use(express.json());

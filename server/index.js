@@ -8,7 +8,7 @@ dotenv.config();
 
 const port = process.env.PORT || 3500;
 const httpServer = createServer(expressApp);
-export const redis = new Redis({port:6379, host:'127.0.0.1'});
+export const redis = new Redis(process.env.REDIS_SERVICE_URL);
 
 httpServer.listen(port, ()=>{
     console.log(`listening on port ${port}`);
