@@ -3,6 +3,7 @@ export const whitelist = [
     //list out domains you trust that need to communicate with your service
     'http://127.0.0.1:3000',
     'http://localhost:3000',
+    'https://web-client-lckc.onrender.com'
 ];
 
 export const corsOptionsDelegate = (req, callback) => {
