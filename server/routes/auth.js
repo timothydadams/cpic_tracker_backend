@@ -6,20 +6,21 @@ import {
     handleRefreshToken,
     //verifyGoogleToken,
 } from "../controllers/authentication.js";
-import { getAuthedGoogleClient } from '../utils/auth.js'
-import { OAuth2Client } from 'google-auth-library';
+//import { getAuthedGoogleClient } from '../utils/auth.js'
+//import { OAuth2Client } from 'google-auth-library';
 
 
 const AuthRouter = Router();
-
-const clientDomain = process.env.NODE_ENV === "development" ? `http://localhost:3000` : `https://cpic.dev`;
-const apiDomain = process.env.NODE_ENV === "development" ? `http://localhost:3500` : `https://api.cpic.dev`;
 
 AuthRouter.post('/self-sign-in', handleSelfSignIn);
 AuthRouter.get('/google-callback/', handleGoogleSignIn);
 AuthRouter.post('/logout', handleLogout);
 
-//AuthRouter.post('/verify-google-token', verifyGoogleToken);
+/* UNUSED ROUTES
+
+const clientDomain = process.env.NODE_ENV === "development" ? `http://localhost:3000` : `https://cpic.dev`;
+const apiDomain = process.env.NODE_ENV === "development" ? `http://localhost:3500` : `https://api.cpic.dev`;
+AuthRouter.post('/verify-google-token', verifyGoogleToken);
 
 AuthRouter.get('/google-url', async function(req, res, next){
     const { persist } = req.query;
@@ -46,6 +47,7 @@ AuthRouter.get('/google-url', async function(req, res, next){
 
     res.json({url: authorizeUrl});
 });
+*/
 
 AuthRouter.post('/refresh', handleRefreshToken);
 

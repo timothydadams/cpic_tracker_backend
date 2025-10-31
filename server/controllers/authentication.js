@@ -15,13 +15,10 @@ const baseCookieSettings = {
     secure:true
 }
 
-
 const findUserForSignIn = async (val, key = "id") => {
     const whereClause = {}
     whereClause.disabled = false;
     whereClause[key] = val;
-
-    console.log('where clause:', whereClause);
 
     const includeItems = {
         userRoles: {
@@ -142,7 +139,8 @@ export const handleGoogleSignIn = async(req, res) => {
     const clientDomain = process.env.NODE_ENV === "development" ? `http://localhost:3000` : `https://cpic.dev`;
 
     const { 
-        persist = "SHORT"
+        persist = "SHORT",
+        path: { pathname = "/"},
      } = JSON.parse(decodeURIComponent(req.query.state));
 
     const duration = persist;
@@ -210,7 +208,7 @@ export const handleGoogleSignIn = async(req, res) => {
                 : Number(process.env.COOKIE_LIFE_LONG)
         });
 
-        res.redirect(303, clientDomain);
+        res.redirect(303, `${clientDomain}${pathname}`);
 
     } catch(e) {
         //console.log(e);
