@@ -1,6 +1,5 @@
 import { Server } from "socket.io";
 import { createServer } from "http";
-import http2 from 'http2';
 import {expressApp} from "./express.js";
 import * as dotenv from 'dotenv';
 import Redis from 'ioredis';
@@ -9,11 +8,7 @@ dotenv.config();
 
 const port = process.env.PORT || 3500;
 
-
-
-const httpServer = process.env.NODE_ENV === "development" 
-    ? createServer(expressApp)
-    : http2.createSecureServer({},expressApp);
+const httpServer = createServer(expressApp);
 
 const redisUrl = process.env.NODE_ENV == "development" ? "redis://127.0.0.1:6379" : process.env.REDIS_SERVICE_URL;
 
