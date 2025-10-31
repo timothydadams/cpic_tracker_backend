@@ -15,7 +15,12 @@ export const corsOptionsDelegate = (req, callback) => {
         origin: true,
         credentials:true,
         optionsSuccessStatus:200,
-        allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+        allowedHeaders: [
+          'Content-Type', 
+          'Authorization',
+          'Access-Control-Allow-Origin',
+          'Access-Control-Allow-Credentials',
+        ], // Allowed headers
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
     }
   } else {

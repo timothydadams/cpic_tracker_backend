@@ -3,29 +3,18 @@ import {decode} from 'jsonwebtoken';
 import { redis } from "../index.js";
 import jwt from 'jsonwebtoken';
 import { comparePasswords, createJWT } from "../utils/auth.js";
-import { OAuth2Client } from "google-auth-library";
+//import { OAuth2Client } from "google-auth-library";
+import { getAuthedGoogleClient } from '../utils/auth.js';
 import { google } from 'googleapis';
 
 //import { query, getRestrictedClient } from "../db/index.js";
 
-const goog_oauth_client = new OAuth2Client(
-        process.env.GOOGLE_CLIENT_ID,
-        process.env.GOOGLE_CLIENT_SECRET,
-);
-
-
-const findRoleByName = async(name) => {
-    try {
-        const role = await prisma.role.findUnique({
-            where:{
-                name
-            },
-        });
-        return role;
-    } catch(e){
-        console.log(e);
-    }
+const baseCookieSettings = { 
+    httpOnly:true, 
+    sameSite:'Strict', 
+    secure:true
 }
+
 
 const findUserForSignIn = async (val, key = "id") => {
     const whereClause = {}
@@ -61,7 +50,7 @@ const findUserForSignIn = async (val, key = "id") => {
             roles: userRoles.map(({role}) => role.name),
         }
 
-        console.log('findusersignin', newUserObj);
+        //console.log('findusersignin', newUserObj);
         return newUserObj
 
     } catch(e) {
@@ -86,7 +75,7 @@ export const handleLogout = async(req,res) => {
         await redis.set(`token_bl_${token}`,token,'PX', expTime);
     }
     
-    res.clearCookie('jwt_cpic', { httpOnly:true, sameSite:'lax', secure:true});
+    res.clearCookie('jwt_cpic', baseCookieSettings);
     res.json({ message: "cleared cookies"});
 }
 
@@ -108,7 +97,7 @@ export const handleRefreshToken = async(req,res) => {
             
             if (err || !decoded?.id) {
                 //console.log('on refresh error:', {err, decoded});
-                res.clearCookie('jwt_cpic', { httpOnly:true, sameSite:'lax', secure:true})
+                res.clearCookie('jwt_cpic', baseCookieSettings)
                 return res.status(401).json({message:"forbidden"});
             }
             
@@ -130,9 +119,7 @@ export const handleRefreshToken = async(req,res) => {
             
             //send refresh token via httpOnly cookie (not accessible via js)
             res.cookie('jwt_cpic', refreshToken, { 
-                httpOnly:true, 
-                sameSite:'lax', 
-                secure:true,
+                ...baseCookieSettings,
                 maxAge: duration == "SHORT"
                 ? Number(process.env.COOKIE_LIFE_SHORT)
                 : Number(process.env.COOKIE_LIFE_LONG)
@@ -148,23 +135,19 @@ export const handleRefreshToken = async(req,res) => {
 /*
 SIGNIN CONTROLLER
 */
+
 export const handleGoogleSignIn = async(req, res) => {
     const code = req.query.code;
 
     const clientDomain = process.env.NODE_ENV === "development" ? `http://localhost:3000` : `https://cpic.dev`;
-    const apiDomain = process.env.NODE_ENV === "development" ? `http://localhost:3500` : `https://cpic-tracker-api.onrender.com`;
 
     const { 
         persist = "SHORT"
      } = JSON.parse(decodeURIComponent(req.query.state));
 
     const duration = persist;
-    const redirectURL = `${apiDomain}/api/auth/google-callback/`;
-    const goog_oauth_client = new OAuth2Client({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      redirectUri:redirectURL
-    });
+
+    const goog_oauth_client = getAuthedGoogleClient();
 
     if (!code) return res.status(400).json({error: 'google auth code must be provided'});
 
@@ -221,9 +204,7 @@ export const handleGoogleSignIn = async(req, res) => {
 
         //send refresh token via httpOnly cookie (not accessible via js)
         res.cookie('jwt_cpic', refreshToken, { 
-            httpOnly:true, 
-            sameSite:'lax', 
-            secure:true,
+            ...baseCookieSettings,
             maxAge: duration == "SHORT"
                 ? Number(process.env.COOKIE_LIFE_SHORT)
                 : Number(process.env.COOKIE_LIFE_LONG)
@@ -233,7 +214,7 @@ export const handleGoogleSignIn = async(req, res) => {
 
     } catch(e) {
         //console.log(e);
-        res.json({error:"there was a problem with prisma upsert google handler"})
+        res.json({error:"there was a problem signing in with google"})
     }
 }
 
@@ -252,15 +233,13 @@ export const handleSelfSignIn = async (req,res) => {
 
     if (!match) return res.sendStatus(409);
 
-    console.log('new login via email/pw:', {id:validUser.id, email:validUser.email, duration});
+    //console.log('new login via email/pw:', {id:validUser.id, email:validUser.email, duration});
 
     const {refreshToken, accessToken} = createJWT(validUser, duration);
 
     //send refresh token via httpOnly cookie (not accessible via js)
     res.cookie('jwt_cpic', refreshToken, { 
-        httpOnly:true, 
-        sameSite:'lax', 
-        secure:true,
+        ...baseCookieSettings,
         maxAge: duration == "SHORT"
         ? Number(process.env.COOKIE_LIFE_SHORT)
         : Number(process.env.COOKIE_LIFE_LONG)

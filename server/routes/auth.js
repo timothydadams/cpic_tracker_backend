@@ -4,31 +4,29 @@ import {
     handleGoogleSignIn,
     handleLogout,
     handleRefreshToken,
+    //verifyGoogleToken,
 } from "../controllers/authentication.js";
+import { getAuthedGoogleClient } from '../utils/auth.js'
 import { OAuth2Client } from 'google-auth-library';
 
 
 const AuthRouter = Router();
 
 const clientDomain = process.env.NODE_ENV === "development" ? `http://localhost:3000` : `https://cpic.dev`;
-const apiDomain = process.env.NODE_ENV === "development" ? `http://localhost:3500` : `https://cpic-tracker-api.onrender.com`;
+const apiDomain = process.env.NODE_ENV === "development" ? `http://localhost:3500` : `https://api.cpic.dev`;
 
 AuthRouter.post('/self-sign-in', handleSelfSignIn);
 AuthRouter.get('/google-callback/', handleGoogleSignIn);
 AuthRouter.post('/logout', handleLogout);
+
+//AuthRouter.post('/verify-google-token', verifyGoogleToken);
 
 AuthRouter.get('/google-url', async function(req, res, next){
     const { persist } = req.query;
     res.header('Access-Control-Allow-Origin', clientDomain);
     res.header('Referrer-Policy', 'no-referrer-when-downgrade');
 
-    const redirectURL = `${apiDomain}/api/auth/google-callback/`;
-
-    const goog_oauth_client = new OAuth2Client({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      redirectUri:redirectURL
-    });
+    const goog_oauth_client = getAuthedGoogleClient();
 
     const scopes = [
         'https://www.googleapis.com/auth/userinfo.profile',

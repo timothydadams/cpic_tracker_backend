@@ -7,8 +7,12 @@ import Redis from 'ioredis';
 dotenv.config();
 
 const port = process.env.PORT || 3500;
+
 const httpServer = createServer(expressApp);
-export const redis = new Redis(process.env.REDIS_SERVICE_URL);
+
+const redisUrl = process.env.NODE_ENV == "development" ? "redis://127.0.0.1:6379" : process.env.REDIS_SERVICE_URL;
+
+export const redis = new Redis(redisUrl);
 
 httpServer.listen(port, ()=>{
     console.log(`listening on port ${port}`);

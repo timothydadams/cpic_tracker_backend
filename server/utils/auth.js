@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { OAuth2Client } from 'google-auth-library';
 
 export const cookieLife = 24*60*60*1000;
 
@@ -20,6 +21,20 @@ const claim_keys = [
     'nickname',
     'profile_pic',
 ];
+
+export const getAuthedGoogleClient = () => {
+    const apiDomain = process.env.NODE_ENV === "development" 
+        ? `http://localhost:3500` 
+        : `https://api.cpic.dev`;
+
+    const redirectURL = `${apiDomain}/api/auth/google-callback/`;
+
+    return new OAuth2Client({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      redirectUri:redirectURL,
+    });
+}
 
 export const generateCookieConfig = (duration = "SHORT") => {
     return { 
