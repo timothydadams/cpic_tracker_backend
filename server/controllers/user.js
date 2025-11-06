@@ -3,6 +3,7 @@ import { createJWT, hashPassword } from "../utils/auth.js";
 import { authorize } from "../middleware/authorize.js";
 import * as userPolicies from "../policies/users.js";
 import * as rolePolicies from "../policies/roles.js"
+import { InviteCodeService } from "./invites.js";
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -92,6 +93,7 @@ export const handleGetUser = async(req,res) => {
         given_name:true,
         display_name:true,
         profile_pic: true,
+        implementer_org:true,
     }
 
     const user = await getUserById(id, res, includeItems);
@@ -273,4 +275,69 @@ export const addRoleToUser = async(req, res) => {
         handleResponse(res, 200, "role added to user", result);
     });
     
+}
+
+export const registerNewUser = async (req, res) => {
+    try {
+
+        const { user, inviteCode, inviteDetails } = req.body;
+        const {
+            email,
+            family_name,
+            given_name,
+            password
+        } = user;
+
+        const { roleId } = inviteDetails;
+
+        console.log('in register handler:', inviteCode);
+
+        if (!roleId) {
+            handleResponse(res, 400, "Role must be provided");
+        }
+
+        const exisitingUser = await prisma.user.findFirst({
+            where:{
+                email
+            }
+        });
+
+        if (exisitingUser) {
+            handleResponse(res, 400, "User with this email already exists");
+        }
+
+        const hashed = await hashPassword(password);
+        
+        const newuser = await prisma.user.create({
+            data: {
+                email,
+                family_name,
+                given_name,
+                display_name: `${given_name} ${family_name}`,
+                password_hash: hashed,
+                userRoles: {
+                    create: [
+                        { role: {connect: {id:roleId} }}
+                    ]
+                },
+            },
+            select: {
+                id:true,
+                email:true,
+                createdAt:true,
+            }
+        });
+        
+        if (!newuser?.id || !newuser?.email) {
+            handleResponse(res, 500, "Failed to create user");
+        }
+
+        await InviteCodeService.markAsUsed(inviteCode, newuser.id);
+
+        handleResponse(res, 200, "user created successfully", newuser);
+
+    } catch(e) {
+        console.log("registration error:", e);
+        handleResponse(res, 500, "Failed to create user");
+    }
 }

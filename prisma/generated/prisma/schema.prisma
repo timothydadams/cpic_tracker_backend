@@ -30,15 +30,28 @@ model User {
   password_hash         String?
   email                 String?       @unique
   disabled              Boolean       @default(false)
+  implementer_org_id    Int?
+  implementer_org       Implementer?  @relation("ImplementerMembership", fields: [implementer_org_id], references: [id])
   assigned_implementers Implementer[] @relation("SMEtoImplementer")
   userRoles             UserRole[]
   comments              Comment[]
+
+  // Invite relationships
+  inviteCodesCreated InviteCode[] @relation("InviteCreator")
+  inviteCodeUsed     InviteCode?  @relation("InviteUser", fields: [inviteCodeId], references: [id])
+  inviteCodeId       String?      @unique
+
+  // Track who this user invited
+  invitedUsers User[]  @relation("UserInvites")
+  invitedBy    User?   @relation("UserInvites", fields: [invitedById], references: [id])
+  invitedById  String?
 }
 
 model Role {
-  id          String     @id @default(uuid())
-  name        String     @unique @db.VarChar(75)
-  description String     @db.VarChar(255)
+  id          String       @id @default(uuid())
+  name        String       @unique @db.VarChar(75)
+  description String       @db.VarChar(255)
+  inviteCodes InviteCode[]
   userRoles   UserRole[]
 }
 
@@ -114,6 +127,7 @@ model Implementer {
   is_board      Boolean               @default(false)
   is_department Boolean               @default(false)
   is_school     Boolean               @default(false)
+  members       User[]                @relation("ImplementerMembership")
   cpic_smes     User[]                @relation("SMEtoImplementer")
   strategies    StrategyImplementer[]
 }
@@ -161,4 +175,24 @@ model Faq {
   id       Int    @id @default(autoincrement())
   question String
   answer   String
+}
+
+model InviteCode {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+  maxUses     Int      @default(1)
+  useCount    Int      @default(0)
+  used        Boolean  @default(false)
+  //Relationships
+  roleId      String
+  role        Role     @relation(fields: [roleId], references: [id])
+  createdById String
+  createdBy   User     @relation("InviteCreator", fields: [createdById], references: [id])
+
+  usedBy User? @relation("InviteUser")
+
+  @@index([code])
+  @@index([createdById])
 }

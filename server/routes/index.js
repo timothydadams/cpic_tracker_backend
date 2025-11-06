@@ -9,6 +9,7 @@ import FocusAreaRouter from './focus_areas.js';
 import ImplementerRouter from './implementers.js';
 import CommentsRouter from './comments.js';
 import MetricsRouter from './metrics.js';
+import InvitesRouter from './invites.js';
 
 const AppRouter = Router();
 
@@ -21,5 +22,6 @@ AppRouter.use('/focusareas', FocusAreaRouter);
 AppRouter.use('/implementers', ImplementerRouter);
 AppRouter.use('/comments', CommentsRouter);
 AppRouter.use('/metrics', MetricsRouter);
+AppRouter.use('/invites', InvitesRouter);
 
 export default AppRouter;

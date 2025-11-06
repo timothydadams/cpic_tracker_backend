@@ -133,7 +133,10 @@ exports.Prisma.UserScalarFieldEnum = {
   family_name: 'family_name',
   password_hash: 'password_hash',
   email: 'email',
-  disabled: 'disabled'
+  disabled: 'disabled',
+  implementer_org_id: 'implementer_org_id',
+  inviteCodeId: 'inviteCodeId',
+  invitedById: 'invitedById'
 };
 
 exports.Prisma.RelationLoadStrategy = {
@@ -238,6 +241,18 @@ exports.Prisma.FaqScalarFieldEnum = {
   answer: 'answer'
 };
 
+exports.Prisma.InviteCodeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt',
+  maxUses: 'maxUses',
+  useCount: 'useCount',
+  used: 'used',
+  roleId: 'roleId',
+  createdById: 'createdById'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -267,7 +282,8 @@ exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   StrategyImplementer: 'StrategyImplementer',
   Comment: 'Comment',
-  Faq: 'Faq'
+  Faq: 'Faq',
+  InviteCode: 'InviteCode'
 };
 
 /**

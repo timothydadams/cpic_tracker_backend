@@ -12,7 +12,10 @@ export const canCreate = (user, role) => {
 
 export const canRead = (user, role) => {
     return (
-        user?.isGlobalAdmin === true
+        user.roles.includes("Admin") ||
+        user.roles.includes("CPIC Admin") ||
+        user.roles.includes("CPIC Member") ||
+        user.roles.includes("Implementer")
     );
 }
 

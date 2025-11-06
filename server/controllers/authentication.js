@@ -6,6 +6,7 @@ import { comparePasswords, createJWT } from "../utils/auth.js";
 //import { OAuth2Client } from "google-auth-library";
 import { getAuthedGoogleClient } from '../utils/auth.js';
 import { google } from 'googleapis';
+import { InviteCodeService } from "./invites.js";
 
 //import { query, getRestrictedClient } from "../db/index.js";
 
@@ -141,6 +142,8 @@ export const handleGoogleSignIn = async(req, res) => {
     const { 
         persist = "SHORT",
         path: { pathname = "/"},
+        newuser = false,
+        inviteCode = null,
      } = JSON.parse(decodeURIComponent(req.query.state));
 
     const duration = persist;
@@ -176,10 +179,32 @@ export const handleGoogleSignIn = async(req, res) => {
 
         //update to only support invited users (must already exist in user table)
 
-        const {id:userId} = await prisma.user.update({
+        const {id:userId} = await prisma.user.upsert({
             where: {
                 google_id: id
             },
+            update: {
+                auth_source: 'google',
+                email,
+                given_name,
+                family_name,
+                display_name: `${given_name} ${family_name}`,
+                profile_pic: picture,
+            },
+            create: {
+                auth_source: 'google',
+                email,
+                given_name,
+                family_name,
+                display_name: `${given_name} ${family_name}`,
+                profile_pic: picture,
+                //userRoles: {
+                //    create: [
+                //        { role: {connect: {id:roleId} }}
+                //    ]
+                //},
+            },
+            /*
             data: {
                     auth_source: 'google',
                     email,
@@ -187,11 +212,15 @@ export const handleGoogleSignIn = async(req, res) => {
                     family_name,
                     display_name: `${given_name} ${family_name}`,
                     profile_pic: picture,
-            },
+            },*/
         });
 
         if (!userId) {
             return res.status(401).json({error: 'unauthorized user'});
+        }
+
+        if (newuser && inviteCode) {
+            await InviteCodeService.markAsUsed(inviteCode, userId);
         }
 
         const userWithRoles = await findUserForSignIn(userId, "id");

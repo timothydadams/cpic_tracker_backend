@@ -294,6 +294,8 @@ export const updateStrategy = async (req, res) => {
 
 }
 
+
+
 export const deleteStrategy = async (req, res) => {
     const strategyId = parseInt(req.params.id);
 

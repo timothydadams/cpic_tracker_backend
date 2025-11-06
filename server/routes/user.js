@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { requireGlobalAdmin, verifyToken } from '../middleware/requireAuth.js';
+import { requireInviteCode } from '../middleware/inviteCodeMiddleware.js';
 
 import { 
     handleUpdateUser,
@@ -9,11 +10,14 @@ import {
     addRoleToUser,
     removeRoleFromUser,
     getUserRoles,
+    registerNewUser,
 } from '../controllers/user.js';
 
 const UserRouter = Router();
 
-UserRouter.post('/', handleCreateUser);
+//UserRouter.post('/', handleCreateUser);
+UserRouter.post('/register', [requireInviteCode], registerNewUser);
+
 UserRouter.get('/', [verifyToken, requireGlobalAdmin], handleGetAllUsers);
 UserRouter.get('/:id', [verifyToken], handleGetUser);
 UserRouter.put('/:id', [verifyToken], handleUpdateUser);
