@@ -31,7 +31,13 @@ export const viewFocusArea = async (req, res) => {
     const policies = parseBoolean(req.query.policies);
 
     const includeItems = {
-        ...(policies ? { policies: true} : {}),
+        ...(policies ? { 
+                policies: {
+                    orderBy: {
+                        policy_number: 'asc',
+                    }
+                }
+        } : {}),
     }
 
     const focus_area = await getFocusAreaById(id, res, includeItems);
