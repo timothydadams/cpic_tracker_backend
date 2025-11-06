@@ -60,11 +60,15 @@ export const viewAllComments = async(req,res) => {
 
 export const createComment = async(req, res) =>{
     const data = req.body;
+    const { strategy_id, ...rest } = data;
     authorize(canCreate)(req, res, async () => {
         const comment = await prisma.comment.create({
-            data
+            data: {
+                strategy_id: Number(strategy_id),
+                ...rest
+            }
         });
-        handleResponse(res, 200, "implementer created successfully", newImp);
+        handleResponse(res, 200, "comment created successfully", comment);
     });
 }
 
