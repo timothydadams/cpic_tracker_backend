@@ -125,9 +125,13 @@ export const InviteCodeService = {
   },
 
   // Get all invite codes created by a user
-  async getByCreator(userId) {
+  async getByCreator(userId, options = {}) {
+    const { activeOnly } = options;
     return await prisma.inviteCode.findMany({
-      where: { createdById: userId },
+      where: { 
+        createdById: userId,
+        ...(activeOnly ? { used:false} : {}),
+      },
       include: {
         usedBy: {
           select: {

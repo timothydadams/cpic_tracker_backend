@@ -3,6 +3,7 @@ import { verifyToken } from '../middleware/requireAuth.js';
 import { 
     InviteCodeService
 } from "../services/invites.js";
+import { parseBoolean } from '../utils/queryStringParsers.js';
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -49,12 +50,15 @@ InvitesRouter.post('/', [verifyToken], async (req, res) => {
 InvitesRouter.get('/my-codes', [verifyToken], async (req, res) => {
     try {
         const userId = res.locals.user.id
+        const activeOnly = parseBoolean(req.query.activeOnly);
+
+        const options = {activeOnly};
     
         if (!userId) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        const codes = await InviteCodeService.getByCreator(userId);
+        const codes = await InviteCodeService.getByCreator(userId, options);
         handleResponse(res, 200, "invite codes retrieved", codes);
     } catch (error) {
         console.error('Get invite codes error:', error);
