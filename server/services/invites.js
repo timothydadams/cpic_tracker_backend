@@ -1,19 +1,9 @@
 import { prisma } from "../configs/db.js";
-import { authorize } from "../middleware/authorize.js";
-import { canCreate, canRead, canUpdate, canDelete } from "../policies/focusAreas.js";
-import { parseBoolean } from "../utils/queryStringParsers.js";
+import { AppError } from "../errors/AppError.js";
 import { v4 } from "uuid";
 
-const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status,
-        message,
-        data,
-    })
-}
-
 export const InviteCodeService = {
-  // Generate a random invite code
+  
   generateCode() {
     return v4();
   },
@@ -84,7 +74,7 @@ export const InviteCodeService = {
     });
 
     if (!invite) {
-      throw new Error('Invite code not found');
+      throw new AppError('Invite code not found', 404);
     }
 
     const newUseCount = invite.useCount + 1;

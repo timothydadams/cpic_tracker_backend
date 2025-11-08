@@ -39,7 +39,7 @@ model User {
   // Invite relationships
   inviteCodesCreated InviteCode[] @relation("InviteCreator")
   inviteCodeUsed     InviteCode?  @relation("InviteUser", fields: [inviteCodeId], references: [id])
-  inviteCodeId       String?      @unique
+  inviteCodeId       String?
 
   // Track who this user invited
   invitedUsers User[]  @relation("UserInvites")
@@ -191,7 +191,7 @@ model InviteCode {
   createdById String
   createdBy   User     @relation("InviteCreator", fields: [createdById], references: [id])
 
-  usedBy User? @relation("InviteUser")
+  usedBy User[] @relation("InviteUser")
 
   @@index([code])
   @@index([createdById])

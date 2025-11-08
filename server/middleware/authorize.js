@@ -1,3 +1,4 @@
+import { AppError } from "../errors/AppError.js";
 
 export const authorize = (policy, resource) => (req, res, next) => {
     const user = res.locals.user;
@@ -5,8 +6,7 @@ export const authorize = (policy, resource) => (req, res, next) => {
     if (policy(user, resource)) {
         return next()
     }
-    return res.status(403).json({
-        status:403,
-        message: "Access denied",
-    })
+    
+    throw new AppError("Access Denied", 403)
+
 }

@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static(join(__dirname, '../public')));
 
-// Middleware to set user context using AsyncLocalStorage
+// Middleware to set user context using AsyncLocalStorage (used with prisma PII extension)
 app.use(userContextMiddleware);
 
 app.use('/api', AppRouter);

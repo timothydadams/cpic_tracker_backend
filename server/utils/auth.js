@@ -47,13 +47,13 @@ export const generateCookieConfig = (duration = "SHORT") => {
     }
 };
 
-const generateClaims = (userObject) => Object.fromEntries(
-    Object.entries(userObject).filter(([key]) => claim_keys.includes(key))
+export const createObjFromFilteredKeys = (userObject, desiredFields) => Object.fromEntries(
+    Object.entries(userObject).filter(([key]) => desiredFields.includes(key))
 );
 
 export const createJWT = (user, duration = "SHORT") => {
 
-    const access_token_claims = generateClaims(user);
+    const access_token_claims = createObjFromFilteredKeys(user, claim_keys);
     const { id } = access_token_claims;
 
     

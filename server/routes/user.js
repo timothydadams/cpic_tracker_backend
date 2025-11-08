@@ -6,7 +6,6 @@ import {
     handleUpdateUser,
     handleGetUser,
     handleGetAllUsers,
-    handleCreateUser,
     addRoleToUser,
     removeRoleFromUser,
     getUserRoles,
@@ -15,24 +14,14 @@ import {
 
 const UserRouter = Router();
 
-//UserRouter.post('/', handleCreateUser);
 UserRouter.post('/register', [requireInviteCode], registerNewUser);
 
 UserRouter.get('/', [verifyToken, requireGlobalAdmin], handleGetAllUsers);
 UserRouter.get('/:id', [verifyToken], handleGetUser);
 UserRouter.put('/:id', [verifyToken], handleUpdateUser);
 
-UserRouter.get('/:id/roles', [verifyToken, requireGlobalAdmin], getUserRoles);
-
-UserRouter.post('/:id/role', [verifyToken, requireGlobalAdmin], addRoleToUser);
-UserRouter.delete('/:id/role',[[verifyToken, requireGlobalAdmin]],removeRoleFromUser);
-
-
-//UserRouter.delete('/:id', handleDeleteUser);
-//UserRouter.get('/:id', handleGetUser);
-
-
+UserRouter.get('/:id/roles', [verifyToken], getUserRoles);
+UserRouter.post('/:id/role', [verifyToken], addRoleToUser);
+UserRouter.delete('/:id/role',[verifyToken], removeRoleFromUser);
 
 export default UserRouter;
-
-//app.use('/api', [protect], apiRouter)

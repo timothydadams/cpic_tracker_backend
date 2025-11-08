@@ -46,11 +46,8 @@ export const removePiiExtension = Prisma.defineExtension({
   query: {
     $allModels: {
       async $allOperations({ model, operation, args, query }) {
-        // Assume you get the current user ID from a request context
         // Get the current user role from AsyncLocalStorage
         const store = als.getStore();
-
-        console.log('prisma extended client details:', {store, model});
         
         // Skip extension ONLY if user is authed, since prisma nested includes won't
         // omit sensitive fields on models in the includes

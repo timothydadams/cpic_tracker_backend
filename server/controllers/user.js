@@ -2,89 +2,19 @@ import { prisma } from "../configs/db.js";
 import { createJWT, hashPassword } from "../utils/auth.js";
 import { authorize } from "../middleware/authorize.js";
 import * as userPolicies from "../policies/users.js";
-import * as rolePolicies from "../policies/roles.js"
-import { InviteCodeService } from "./invites.js";
-
-const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status,
-        message,
-        data,
-    })
-}
-
-const findRoleByName = async(name) => {
-    try {
-        const role = await prisma.role.findUnique({
-            where:{
-                name
-            },
-        });
-        return role;
-    } catch(e){
-        console.log(e);
-    }
-}
-
-const getUserById = async (id, res, includedItems = null) => {
-    const user = await prisma.user.findUnique({
-        where:{
-            id
-        },
-        ...(includedItems != null && {select:includedItems}),
-    });
-
-    if (!user) {
-        handleResponse(res, 404, "user not found");
-    } else {
-        return user
-    }
-}
-
-
-
-
-export const handleCreateUser = async(req,res) => {
-    const { data: { user } } = req.body;
-    const { email, password } = user;
-
-    if (!email || !password) return res.status(400).json({error: 'email and password are required'});
-
-    const existingUser = await prisma.user.findFirst({
-        where: {
-            email
-        }
-    });
-
-    if (existingUser) return res.sendStatus(409);
-
-    try {
-        const {id:defaultRoleId} = await findRoleByName("Viewer");
-        const user = await prisma.user.create({
-            data: {
-                email,
-                password: await hashPassword(password),
-                roles: {
-                    connect: {id:defaultRoleId}
-                },
-            }
-        })
-        
-        if (!user?.id || !user?.email) return res.status(500).json({message:'failed to create user'});
-
-        res.status(200).json({ message:"user created successfully" });
-        
-    } catch(e) {
-        console.log('error:', e);
-        res.status(500).json({message:'failed to create user'});
-    }
-    
-}
+import * as rolePolicies from "../policies/roles.js";
+import { handleResponse} from '../utils/defaultResponse.js'
+import { AppError } from "../errors/AppError.js";
+import { InviteCodeService } from "../services/invites.js";
+import { UserService } from "../services/user.js";
+import { RoleService } from "../services/roles.js";
 
 
 export const handleGetUser = async(req,res) => {
     const { id } = req.params;
-    if (!id) return res.json({message:"must provide an id parameter"})
+    if (!id) {
+        throw new AppError("must provide a user id", 400);
+    }
 
     const includeItems = {
         email:true,
@@ -96,60 +26,26 @@ export const handleGetUser = async(req,res) => {
         implementer_org:true,
     }
 
-    const user = await getUserById(id, res, includeItems);
+    try {
+        const user = await UserService.getUserById(id, res, includeItems);
+    
+        authorize(userPolicies.canRead, user)(req, res, async () => {
+            const roles = await RoleService.getUserRoles(id);
+            user.roles = roles.map(({role}) => role.name);
+            handleResponse(res, 200, "user retrieved successfully", user);
+        });
 
-    const roles = await prisma.userRole.findMany({
-        where: {
-            user_id:id,
-        },
-        include: {
-            role: {
-                select: {
-                    name:true
-                }
-            }
-        }
-    });
-
-    user.roles = roles.map(({role}) => role.name);
-
-    authorize(userPolicies.canRead, user)(req, res, () => {
-        handleResponse(res, 200, "user retrieved successfully", user);
-    });
-
+    } catch (error) {
+        next(error)
+    }
 }
 
 export const handleGetAllUsers = async(req,res) => {
-
     try {
-        const users = await prisma.user.findMany({
-            include: {
-                password_hash:false,
-                google_id:false,
-                userRoles: {
-                        include: {
-                            role: {
-                                select:{
-                                    name:true,
-                                }
-                            },
-                        }
-                },
-            }
-        });
-
-        //update role array
-        const usersWithUpdatedRoles = users.map(({userRoles, ...u}) => {
-            return {
-                ...u,
-                roles: userRoles.map(({role}) => role.name),
-            }
-        })
-        
-        res.json(usersWithUpdatedRoles)
+        const users = await UserService.getAllUsers({includeRoles:true});
+        handleResponse(res, 200, "users retrieved", users);
     } catch(e) {
-        console.log(e);
-        res.json({error:"Prisma error"})
+        next(e)
     }
 }
 
@@ -239,105 +135,56 @@ export const getUserRoles = async(req,res) => {
 export const removeRoleFromUser = async(req, res) => {
     const { id:userId } = req.params
     const { roleId } = req.body
-    if (!userId || !roleId) return res.json({message:"must provide an id parameter"})
+
+    if (!userId || !roleId) {
+        throw new AppError("userId and roleId must be provided");
+    }
     
-    authorize(userPolicies.canUpdate)(req, res, async () => {
-        const result = await prisma.userRole.delete({
-            where: {
-                user_id_role_id: {
-                    user_id:userId,
-                    role_id:roleId,
-                }
-            },
+    try {
+        authorize(userPolicies.canUpdate)(req, res, async () => {
+            const result = await RoleService.removeRoleFromUser(userId, roleId);
+            handleResponse(res, 200, "role removed from user", result);
         });
-        handleResponse(res, 200, "role removed from user", result);
-    });
-    
+    } catch(e) {
+        next(e)
+    }
+     
 }
 
 
 export const addRoleToUser = async(req, res) => {
     const { id:userId } = req.params
     const { roleId } = req.body
-    if (!userId || !roleId) return res.json({message:"must provide an id parameter"})
+    if (!userId || !roleId) {
+        throw new AppError("userId and roleId must be provided");
+    }
     
     authorize(userPolicies.canUpdate)(req, res, async () => {
-        const result = await prisma.userRole.create({
-            data: {
-                user:{
-                    connect: { id: userId},
-                },
-                role: {
-                    connect: {id: roleId}
-                }
-            },
-        });
+        const result = await RoleService.addRoleToUser(userId,roleId);
         handleResponse(res, 200, "role added to user", result);
     });
     
 }
 
-export const registerNewUser = async (req, res) => {
+export const registerNewUser = async (req, res, next) => {
     try {
-
         const { user, inviteCode, inviteDetails } = req.body;
-        const {
-            email,
-            family_name,
-            given_name,
-            password
-        } = user;
-
         const { roleId } = inviteDetails;
 
-        console.log('in register handler:', inviteCode);
+        if (!user?.email) throw new AppError("Missing user data", 400)
+        if (!roleId) throw new AppError("roleId must be provided", 400)
 
-        if (!roleId) {
-            handleResponse(res, 400, "Role must be provided");
-        }
-
-        const exisitingUser = await prisma.user.findFirst({
-            where:{
-                email
-            }
-        });
-
-        if (exisitingUser) {
-            handleResponse(res, 400, "User with this email already exists");
-        }
-
-        const hashed = await hashPassword(password);
+        const newUser = await UserService.register(user, {roleId, inviteCode});
         
-        const newuser = await prisma.user.create({
-            data: {
-                email,
-                family_name,
-                given_name,
-                display_name: `${given_name} ${family_name}`,
-                password_hash: hashed,
-                userRoles: {
-                    create: [
-                        { role: {connect: {id:roleId} }}
-                    ]
-                },
-            },
-            select: {
-                id:true,
-                email:true,
-                createdAt:true,
-            }
-        });
-        
-        if (!newuser?.id || !newuser?.email) {
-            handleResponse(res, 500, "Failed to create user");
+        if (!newUser.id) {
+            throw new AppError("failed to create user", 500);
         }
 
-        await InviteCodeService.markAsUsed(inviteCode, newuser.id);
+        await InviteCodeService.markAsUsed(inviteCode, newUser.id);
 
-        handleResponse(res, 200, "user created successfully", newuser);
+        handleResponse(res, 200, "user registeration success");
 
     } catch(e) {
-        console.log("registration error:", e);
-        handleResponse(res, 500, "Failed to create user");
+        next(e)
     }
 }

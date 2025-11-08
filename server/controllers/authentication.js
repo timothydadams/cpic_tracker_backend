@@ -4,9 +4,11 @@ import { redis } from "../index.js";
 import jwt from 'jsonwebtoken';
 import { comparePasswords, createJWT } from "../utils/auth.js";
 //import { OAuth2Client } from "google-auth-library";
-import { getAuthedGoogleClient } from '../utils/auth.js';
+import { getAuthedGoogleClient, createObjFromFilteredKeys } from '../utils/auth.js';
 import { google } from 'googleapis';
-import { InviteCodeService } from "./invites.js";
+import { AppError } from "../errors/AppError.js";
+import { InviteCodeService } from "../services/invites.js";
+import { UserService } from "../services/user.js";
 
 //import { query, getRestrictedClient } from "../db/index.js";
 
@@ -16,6 +18,7 @@ const baseCookieSettings = {
     secure:true
 }
 
+/*
 const findUserForSignIn = async (val, key = "id") => {
     const whereClause = {}
     whereClause.disabled = false;
@@ -56,6 +59,7 @@ const findUserForSignIn = async (val, key = "id") => {
         return {}
     }
 }
+*/
 
 
 /*
@@ -94,12 +98,11 @@ export const handleRefreshToken = async(req,res) => {
         async (err, decoded) => {
             
             if (err || !decoded?.id) {
-                //console.log('on refresh error:', {err, decoded});
                 res.clearCookie('jwt_cpic', baseCookieSettings)
                 return res.status(401).json({message:"forbidden"});
             }
             
-            const validUser = await findUserForSignIn(decoded.id);
+            const validUser = await UserService.findUserForSignIn(decoded.id);
 
             if (!validUser) {
                 return res.status(401).json({ message: "No enabled user"})
@@ -142,15 +145,24 @@ export const handleGoogleSignIn = async(req, res) => {
     const { 
         persist = "SHORT",
         path: { pathname = "/"},
-        newuser = false,
         inviteCode = null,
-     } = JSON.parse(decodeURIComponent(req.query.state));
+    } = JSON.parse(decodeURIComponent(req.query.state));
+
+    let newUserRole = null;
+
+    if (inviteCode) {
+        const validation = await InviteCodeService.validate(inviteCode);
+        if (!validation.valid) {
+            throw new AppError(validation.reason, 400);
+        }
+        newUserRole = validation.invite.roleId;
+    }
 
     const duration = persist;
 
     const goog_oauth_client = getAuthedGoogleClient();
 
-    if (!code) return res.status(400).json({error: 'google auth code must be provided'});
+    if (!code) throw new AppError('google auth code must be provided', 400, {inviteCode});
 
     try {
 
@@ -161,7 +173,7 @@ export const handleGoogleSignIn = async(req, res) => {
             idToken: tokens.id_token,
         });
 
-        if (!ticket) return res.status(400).json({"error":"google authentication failed"});
+        if (!ticket) throw new AppError("google tokens could not be verified", 400, {inviteCode});
 
         await goog_oauth_client.setCredentials(tokens);
 
@@ -171,61 +183,43 @@ export const handleGoogleSignIn = async(req, res) => {
         });
 
         const {data} = await oauth2.userinfo.get();
-        //console.log('user data:', data);
-        const {id, email, name, given_name, family_name, picture} = data;
 
-        if (!id) return res.status(400).json({"error":"failed to retrieve user's google profile"});
+        if (!data?.id) throw new AppError("failed to retrieve google profile data", 400, {inviteCode});
 
+        const {id, ...properties} = data;
 
-        //update to only support invited users (must already exist in user table)
+        const desired_keys = ["email", "given_name", "family_name"];
+        
+        //generate user object from google identity
+        const filteredData = createObjFromFilteredKeys(properties, desired_keys);
+        filteredData["auth_source"] = 'google';
+        filteredData["profile_pic"] = data.picture;
+        filteredData["google_id"] = id;
+        filteredData["display_name"] = `${filteredData.given_name} ${filteredData.family_name}`;
+        
+        let user = null;
 
-        const {id:userId} = await prisma.user.upsert({
-            where: {
-                google_id: id
-            },
-            update: {
-                auth_source: 'google',
-                email,
-                given_name,
-                family_name,
-                display_name: `${given_name} ${family_name}`,
-                profile_pic: picture,
-            },
-            create: {
-                auth_source: 'google',
-                email,
-                given_name,
-                family_name,
-                display_name: `${given_name} ${family_name}`,
-                profile_pic: picture,
-                //userRoles: {
-                //    create: [
-                //        { role: {connect: {id:roleId} }}
-                //    ]
-                //},
-            },
-            /*
-            data: {
-                    auth_source: 'google',
-                    email,
-                    given_name,
-                    family_name,
-                    display_name: `${given_name} ${family_name}`,
-                    profile_pic: picture,
-            },*/
-        });
-
-        if (!userId) {
-            return res.status(401).json({error: 'unauthorized user'});
+        if (inviteCode && newUserRole) {
+            const newUser = await UserService.register(filteredData, {roleId:newUserRole, inviteCode});
+            if (!newUser?.id || !newUser?.email) {
+                throw new AppError("failed to create user", 400,{inviteCode});
+            }
+            user = newUser;
+            await InviteCodeService.markAsUsed(inviteCode, user.id);
+        } else {
+            user = await prisma.user.update({
+                where: {
+                    google_id: id
+                },
+                data: filteredData,
+            });
         }
 
-        if (newuser && inviteCode) {
-            await InviteCodeService.markAsUsed(inviteCode, userId);
+        if (!user?.id) {
+            throw new AppError("unauthorized user", 401, {inviteCode});
         }
 
-        const userWithRoles = await findUserForSignIn(userId, "id");
-
-        //console.log('user', userWithRoles);
+        const userWithRoles = await UserService.findUserForSignIn(user.id, "id");
 
         const {refreshToken, accessToken} = createJWT(userWithRoles, duration);
 
@@ -237,11 +231,10 @@ export const handleGoogleSignIn = async(req, res) => {
                 : Number(process.env.COOKIE_LIFE_LONG)
         });
 
-        res.redirect(303, `${clientDomain}${pathname}`);
+        return res.redirect(303, `${clientDomain}${pathname}`);
 
     } catch(e) {
-        //console.log(e);
-        res.json({error:"there was a problem signing in with google"})
+        throw e;
     }
 }
 
@@ -252,9 +245,9 @@ export const handleSelfSignIn = async (req,res) => {
     
     if (!email || !password) return res.status(400).json({error: 'username and password are required'});
 
-    const validUser = await findUserForSignIn(email, "email");
+    const validUser = await UserService.findUserForSignIn(email, "email");
     
-    if (!validUser?.id || !validUser?.password_hash) return res.sendStatus(409);
+    if (!validUser?.id || !validUser?.password_hash) return res.sendStatus(409);;
     
     const match = await comparePasswords(password, validUser.password_hash);
 

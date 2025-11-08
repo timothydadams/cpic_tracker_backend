@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { verifyToken } from '../middleware/requireAuth.js';
 import { 
     InviteCodeService
-} from "../controllers/invites.js";
+} from "../services/invites.js";
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
