@@ -95,7 +95,7 @@ export const getPasskeyRegOptions = async (req, res) => {
 
 export const handlePasskeyRegVerification = async (req, res) => {
     const {userId, webAuth} = req.body;
-    console.log('body being send to pk verification:', req.body);
+    
     const user = await AuthService.findUserForSignIn(userId);
   
     const expectedChallenge = user?.passkey_reg_options?.challenge;
@@ -141,7 +141,17 @@ export const handlePasskeyRegVerification = async (req, res) => {
         }
     }
   
-    res.json({ ok: true });
+    const {refreshToken, accessToken} = createJWT(user);
+
+    //send refresh token via httpOnly cookie (not accessible via js)
+    res.cookie('jwt_cpic', refreshToken, { 
+        ...baseCookieSettings,
+        maxAge: duration == "SHORT"
+        ? Number(process.env.COOKIE_LIFE_SHORT)
+        : Number(process.env.COOKIE_LIFE_LONG)
+    })
+
+    res.json({ accessToken });
 }
 
 export const verifyAuthResponse = async (req,res) => {
