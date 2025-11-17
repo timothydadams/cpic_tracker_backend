@@ -39,7 +39,7 @@ export const handleGetUser = async(req,res) => {
     }
 }
 
-export const handleGetAllUsers = async(req,res) => {
+export const handleGetAllUsers = async(req,res,next) => {
     try {
         const users = await UserService.getAllUsers({includeRoles:true});
         handleResponse(res, 200, "users retrieved", users);

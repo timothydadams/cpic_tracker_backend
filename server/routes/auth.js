@@ -5,7 +5,7 @@ import {
     handleLogout,
     handleRefreshToken,
     registerNewUser,
-    getUserLoginOptions,
+    generateAuthOptions,
     getPasskeyRegOptions,
     handlePasskeyRegVerification,
     verifyAuthResponse,
@@ -27,9 +27,8 @@ AuthRouter.post("/passkey-reg-options", getPasskeyRegOptions)
 AuthRouter.post("/passkey-reg-verification", handlePasskeyRegVerification);
 
 //RETURN METHODS USER CAN SIGN IN (SOCIALS || PASSKEY)
-AuthRouter.post('/get-auth-options', getUserLoginOptions);
+AuthRouter.post('/get-auth-options', generateAuthOptions);
 AuthRouter.post("/passkey-auth-verify", verifyAuthResponse);
-
 
 
 AuthRouter.post('/self-sign-in', handleSelfSignIn);

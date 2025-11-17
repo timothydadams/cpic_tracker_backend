@@ -36,8 +36,6 @@ export const UserService = {
         const { includeRoles = false } = options;
 
         const include = {
-            password_hash:false,
-            google_id:false,
             ...(includeRoles 
                 ? {
                     userRoles: {

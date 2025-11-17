@@ -28,7 +28,7 @@ const rpID = process.env.NODE_ENV === "development" ? `localhost` : `cpic.dev`;
 const origin = process.env.NODE_ENV === "development" ? `http://${rpID}` : `https://${rpID}`;
 
 //get options for user to sign in
-export const getUserLoginOptions = async (req,res) => {
+export const generateAuthOptions = async (req,res) => {
     const { email } = req.body;
     const user = await AuthService.findUserForSignIn(email, "email");
     if (!email || !user) {
@@ -42,7 +42,7 @@ export const getUserLoginOptions = async (req,res) => {
         return res.status(200).json({
             socials: [],
             passkeys: empty,
-        })
+        });
     }
 
     try {
@@ -59,7 +59,7 @@ export const getUserLoginOptions = async (req,res) => {
 
         await UserService.updateUser(user.id, {passkey_auth_options: pk_options});
 
-        return res.status(200).json({socials, passkeys:pk_options});
+        return res.status(200).json({userId: user.id, socials, passkeys:pk_options});
     } catch(e) {
         console.log(e)
         return res.status(200).json({});
@@ -147,6 +147,7 @@ export const handlePasskeyRegVerification = async (req, res) => {
         };
 
         try {
+            //await UserService.updateUser(userId, {passkey_reg_options:null});
             await AuthService.addPasskey(data);
         } catch(e) {
             console.log(e);
@@ -164,26 +165,26 @@ export const handlePasskeyRegVerification = async (req, res) => {
         : Number(process.env.COOKIE_LIFE_LONG)
     })
 
-    res.json({ accessToken });
+    res.json({ verified, accessToken });
 }
 
 export const verifyAuthResponse = async (req,res) => {
-    const { body } = req;
-
-    const user = await AuthService.findUserForSignIn(body.email, "email");
+    const {userId, duration, webAuth} = req.body;
+    
+    const user = await AuthService.findUserForSignIn(userId);
     
     const currentOptions = user?.passkey_auth_options;
     
-    const passkey = AuthService.getUserPasskey(user.id, body.id);
+    const passkey = AuthService.getUserPasskey(user.id, webAuth.id);
 
     if (!passkey) {
-        throw new Error(`Could not find passkey ${body.id} for user ${user.id}`);
+        throw new Error(`Could not find passkey ${webAuth.id} for user ${user.id}`);
     }
 
     let verification;
     try {
         verification = await verifyAuthenticationResponse({
-            response: body,
+            response: webAuth,
             expectedChallenge: currentOptions.challenge,
             expectedOrigin: origin,
             expectedRPID: rpID,
@@ -202,8 +203,18 @@ export const verifyAuthResponse = async (req,res) => {
     const { verified, authenticationInfo } = verification;
     const { newCounter } = authenticationInfo;
     await AuthService.savePasskeyCounter(passkey.id, newCounter);
-    //generate access/refresh tokens and return
-    res.send({ok:true});
+    //generate access/refresh tokens and return verified status
+    const {refreshToken, accessToken} = createJWT(user);
+
+    //send refresh token via httpOnly cookie (not accessible via js)
+    res.cookie('jwt_cpic', refreshToken, { 
+        ...baseCookieSettings,
+        maxAge: duration == "SHORT"
+        ? Number(process.env.COOKIE_LIFE_SHORT)
+        : Number(process.env.COOKIE_LIFE_LONG)
+    })
+
+    res.json({ verified, accessToken });
 }
 
 
@@ -288,6 +299,7 @@ export const handleRefreshToken = async(req,res) => {
             const validUser = await AuthService.findUserForSignIn(decoded.id);
 
             if (!validUser) {
+                res.clearCookie('jwt_cpic', baseCookieSettings)
                 return res.status(401).json({ message: "No enabled user"})
             }
 
