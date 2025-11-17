@@ -32,6 +32,7 @@ export const generateAuthOptions = async (req,res) => {
     const { email } = req.body;
     const user = await AuthService.findUserForSignIn(email, "email");
     if (!email || !user) {
+        
         const empty = await generateAuthenticationOptions({
             rpID,
             allowCredentials: [].map(passkey => ({
@@ -39,6 +40,7 @@ export const generateAuthOptions = async (req,res) => {
                 transports: passkey.transports,
             })),
         });
+        
         return res.status(200).json({
             socials: [],
             passkeys: empty,
@@ -115,7 +117,7 @@ export const handlePasskeyRegVerification = async (req, res) => {
         verification = await verifyRegistrationResponse({
             response: webAuth,
             expectedChallenge: `${expectedChallenge}`,
-            expectedOrigin:origin,
+            expectedOrigin:[origin],
             expectedRPID: rpID,
             requireUserVerification: true,
         });
@@ -170,12 +172,20 @@ export const handlePasskeyRegVerification = async (req, res) => {
 
 export const verifyAuthResponse = async (req,res) => {
     const {userId, duration, webAuth} = req.body;
+
+    console.log('verify auth response inputs:', {userId, duration, webAuth})
     
     const user = await AuthService.findUserForSignIn(userId);
+
+    console.log('user found:', user)
     
     const currentOptions = user?.passkey_auth_options;
+
+    console.log('users currentOptions:', currentOptions)
     
     const passkey = AuthService.getUserPasskey(user.id, webAuth.id);
+
+    console.log('passkey found for user:', passkey);
 
     if (!passkey) {
         throw new Error(`Could not find passkey ${webAuth.id} for user ${user.id}`);
@@ -186,7 +196,7 @@ export const verifyAuthResponse = async (req,res) => {
         verification = await verifyAuthenticationResponse({
             response: webAuth,
             expectedChallenge: currentOptions.challenge,
-            expectedOrigin: origin,
+            expectedOrigin: [origin],
             expectedRPID: rpID,
             credential: {
                 id: passkey.id,
@@ -201,6 +211,7 @@ export const verifyAuthResponse = async (req,res) => {
     }
 
     const { verified, authenticationInfo } = verification;
+    console.log('verification results:', verification);
     const { newCounter } = authenticationInfo;
     await AuthService.savePasskeyCounter(passkey.id, newCounter);
     //generate access/refresh tokens and return verified status
