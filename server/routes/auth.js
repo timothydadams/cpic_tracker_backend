@@ -4,17 +4,40 @@ import {
     handleGoogleSignIn,
     handleLogout,
     handleRefreshToken,
-    //verifyGoogleToken,
+    registerNewUser,
+    getUserLoginOptions,
+    getPasskeyRegOptions,
+    handlePasskeyRegVerification,
+    verifyAuthResponse,
 } from "../controllers/authentication.js";
+import { requireInviteCode } from '../middleware/inviteCodeMiddleware.js';
 //import { getAuthedGoogleClient } from '../utils/auth.js'
 //import { OAuth2Client } from 'google-auth-library';
 
 
 const AuthRouter = Router();
 
+//NEW ACCOUNT CREATION / ONBOARDING
+AuthRouter.post('/register', [requireInviteCode], registerNewUser);
+
+
+
+//WEBAUTHN -- PASSKEY ROUTES
+AuthRouter.post("/passkey-reg-options", getPasskeyRegOptions)
+AuthRouter.post("/passkey-reg-verification", handlePasskeyRegVerification);
+
+//RETURN METHODS USER CAN SIGN IN (SOCIALS || PASSKEY)
+AuthRouter.post('/get-auth-options', getUserLoginOptions);
+AuthRouter.post("/passkey-auth-verify", verifyAuthResponse);
+
+
+
 AuthRouter.post('/self-sign-in', handleSelfSignIn);
+
+//SOCIAL SIGNINS
 AuthRouter.get('/google-callback/', handleGoogleSignIn);
 AuthRouter.post('/logout', handleLogout);
+
 
 /* UNUSED ROUTES
 

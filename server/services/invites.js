@@ -41,20 +41,23 @@ export const InviteCodeService = {
             id: true,
             email: true
           }
-        }
+        },
+        role:true,
       }
     });
+
+    console.log('invite:', invite);
     
     if (!invite) {
-      return { valid: false, reason: 'Invalid invite code' };
+      return { valid: false, error: {reason: 'Invalid invite code', httpcode: 404} };
     }
     
     if (invite.expiresAt && new Date() > invite.expiresAt) {
-      return { valid: false, reason: 'Invite code has expired' };
+      return { valid: false, error: {reason: 'Invite code has expired', httpcode: 410} };
     }
     
     if (invite.useCount >= invite.maxUses) {
-      return { valid: false, reason: 'Invite code has been fully used' };
+      return { valid: false, error: {reason: 'Invite code has been fully used', httpcode: 410} };
     }
     
     return { 
@@ -62,6 +65,7 @@ export const InviteCodeService = {
       invite: {
         id: invite.id,
         roleId: invite.roleId,
+        roleName: invite.role.name,
         createdBy: invite.createdBy
       }
     };
@@ -130,7 +134,7 @@ export const InviteCodeService = {
     return await prisma.inviteCode.findMany({
       where: { 
         createdById: userId,
-        ...(activeOnly ? { used:false} : {}),
+        ...(activeOnly ? { used:false, expiresAt: {gte:new Date()} } : {}),
       },
       include: {
         usedBy: {

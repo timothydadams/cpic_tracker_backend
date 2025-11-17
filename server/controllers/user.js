@@ -5,7 +5,6 @@ import * as userPolicies from "../policies/users.js";
 import * as rolePolicies from "../policies/roles.js";
 import { handleResponse} from '../utils/defaultResponse.js'
 import { AppError } from "../errors/AppError.js";
-import { InviteCodeService } from "../services/invites.js";
 import { UserService } from "../services/user.js";
 import { RoleService } from "../services/roles.js";
 
@@ -164,27 +163,4 @@ export const addRoleToUser = async(req, res) => {
         handleResponse(res, 200, "role added to user", result);
     });
     
-}
-
-export const registerNewUser = async (req, res, next) => {
-    try {
-        const { user, inviteCode, inviteDetails } = req.body;
-        const { roleId } = inviteDetails;
-
-        if (!user?.email) throw new AppError("Missing user data", 400)
-        if (!roleId) throw new AppError("roleId must be provided", 400)
-
-        const newUser = await UserService.register(user, {roleId, inviteCode});
-        
-        if (!newUser.id) {
-            throw new AppError("failed to create user", 500);
-        }
-
-        await InviteCodeService.markAsUsed(inviteCode, newUser.id);
-
-        handleResponse(res, 200, "user registeration success");
-
-    } catch(e) {
-        next(e)
-    }
 }

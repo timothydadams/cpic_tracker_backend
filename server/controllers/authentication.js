@@ -1,16 +1,22 @@
-import { prisma } from "../configs/db.js";
 import {decode} from 'jsonwebtoken';
 import { redis } from "../index.js";
 import jwt from 'jsonwebtoken';
-import { comparePasswords, createJWT } from "../utils/auth.js";
-//import { OAuth2Client } from "google-auth-library";
-import { getAuthedGoogleClient, createObjFromFilteredKeys } from '../utils/auth.js';
-import { google } from 'googleapis';
+import { 
+    comparePasswords, 
+    createJWT,
+    createObjFromFilteredKeys,
+ } from "../utils/auth.js";
+import { handleResponse } from "../utils/defaultResponse.js";
 import { AppError } from "../errors/AppError.js";
 import { InviteCodeService } from "../services/invites.js";
 import { UserService } from "../services/user.js";
-
-//import { query, getRestrictedClient } from "../db/index.js";
+import { AuthService } from "../services/auth.js";
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
+} from '@simplewebauthn/server';
 
 const baseCookieSettings = { 
     httpOnly:true, 
@@ -18,49 +24,203 @@ const baseCookieSettings = {
     secure:true
 }
 
-/*
-const findUserForSignIn = async (val, key = "id") => {
-    const whereClause = {}
-    whereClause.disabled = false;
-    whereClause[key] = val;
+const rpID = process.env.NODE_ENV === "development" ? `localhost` : `cpic.dev`;
+const origin = process.env.NODE_ENV === "development" ? `http://${rpID}` : `https://${rpID}`;
 
-    const includeItems = {
-        userRoles: {
-            include: {
-                role: {
-                    select:{
-                        name:true,
-                    }
-                },
-            }
-        },
+//get options for user to sign in
+export const getUserLoginOptions = async (req,res) => {
+    const { email } = req.body;
+    const user = await AuthService.findUserForSignIn(email, "email");
+    if (!email) {
+        return res.status(400).json({error: "email not provided"})
     }
 
     try {
-        const validUser = await prisma.user.findUnique({
-            where: whereClause,
-            include: includeItems,
+        const socials = await AuthService.getSocialLoginOptions(email);
+        const user_passkeys = await AuthService.findExistingUserPasskeys(user.id);
+        const pk_options = await generateAuthenticationOptions({
+            rpID,
+            // Require users to use a previously-registered authenticator
+            allowCredentials: user_passkeys.map(passkey => ({
+                id: passkey.id,
+                transports: passkey.transports,
+            })),
         });
 
-        if (!validUser) return null;
-        
-        const {userRoles, ...userObject} = validUser;
+        await UserService.updateUser(user.id, {passkey_auth_options: pk_options});
 
-        const newUserObj = {
-            ...userObject,
-            roles: userRoles.map(({role}) => role.name),
-        }
-
-        //console.log('findusersignin', newUserObj);
-        return newUserObj
-
+        return res.status(200).json({socials, passkeys:pk_options});
     } catch(e) {
         console.log(e)
-        return {}
+        return res.status(200).json({});
     }
 }
-*/
 
+
+//passkey registration options:
+export const getPasskeyRegOptions = async (req, res) => {
+    const { id } = req.body;
+
+    const user = await AuthService.findUserForSignIn(id);
+    const passkeys = await AuthService.findExistingUserPasskeys(user.id);
+
+    const options = {
+        rpName: 'CPIC Tracker',
+        rpID,
+        userName: user.display_name,
+        timeout: 60000,
+        attestationType: 'none',
+        excludeCredentials: passkeys.map(passkey => ({
+            id: passkey.id,
+            // Optional
+            transports: passkey.transports,
+        })),
+        authenticatorSelection: {
+            // Defaults
+            residentKey: 'preferred',
+            userVerification: 'preferred',
+            // Optional
+            authenticatorAttachment: 'platform',
+        },
+        supportedAlgorithmIDs: [-7, -257], //most common algorithms: ES256, and RS256
+    };
+
+    const regOptions = await generateRegistrationOptions(options);
+
+    //add currentChallenge to user in db
+    await UserService.updateUser(user.id, {passkey_reg_options: regOptions})
+    
+    return res.json(regOptions);
+}
+
+export const handlePasskeyRegVerification = async (req, res) => {
+    const {userId, webAuth} = req.body;
+    console.log('body being send to pk verification:', req.body);
+    const user = await AuthService.findUserForSignIn(userId);
+  
+    const expectedChallenge = user?.passkey_reg_options?.challenge;
+  
+    let verification;
+    try {
+        verification = await verifyRegistrationResponse({
+            response: webAuth,
+            expectedChallenge: `${expectedChallenge}`,
+            expectedOrigin:origin,
+            expectedRPID: [rpID, 'http://localhost:3000'],
+            requireUserVerification: true,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).send({ error: error.message });
+    }
+  
+    const { verified, registrationInfo } = verification;
+  
+    if (verified && registrationInfo) {
+        const {
+            credential,
+            credentialDeviceType,
+            credentialBackedUp,
+        } = registrationInfo;
+
+        const data = {
+            publicKey: credential.publicKey, 
+            counter:credential.counter,
+            transports:credential.transports,
+            deviceType:credentialDeviceType,
+            webAuthn_userId: user.passkey_reg_options.user.id,
+            backedUp: credentialBackedUp,
+            userId: user.id,
+        };
+
+        try {
+            await AuthService.addPasskey({data});
+        } catch(e) {
+            console.log(e);
+            throw e
+        }
+    }
+  
+    res.json({ ok: true });
+}
+
+export const verifyAuthResponse = async (req,res) => {
+    const { body } = req;
+
+    const user = await AuthService.findUserForSignIn(body.email, "email");
+    
+    const currentOptions = user?.passkey_auth_options;
+    
+    const passkey = AuthService.getUserPasskey(user.id, body.id);
+
+    if (!passkey) {
+        throw new Error(`Could not find passkey ${body.id} for user ${user.id}`);
+    }
+
+    let verification;
+    try {
+        verification = await verifyAuthenticationResponse({
+            response: body,
+            expectedChallenge: currentOptions.challenge,
+            expectedOrigin: origin,
+            expectedRPID: rpID,
+            credential: {
+                id: passkey.id,
+                publicKey: passkey.publicKey,
+                counter: passkey.counter,
+                transports: passkey.transports,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(400).send({ error: error.message });
+    }
+
+    const { verified, authenticationInfo } = verification;
+    const { newCounter } = authenticationInfo;
+    await AuthService.savePasskeyCounter(passkey.id, newCounter);
+    //generate access/refresh tokens and return
+    res.send({ok:true});
+}
+
+
+export const registerNewUser = async (req, res, next) => {
+    try {
+        const { user, inviteCode, inviteDetails } = req.body;
+        const { roleId } = inviteDetails;
+
+        if (!user?.email) throw new AppError("Missing user data", 400)
+        if (!roleId) throw new AppError("roleId must be provided", 400)
+
+        if (user.assigned_implementers) {
+            user.assigned_implementers = user.assigned_implementers.map(x=>Number(x))
+        }
+
+        if (user.implementer_org_id != "") {
+            user.implementer_org_id = Number(user.implementer_org_id);
+        } else {
+            user.implementer_org_id = null;
+        }
+
+
+        const newUser = await AuthService.register(user, {roleId, inviteCode});
+        
+        if (!newUser.id) {
+            throw new AppError("failed to create user", 500);
+        }
+
+        await InviteCodeService.markAsUsed(inviteCode, newUser.id);
+
+        handleResponse(res, 200, "user registeration success", {
+            id: newUser.id,
+            email:newUser.email,
+            display_name: newUser.display_name,
+        });
+
+    } catch(e) {
+        next(e)
+    }
+}
 
 /*
 LOGOUT CONTROLLER
@@ -102,7 +262,7 @@ export const handleRefreshToken = async(req,res) => {
                 return res.status(401).json({message:"forbidden"});
             }
             
-            const validUser = await UserService.findUserForSignIn(decoded.id);
+            const validUser = await AuthService.findUserForSignIn(decoded.id);
 
             if (!validUser) {
                 return res.status(401).json({ message: "No enabled user"})
@@ -145,46 +305,18 @@ export const handleGoogleSignIn = async(req, res) => {
     const { 
         persist = "SHORT",
         path: { pathname = "/"},
-        inviteCode = null,
+        email,
     } = JSON.parse(decodeURIComponent(req.query.state));
-
-    let newUserRole = null;
-
-    if (inviteCode) {
-        const validation = await InviteCodeService.validate(inviteCode);
-        if (!validation.valid) {
-            throw new AppError(validation.reason, 400);
-        }
-        newUserRole = validation.invite.roleId;
-    }
 
     const duration = persist;
 
-    const goog_oauth_client = getAuthedGoogleClient();
-
-    if (!code) throw new AppError('google auth code must be provided', 400, {inviteCode});
+    if (!code) throw new AppError('google auth code must be provided', 400);
 
     try {
 
-        const {tokens} = await goog_oauth_client.getToken(code);
+        const { data } = await AuthService.getGoogleUserData(code);
 
-        // Verify the ID token with Google's API
-        const ticket = await goog_oauth_client.verifyIdToken({
-            idToken: tokens.id_token,
-        });
-
-        if (!ticket) throw new AppError("google tokens could not be verified", 400, {inviteCode});
-
-        await goog_oauth_client.setCredentials(tokens);
-
-        const oauth2 = google.oauth2({
-            auth: goog_oauth_client,
-            version: 'v2',
-        });
-
-        const {data} = await oauth2.userinfo.get();
-
-        if (!data?.id) throw new AppError("failed to retrieve google profile data", 400, {inviteCode});
+        if (!data?.id) throw new AppError("failed to retrieve google profile data", 400);
 
         const {id, ...properties} = data;
 
@@ -192,34 +324,16 @@ export const handleGoogleSignIn = async(req, res) => {
         
         //generate user object from google identity
         const filteredData = createObjFromFilteredKeys(properties, desired_keys);
-        filteredData["auth_source"] = 'google';
         filteredData["profile_pic"] = data.picture;
-        filteredData["google_id"] = id;
         filteredData["display_name"] = `${filteredData.given_name} ${filteredData.family_name}`;
         
-        let user = null;
-
-        if (inviteCode && newUserRole) {
-            const newUser = await UserService.register(filteredData, {roleId:newUserRole, inviteCode});
-            if (!newUser?.id || !newUser?.email) {
-                throw new AppError("failed to create user", 400,{inviteCode});
-            }
-            user = newUser;
-            await InviteCodeService.markAsUsed(inviteCode, user.id);
-        } else {
-            user = await prisma.user.update({
-                where: {
-                    google_id: id
-                },
-                data: filteredData,
-            });
-        }
+        const user = await AuthService.findAndUpdateUserWithFederatedId(email,"google", id, data);
 
         if (!user?.id) {
             throw new AppError("unauthorized user", 401, {inviteCode});
         }
 
-        const userWithRoles = await UserService.findUserForSignIn(user.id, "id");
+        const userWithRoles = await AuthService.findUserForSignIn(user.id, "id");
 
         const {refreshToken, accessToken} = createJWT(userWithRoles, duration);
 
@@ -234,6 +348,7 @@ export const handleGoogleSignIn = async(req, res) => {
         return res.redirect(303, `${clientDomain}${pathname}`);
 
     } catch(e) {
+        console.log('error', e);
         throw e;
     }
 }
@@ -245,7 +360,7 @@ export const handleSelfSignIn = async (req,res) => {
     
     if (!email || !password) return res.status(400).json({error: 'username and password are required'});
 
-    const validUser = await UserService.findUserForSignIn(email, "email");
+    const validUser = await AuthService.findUserForSignIn(email, "email");
     
     if (!validUser?.id || !validUser?.password_hash) return res.sendStatus(409);;
     

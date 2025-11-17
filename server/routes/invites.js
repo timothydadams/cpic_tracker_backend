@@ -4,14 +4,8 @@ import {
     InviteCodeService
 } from "../services/invites.js";
 import { parseBoolean } from '../utils/queryStringParsers.js';
-
-const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status,
-        message,
-        data,
-    })
-}
+import { AppError } from '../errors/AppError.js';
+import { handleResponse } from '../utils/defaultResponse.js';
 
 
 const InvitesRouter = Router();
@@ -86,38 +80,43 @@ InvitesRouter.get('/my-invites', [verifyToken], async (req, res) => {
   }
 });
 
-InvitesRouter.get("/:code/validate", async(req,res) => {
+InvitesRouter.get("/:code/validate", async(req,res,next) => {
+    const { code } = req.params;
+    if (!code) {
+        return res.status(400).json({error:"invite code was not provided"});
+    }
+
     try {
-        const validation = await InviteCodeService.validate(req.params.code);
-        const { valid, invite: {roleId}} = validation;
-        handleResponse(res, 200, "validation complete", {valid, roleId});
-        //res.json(validation);
+        const validationResults = await InviteCodeService.validate(code);
+        const { error } = validationResults;
+        if (error) {
+            throw new AppError(error.reason, error.httpcode);
+        }
+        const { valid, invite: {roleId, roleName}} = validationResults;
+        handleResponse(res, 200, "validation complete", {valid, roleId, roleName});
     } catch (error) {
-        console.error('Validate invite error:', error);
-        handleResponse(res, 500, "Failed to validate invite code");
+        next(error)
     }
 });
 
-InvitesRouter.get('/:code/stats', [verifyToken], async (req, res) => {
+InvitesRouter.get('/:code/stats', [verifyToken], async (req, res, next) => {
   try {
     const userId = res.locals.user.id
     const {isGlobalAdmin, isCPICAdmin} = res.locals.user;
     
     if (!userId || !isGlobalAdmin || !isCPICAdmin) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      throw new AppError("Unauthorized", 401);
     }
 
     const invite = await InviteCodeService.getWithStats(req.params.code);
     
     if (!invite || invite.createdById !== userId) {
-      return res.status(404).json({ error: 'Invite code not found' });
+        throw new AppError("Invite code not found", 404);
     }
-    res.json(invite);
+    handleResponse(res, "stats retrieved", invite);
   } catch (e) {
     console.error('Get invite stats error:', e);
-    res.status(500).json({
-      error: 'Failed to fetch invite code'
-    });
+    next(e)
   }
 });
 

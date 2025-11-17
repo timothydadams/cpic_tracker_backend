@@ -121,10 +121,28 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.PasskeyScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  publicKey: 'publicKey',
+  counter: 'counter',
+  transports: 'transports',
+  deviceType: 'deviceType',
+  webAuthn_userId: 'webAuthn_userId',
+  backedUp: 'backedUp',
+  userId: 'userId'
+};
+
+exports.Prisma.RelationLoadStrategy = {
+  query: 'query',
+  join: 'join'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  auth_source: 'auth_source',
-  google_id: 'google_id',
+  federated_idps: 'federated_idps',
+  passkey_reg_options: 'passkey_reg_options',
+  passkey_auth_options: 'passkey_auth_options',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   display_name: 'display_name',
@@ -138,11 +156,6 @@ exports.Prisma.UserScalarFieldEnum = {
   implementer_org_id: 'implementer_org_id',
   inviteCodeId: 'inviteCodeId',
   invitedById: 'invitedById'
-};
-
-exports.Prisma.RelationLoadStrategy = {
-  query: 'query',
-  join: 'join'
 };
 
 exports.Prisma.RoleScalarFieldEnum = {
@@ -259,9 +272,20 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 
 exports.Prisma.NullsOrder = {
@@ -271,6 +295,7 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
+  Passkey: 'Passkey',
   User: 'User',
   Role: 'Role',
   UserRole: 'UserRole',

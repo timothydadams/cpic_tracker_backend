@@ -16,10 +16,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Passkey {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  publicKey       Bytes // The public key associated with the credential
+  counter         BigInt // The signature counter
+  transports      String[] // Array of transports (e.g., "usb", "nfc")
+  deviceType      String   @db.VarChar(32)
+  webAuthn_userId String
+  backedUp        Boolean
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([webAuthn_userId, userId])
+  @@unique([userId, id]) // Ensure a user can't have duplicate credentials
+  @@index([webAuthn_userId])
+  @@index([userId])
+}
+
 model User {
   id                    String        @id @default(uuid())
-  auth_source           String        @default("self")
-  google_id             String?       @unique
+  federated_idps        Json?         @db.JsonB
+  passkeys              Passkey[]
+  passkey_reg_options   Json?         @db.JsonB
+  passkey_auth_options  Json?         @db.JsonB
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
   display_name          String?       @unique
@@ -45,6 +65,8 @@ model User {
   invitedUsers User[]  @relation("UserInvites")
   invitedBy    User?   @relation("UserInvites", fields: [invitedById], references: [id])
   invitedById  String?
+
+  @@index([federated_idps], type: Gin, map: "idx_federated_idps_gin")
 }
 
 model Role {
@@ -60,7 +82,7 @@ model UserRole {
   user_id   String
   createdAt DateTime @default(now())
   role      Role     @relation(fields: [role_id], references: [id])
-  user      User     @relation(fields: [user_id], references: [id])
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@id([user_id, role_id])
 }

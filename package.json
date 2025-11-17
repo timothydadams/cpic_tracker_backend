@@ -31,6 +31,7 @@
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "@prisma/extension-accelerate": "^2.0.2",
+    "@simplewebauthn/server": "^13.2.2",
     "axios": "^1.12.1",
     "axios-rate-limit": "^1.4.0",
     "bcrypt": "^6.0.0",
