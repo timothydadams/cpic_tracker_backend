@@ -20390,7 +20390,6 @@ export namespace Prisma {
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    display_name?: string
     email?: string
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
@@ -20400,6 +20399,7 @@ export namespace Prisma {
     passkey_auth_options?: JsonNullableFilter<"User">
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    display_name?: StringNullableFilter<"User"> | string | null
     profile_pic?: StringNullableFilter<"User"> | string | null
     nickname?: StringNullableFilter<"User"> | string | null
     given_name?: StringNullableFilter<"User"> | string | null
@@ -20418,7 +20418,7 @@ export namespace Prisma {
     inviteCodeUsed?: XOR<InviteCodeNullableScalarRelationFilter, InviteCodeWhereInput> | null
     invitedUsers?: UserListRelationFilter
     invitedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }, "id" | "display_name" | "email">
+  }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder

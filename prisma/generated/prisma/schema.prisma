@@ -42,7 +42,7 @@ model User {
   passkey_auth_options  Json?         @db.JsonB
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
-  display_name          String?       @unique
+  display_name          String?
   profile_pic           String?
   nickname              String?
   given_name            String?
