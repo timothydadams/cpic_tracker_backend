@@ -31,8 +31,18 @@ const origin = process.env.NODE_ENV === "development" ? `http://${rpID}` : `http
 export const getUserLoginOptions = async (req,res) => {
     const { email } = req.body;
     const user = await AuthService.findUserForSignIn(email, "email");
-    if (!email) {
-        return res.status(400).json({error: "email not provided"})
+    if (!email || !user) {
+        const empty = await generateAuthenticationOptions({
+            rpID,
+            allowCredentials: [].map(passkey => ({
+                id: passkey.id,
+                transports: passkey.transports,
+            })),
+        });
+        return res.status(200).json({
+            socials: [],
+            passkeys: empty,
+        })
     }
 
     try {
