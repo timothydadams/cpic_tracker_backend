@@ -94,7 +94,7 @@ export const getPasskeyRegOptions = async (req, res) => {
 }
 
 export const handlePasskeyRegVerification = async (req, res) => {
-    const {userId, webAuth} = req.body;
+    const {userId, duration, webAuth} = req.body;
     
     const user = await AuthService.findUserForSignIn(userId);
   
@@ -106,7 +106,7 @@ export const handlePasskeyRegVerification = async (req, res) => {
             response: webAuth,
             expectedChallenge: `${expectedChallenge}`,
             expectedOrigin:origin,
-            expectedRPID: [rpID, 'http://localhost:3000'],
+            expectedRPID: rpID,
             requireUserVerification: true,
         });
     } catch (error) {
@@ -115,8 +115,11 @@ export const handlePasskeyRegVerification = async (req, res) => {
     }
   
     const { verified, registrationInfo } = verification;
+
+    console.log("registration verification results:",{ verified, registrationInfo })
   
     if (verified && registrationInfo) {
+        
         const {
             credential,
             credentialDeviceType,
@@ -134,7 +137,7 @@ export const handlePasskeyRegVerification = async (req, res) => {
         };
 
         try {
-            await AuthService.addPasskey({data});
+            await AuthService.addPasskey(data);
         } catch(e) {
             console.log(e);
             throw e
