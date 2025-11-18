@@ -23,7 +23,7 @@ AuthRouter.post('/register', [requireInviteCode], registerNewUser);
 
 
 //WEBAUTHN -- PASSKEY ROUTES
-AuthRouter.post("/passkey-reg-options", getPasskeyRegOptions)
+AuthRouter.post("/generate-passkey-reg-options", getPasskeyRegOptions)
 AuthRouter.post("/passkey-reg-verification", handlePasskeyRegVerification);
 
 //RETURN METHODS USER CAN SIGN IN (SOCIALS || PASSKEY)

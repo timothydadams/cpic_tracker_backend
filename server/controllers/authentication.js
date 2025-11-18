@@ -77,15 +77,19 @@ export const generateAuthOptions = async (req,res) => {
 
 //passkey registration options:
 export const getPasskeyRegOptions = async (req, res) => {
-    const { id } = req.body;
+    const { id, email } = req.body;
+
+    console.log("user id passed to getPasskeyRegOptions", id);
 
     const user = await AuthService.findUserForSignIn(id);
-    const passkeys = await AuthService.findExistingUserPasskeys(user.id);
+    const passkeys = await AuthService.findExistingUserPasskeys(id);
+
+    console.log({user, passkeys});
 
     const options = {
         rpName: 'CPIC Tracker',
         rpID,
-        userName: user.email,
+        userName: email,
         timeout: 60000,
         attestationType: 'none',
         excludeCredentials: passkeys.map(passkey => ({
@@ -105,6 +109,8 @@ export const getPasskeyRegOptions = async (req, res) => {
 
     const regOptions = await generateRegistrationOptions(options);
 
+    console.log({regOptions});
+
     //add currentChallenge to user in db
     await UserService.updateUser(user.id, {passkey_reg_options: regOptions})
     
@@ -123,7 +129,7 @@ export const handlePasskeyRegVerification = async (req, res) => {
         verification = await verifyRegistrationResponse({
             response: webAuth,
             expectedChallenge: `${expectedChallenge}`,
-            expectedOrigin:[origin],
+            expectedOrigin:origin,
             expectedRPID: rpID,
             requireUserVerification: true,
         });
