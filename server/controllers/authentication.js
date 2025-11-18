@@ -45,7 +45,7 @@ export const generateAuthOptions = async (req,res) => {
         
         return res.status(200).json({
             socials: [],
-            passkeys: empty,
+            passkey: empty,
         });
     }
 
@@ -63,11 +63,11 @@ export const generateAuthOptions = async (req,res) => {
             })),
         });
 
-        console.log('authentication options generated:', user_passkeys);
+        console.log('authentication options generated:', pk_options);
 
         await UserService.updateUser(user.id, {passkey_auth_options: pk_options});
 
-        return res.status(200).json({userId: user.id, socials, passkeys:pk_options});
+        return res.status(200).json({socials, passkey:pk_options});
     } catch(e) {
         console.log(e)
         return res.status(200).json({});
@@ -77,12 +77,12 @@ export const generateAuthOptions = async (req,res) => {
 
 //passkey registration options:
 export const getPasskeyRegOptions = async (req, res) => {
-    const { id, email } = req.body;
+    const { email } = req.body;
 
-    console.log("user id passed to getPasskeyRegOptions", id);
+    console.log("user passed to getPasskeyRegOptions", email);
 
-    const user = await AuthService.findUserForSignIn(id);
-    const passkeys = await AuthService.findExistingUserPasskeys(id);
+    const user = await AuthService.findUserForSignIn(email, "email");
+    const passkeys = await AuthService.findExistingUserPasskeys(user.id);
 
     console.log({user, passkeys});
 
@@ -90,6 +90,7 @@ export const getPasskeyRegOptions = async (req, res) => {
         rpName: 'CPIC Tracker',
         rpID,
         userName: email,
+        userDisplayName: email,
         timeout: 60000,
         attestationType: 'none',
         excludeCredentials: passkeys.map(passkey => ({
@@ -118,11 +119,13 @@ export const getPasskeyRegOptions = async (req, res) => {
 }
 
 export const handlePasskeyRegVerification = async (req, res) => {
-    const {userId, duration, webAuth} = req.body;
-    
-    const user = await AuthService.findUserForSignIn(userId);
+    const {email, duration, webAuth} = req.body;
+    const user = await AuthService.findUserForSignIn(email, "email");
+    //const user = await AuthService.findUserForSignIn(userId);
+
+    const {passkey_reg_options:currentOptions} = user;
   
-    const expectedChallenge = user?.passkey_reg_options?.challenge;
+    const expectedChallenge = currentOptions.challenge;
   
     let verification;
     try {
@@ -155,7 +158,7 @@ export const handlePasskeyRegVerification = async (req, res) => {
             counter:credential.counter,
             transports:credential.transports,
             deviceType:credentialDeviceType,
-            webAuthn_userId: user.passkey_reg_options.user.id,
+            webAuthn_userId: currentOptions.user.id,
             backedUp: credentialBackedUp,
             userId: user.id,
         };
@@ -183,11 +186,11 @@ export const handlePasskeyRegVerification = async (req, res) => {
 }
 
 export const verifyAuthResponse = async (req,res) => {
-    const {userId, duration, webAuth} = req.body;
+    const {email, duration, webAuth} = req.body;
 
     console.log('verify auth response inputs:', {userId, duration, webAuth})
     
-    const user = await AuthService.findUserForSignIn(userId);
+    const user = await AuthService.findUserForSignIn(email, "email");
 
     console.log('user found:', user)
     
@@ -208,7 +211,7 @@ export const verifyAuthResponse = async (req,res) => {
         verification = await verifyAuthenticationResponse({
             response: webAuth,
             expectedChallenge: currentOptions.challenge,
-            expectedOrigin: [origin],
+            expectedOrigin: origin,
             expectedRPID: rpID,
             credential: {
                 id: passkey.id,
