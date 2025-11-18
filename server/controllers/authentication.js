@@ -95,15 +95,12 @@ export const getPasskeyRegOptions = async (req, res) => {
         attestationType: 'none',
         excludeCredentials: passkeys.map(passkey => ({
             id: passkey.id,
-            // Optional
+            type: 'public-key',
             transports: passkey.transports,
         })),
         authenticatorSelection: {
-            // Defaults
-            residentKey: 'preferred',
-            userVerification: 'preferred',
-            // Optional
-            authenticatorAttachment: 'platform',
+            userVerification: 'required', 
+            residentKey: 'required',
         },
         supportedAlgorithmIDs: [-7, -257], //most common algorithms: ES256, and RS256
     };
@@ -154,6 +151,7 @@ export const handlePasskeyRegVerification = async (req, res) => {
         } = registrationInfo;
 
         const data = {
+            id: credential.id,
             publicKey: credential.publicKey, 
             counter:credential.counter,
             transports:credential.transports,
@@ -186,9 +184,10 @@ export const handlePasskeyRegVerification = async (req, res) => {
 }
 
 export const verifyAuthResponse = async (req,res) => {
+
     const {email, duration, webAuth} = req.body;
 
-    console.log('verify auth response inputs:', {userId, duration, webAuth})
+    console.log('verify auth response inputs:', {email, duration, webAuth})
     
     const user = await AuthService.findUserForSignIn(email, "email");
 

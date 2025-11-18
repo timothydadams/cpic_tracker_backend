@@ -17,7 +17,7 @@ datasource db {
 }
 
 model Passkey {
-  id              String   @id @default(uuid())
+  id              String   @id
   createdAt       DateTime @default(now())
   publicKey       Bytes // The public key associated with the credential
   counter         BigInt // The signature counter

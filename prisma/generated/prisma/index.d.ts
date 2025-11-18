@@ -21284,7 +21284,7 @@ export namespace Prisma {
   }
 
   export type PasskeyCreateInput = {
-    id?: string
+    id: string
     createdAt?: Date | string
     publicKey: Bytes
     counter: bigint | number
@@ -21296,7 +21296,7 @@ export namespace Prisma {
   }
 
   export type PasskeyUncheckedCreateInput = {
-    id?: string
+    id: string
     createdAt?: Date | string
     publicKey: Bytes
     counter: bigint | number
@@ -21332,7 +21332,7 @@ export namespace Prisma {
   }
 
   export type PasskeyCreateManyInput = {
-    id?: string
+    id: string
     createdAt?: Date | string
     publicKey: Bytes
     counter: bigint | number
@@ -24939,7 +24939,7 @@ export namespace Prisma {
   }
 
   export type PasskeyCreateWithoutUserInput = {
-    id?: string
+    id: string
     createdAt?: Date | string
     publicKey: Bytes
     counter: bigint | number
@@ -24950,7 +24950,7 @@ export namespace Prisma {
   }
 
   export type PasskeyUncheckedCreateWithoutUserInput = {
-    id?: string
+    id: string
     createdAt?: Date | string
     publicKey: Bytes
     counter: bigint | number
@@ -27410,7 +27410,7 @@ export namespace Prisma {
   }
 
   export type PasskeyCreateManyUserInput = {
-    id?: string
+    id: string
     createdAt?: Date | string
     publicKey: Bytes
     counter: bigint | number
