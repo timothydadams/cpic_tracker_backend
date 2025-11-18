@@ -31,6 +31,7 @@ const origin = process.env.NODE_ENV === "development" ? `http://${rpID}` : `http
 export const generateAuthOptions = async (req,res) => {
     const { email } = req.body;
     const user = await AuthService.findUserForSignIn(email, "email");
+
     if (!email || !user) {
         
         const empty = await generateAuthenticationOptions({
@@ -49,7 +50,9 @@ export const generateAuthOptions = async (req,res) => {
 
     try {
         const socials = await AuthService.getSocialLoginOptions(email);
+        console.log('socials generated:', socials);
         const user_passkeys = await AuthService.findExistingUserPasskeys(user.id);
+        console.log('passkeys found for user:', user_passkeys);
         const pk_options = await generateAuthenticationOptions({
             rpID,
             // Require users to use a previously-registered authenticator
@@ -58,6 +61,8 @@ export const generateAuthOptions = async (req,res) => {
                 transports: passkey.transports,
             })),
         });
+
+        console.log('authentication options generated:', user_passkeys);
 
         await UserService.updateUser(user.id, {passkey_auth_options: pk_options});
 
@@ -79,7 +84,7 @@ export const getPasskeyRegOptions = async (req, res) => {
     const options = {
         rpName: 'CPIC Tracker',
         rpID,
-        userName: user.display_name,
+        userName: user.email,
         timeout: 60000,
         attestationType: 'none',
         excludeCredentials: passkeys.map(passkey => ({
