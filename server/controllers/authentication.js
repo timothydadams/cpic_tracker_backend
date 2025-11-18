@@ -25,11 +25,12 @@ const baseCookieSettings = {
 }
 
 const rpID = process.env.NODE_ENV === "development" ? `localhost` : `cpic.dev`;
-const origin = process.env.NODE_ENV === "development" ? `http://${rpID}` : `https://${rpID}`;
+const origin = process.env.NODE_ENV === "development" ? [`http://${rpID}`, `http://${rpID}:3000`] : `https://${rpID}`;
 
 //get options for user to sign in
 export const generateAuthOptions = async (req,res) => {
     const { email } = req.body;
+    console.log('generating auth options for:', email);
     const user = await AuthService.findUserForSignIn(email, "email");
 
     if (!email || !user) {
