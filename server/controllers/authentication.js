@@ -379,6 +379,7 @@ export const handleGoogleSignIn = async(req, res) => {
         persist = "SHORT",
         path: { pathname = "/"},
         email,
+        isAuthed = false,
     } = JSON.parse(decodeURIComponent(req.query.state));
 
     const duration = persist;
@@ -406,18 +407,20 @@ export const handleGoogleSignIn = async(req, res) => {
             throw new AppError("unauthorized user", 401, {inviteCode});
         }
 
-        const userWithRoles = await AuthService.findUserForSignIn(user.id, "id");
+        //issue JWT and authenticate the user
+        if (!isAuthed) {
+            const userWithRoles = await AuthService.findUserForSignIn(user.id, "id");
+            const {refreshToken, accessToken} = createJWT(userWithRoles, duration);
+            //send refresh token via httpOnly cookie (not accessible via js)
+            res.cookie('jwt_cpic', refreshToken, { 
+                ...baseCookieSettings,
+                maxAge: duration == "SHORT"
+                    ? Number(process.env.COOKIE_LIFE_SHORT)
+                    : Number(process.env.COOKIE_LIFE_LONG)
+            });
+        }
 
-        const {refreshToken, accessToken} = createJWT(userWithRoles, duration);
-
-        //send refresh token via httpOnly cookie (not accessible via js)
-        res.cookie('jwt_cpic', refreshToken, { 
-            ...baseCookieSettings,
-            maxAge: duration == "SHORT"
-                ? Number(process.env.COOKIE_LIFE_SHORT)
-                : Number(process.env.COOKIE_LIFE_LONG)
-        });
-
+        //redirect back to where they came from
         return res.redirect(303, `${clientDomain}${pathname}`);
 
     } catch(e) {

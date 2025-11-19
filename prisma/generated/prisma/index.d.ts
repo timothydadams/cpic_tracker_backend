@@ -3718,7 +3718,7 @@ export namespace Prisma {
     updatedAt: Date | null
     display_name: string | null
     profile_pic: string | null
-    nickname: string | null
+    username: string | null
     given_name: string | null
     family_name: string | null
     password_hash: string | null
@@ -3735,7 +3735,7 @@ export namespace Prisma {
     updatedAt: Date | null
     display_name: string | null
     profile_pic: string | null
-    nickname: string | null
+    username: string | null
     given_name: string | null
     family_name: string | null
     password_hash: string | null
@@ -3755,7 +3755,7 @@ export namespace Prisma {
     updatedAt: number
     display_name: number
     profile_pic: number
-    nickname: number
+    username: number
     given_name: number
     family_name: number
     password_hash: number
@@ -3782,7 +3782,7 @@ export namespace Prisma {
     updatedAt?: true
     display_name?: true
     profile_pic?: true
-    nickname?: true
+    username?: true
     given_name?: true
     family_name?: true
     password_hash?: true
@@ -3799,7 +3799,7 @@ export namespace Prisma {
     updatedAt?: true
     display_name?: true
     profile_pic?: true
-    nickname?: true
+    username?: true
     given_name?: true
     family_name?: true
     password_hash?: true
@@ -3819,7 +3819,7 @@ export namespace Prisma {
     updatedAt?: true
     display_name?: true
     profile_pic?: true
-    nickname?: true
+    username?: true
     given_name?: true
     family_name?: true
     password_hash?: true
@@ -3926,7 +3926,7 @@ export namespace Prisma {
     updatedAt: Date
     display_name: string | null
     profile_pic: string | null
-    nickname: string | null
+    username: string | null
     given_name: string | null
     family_name: string | null
     password_hash: string | null
@@ -3965,7 +3965,7 @@ export namespace Prisma {
     updatedAt?: boolean
     display_name?: boolean
     profile_pic?: boolean
-    nickname?: boolean
+    username?: boolean
     given_name?: boolean
     family_name?: boolean
     password_hash?: boolean
@@ -3995,7 +3995,7 @@ export namespace Prisma {
     updatedAt?: boolean
     display_name?: boolean
     profile_pic?: boolean
-    nickname?: boolean
+    username?: boolean
     given_name?: boolean
     family_name?: boolean
     password_hash?: boolean
@@ -4018,7 +4018,7 @@ export namespace Prisma {
     updatedAt?: boolean
     display_name?: boolean
     profile_pic?: boolean
-    nickname?: boolean
+    username?: boolean
     given_name?: boolean
     family_name?: boolean
     password_hash?: boolean
@@ -4041,7 +4041,7 @@ export namespace Prisma {
     updatedAt?: boolean
     display_name?: boolean
     profile_pic?: boolean
-    nickname?: boolean
+    username?: boolean
     given_name?: boolean
     family_name?: boolean
     password_hash?: boolean
@@ -4052,7 +4052,7 @@ export namespace Prisma {
     invitedById?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "federated_idps" | "passkey_reg_options" | "passkey_auth_options" | "createdAt" | "updatedAt" | "display_name" | "profile_pic" | "nickname" | "given_name" | "family_name" | "password_hash" | "email" | "disabled" | "implementer_org_id" | "inviteCodeId" | "invitedById", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "federated_idps" | "passkey_reg_options" | "passkey_auth_options" | "createdAt" | "updatedAt" | "display_name" | "profile_pic" | "username" | "given_name" | "family_name" | "password_hash" | "email" | "disabled" | "implementer_org_id" | "inviteCodeId" | "invitedById", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     passkeys?: boolean | User$passkeysArgs<ExtArgs>
     implementer_org?: boolean | User$implementer_orgArgs<ExtArgs>
@@ -4098,7 +4098,7 @@ export namespace Prisma {
       updatedAt: Date
       display_name: string | null
       profile_pic: string | null
-      nickname: string | null
+      username: string | null
       given_name: string | null
       family_name: string | null
       password_hash: string | null
@@ -4547,7 +4547,7 @@ export namespace Prisma {
     readonly updatedAt: FieldRef<"User", 'DateTime'>
     readonly display_name: FieldRef<"User", 'String'>
     readonly profile_pic: FieldRef<"User", 'String'>
-    readonly nickname: FieldRef<"User", 'String'>
+    readonly username: FieldRef<"User", 'String'>
     readonly given_name: FieldRef<"User", 'String'>
     readonly family_name: FieldRef<"User", 'String'>
     readonly password_hash: FieldRef<"User", 'String'>
@@ -19932,7 +19932,7 @@ export namespace Prisma {
     updatedAt: 'updatedAt',
     display_name: 'display_name',
     profile_pic: 'profile_pic',
-    nickname: 'nickname',
+    username: 'username',
     given_name: 'given_name',
     family_name: 'family_name',
     password_hash: 'password_hash',
@@ -20339,7 +20339,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     display_name?: StringNullableFilter<"User"> | string | null
     profile_pic?: StringNullableFilter<"User"> | string | null
-    nickname?: StringNullableFilter<"User"> | string | null
+    username?: StringNullableFilter<"User"> | string | null
     given_name?: StringNullableFilter<"User"> | string | null
     family_name?: StringNullableFilter<"User"> | string | null
     password_hash?: StringNullableFilter<"User"> | string | null
@@ -20368,7 +20368,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     display_name?: SortOrderInput | SortOrder
     profile_pic?: SortOrderInput | SortOrder
-    nickname?: SortOrderInput | SortOrder
+    username?: SortOrderInput | SortOrder
     given_name?: SortOrderInput | SortOrder
     family_name?: SortOrderInput | SortOrder
     password_hash?: SortOrderInput | SortOrder
@@ -20401,7 +20401,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     display_name?: StringNullableFilter<"User"> | string | null
     profile_pic?: StringNullableFilter<"User"> | string | null
-    nickname?: StringNullableFilter<"User"> | string | null
+    username?: StringNullableFilter<"User"> | string | null
     given_name?: StringNullableFilter<"User"> | string | null
     family_name?: StringNullableFilter<"User"> | string | null
     password_hash?: StringNullableFilter<"User"> | string | null
@@ -20429,7 +20429,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     display_name?: SortOrderInput | SortOrder
     profile_pic?: SortOrderInput | SortOrder
-    nickname?: SortOrderInput | SortOrder
+    username?: SortOrderInput | SortOrder
     given_name?: SortOrderInput | SortOrder
     family_name?: SortOrderInput | SortOrder
     password_hash?: SortOrderInput | SortOrder
@@ -20457,7 +20457,7 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     display_name?: StringNullableWithAggregatesFilter<"User"> | string | null
     profile_pic?: StringNullableWithAggregatesFilter<"User"> | string | null
-    nickname?: StringNullableWithAggregatesFilter<"User"> | string | null
+    username?: StringNullableWithAggregatesFilter<"User"> | string | null
     given_name?: StringNullableWithAggregatesFilter<"User"> | string | null
     family_name?: StringNullableWithAggregatesFilter<"User"> | string | null
     password_hash?: StringNullableWithAggregatesFilter<"User"> | string | null
@@ -21375,7 +21375,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -21401,7 +21401,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -21427,7 +21427,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21453,7 +21453,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21479,7 +21479,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -21499,7 +21499,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21516,7 +21516,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22629,7 +22629,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     display_name?: SortOrder
     profile_pic?: SortOrder
-    nickname?: SortOrder
+    username?: SortOrder
     given_name?: SortOrder
     family_name?: SortOrder
     password_hash?: SortOrder
@@ -22650,7 +22650,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     display_name?: SortOrder
     profile_pic?: SortOrder
-    nickname?: SortOrder
+    username?: SortOrder
     given_name?: SortOrder
     family_name?: SortOrder
     password_hash?: SortOrder
@@ -22667,7 +22667,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     display_name?: SortOrder
     profile_pic?: SortOrder
-    nickname?: SortOrder
+    username?: SortOrder
     given_name?: SortOrder
     family_name?: SortOrder
     password_hash?: SortOrder
@@ -24831,7 +24831,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -24856,7 +24856,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -24897,7 +24897,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24922,7 +24922,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25155,7 +25155,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -25180,7 +25180,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -25215,7 +25215,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -25240,7 +25240,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -25509,7 +25509,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     display_name?: StringNullableFilter<"User"> | string | null
     profile_pic?: StringNullableFilter<"User"> | string | null
-    nickname?: StringNullableFilter<"User"> | string | null
+    username?: StringNullableFilter<"User"> | string | null
     given_name?: StringNullableFilter<"User"> | string | null
     family_name?: StringNullableFilter<"User"> | string | null
     password_hash?: StringNullableFilter<"User"> | string | null
@@ -25540,7 +25540,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25565,7 +25565,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25695,7 +25695,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -25720,7 +25720,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -25786,7 +25786,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25811,7 +25811,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26486,7 +26486,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -26511,7 +26511,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -26546,7 +26546,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -26571,7 +26571,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -26946,7 +26946,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -26971,7 +26971,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -27092,7 +27092,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27117,7 +27117,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27201,7 +27201,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -27226,7 +27226,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -27256,7 +27256,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -27281,7 +27281,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -27352,7 +27352,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27377,7 +27377,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27454,7 +27454,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -27623,7 +27623,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27648,7 +27648,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27673,7 +27673,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28096,7 +28096,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -28123,7 +28123,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28148,7 +28148,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28173,7 +28173,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28192,7 +28192,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28217,7 +28217,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28242,7 +28242,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28323,7 +28323,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     display_name?: string | null
     profile_pic?: string | null
-    nickname?: string | null
+    username?: string | null
     given_name?: string | null
     family_name?: string | null
     password_hash?: string | null
@@ -28342,7 +28342,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28367,7 +28367,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28392,7 +28392,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     display_name?: NullableStringFieldUpdateOperationsInput | string | null
     profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
-    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
     given_name?: NullableStringFieldUpdateOperationsInput | string | null
     family_name?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null

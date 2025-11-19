@@ -44,7 +44,7 @@ model User {
   updatedAt             DateTime      @updatedAt
   display_name          String?
   profile_pic           String?
-  nickname              String?
+  username              String?
   given_name            String?
   family_name           String?
   password_hash         String?

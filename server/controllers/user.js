@@ -7,13 +7,16 @@ import { handleResponse} from '../utils/defaultResponse.js'
 import { AppError } from "../errors/AppError.js";
 import { UserService } from "../services/user.js";
 import { RoleService } from "../services/roles.js";
+import { parseBoolean } from "../utils/queryStringParsers.js";
 
 
-export const handleGetUser = async(req,res) => {
+export const handleGetUser = async(req,res,next) => {
     const { id } = req.params;
     if (!id) {
         throw new AppError("must provide a user id", 400);
     }
+    const federated_idps = parseBoolean(req.query.federated_idps);
+    const passkeys = parseBoolean(req.query.passkeys);
 
     const includeItems = {
         email:true,
@@ -21,12 +24,15 @@ export const handleGetUser = async(req,res) => {
         family_name:true,
         given_name:true,
         display_name:true,
+        username:true,
         profile_pic: true,
         implementer_org:true,
+        ...(federated_idps ? {federated_idps:true} : {}),
+        ...(passkeys ? {passkeys:{select:{createdAt:true,transports:true,deviceType:true}}} : {}),
     }
 
     try {
-        const user = await UserService.getUserById(id, res, includeItems);
+        const user = await UserService.getUserById(id, includeItems);
     
         authorize(userPolicies.canRead, user)(req, res, async () => {
             const roles = await RoleService.getUserRoles(id);
@@ -40,6 +46,12 @@ export const handleGetUser = async(req,res) => {
 }
 
 export const handleGetAllUsers = async(req,res,next) => {
+    const { user } = res.locals;
+    const { isGlobalAdmin, isCPICAdmin } = user;
+    if (!isGlobalAdmin || isCPICAdmin) {
+        throw new AppError("Forbidden", 403);
+    }
+
     try {
         const users = await UserService.getAllUsers({includeRoles:true});
         handleResponse(res, 200, "users retrieved", users);
@@ -49,66 +61,29 @@ export const handleGetAllUsers = async(req,res,next) => {
 }
 
 
-export const handleUpdateUser = async(req,res) => {
+export const handleUpdateUser = async(req,res, next) => {
     const { id } = req.params;
-    if (!id) return res.json({message:"must provide an id parameter"})
-    const { id:requesterId, isAdmin } = res.locals;
 
-    if (!requesterId || (
-        isAdmin === false && id !== requesterId
-    )) return res.sendStatus(403);
+    if (!id) {
+        throw new AppError("must provide an id parameter", 400)
+    }
     
-    const { 
-        email,
-        username, 
-        profile:{ 
-            firstName,
-            lastName,
-            bio,
-        }} = req.body;
-
-    console.log('updating user:',{id, email })
+    const {
+        family_name,
+        given_name,
+        display_name,
+        username,
+    } = req.body;
 
     try {
-        const user = await prisma.user.update({
-            where: {
-                id,
-            },
-            include: {
-                password:false,
-                profile:true,
-            },
-            data: {
-                email,
-                username,
-                profile: {
-                    upsert: {
-                        where: {
-                            userId:id
-                        },
-                        update: {
-                            firstName,
-                            lastName,
-                            bio,
-                        },
-                        create: {
-                            firstName,
-                            lastName,
-                            bio,
-                        }
-                        
-                    }
-                }
-            }
+        const userToUpdate = await UserService.getUserById(id);
+    
+        authorize(userPolicies.canUpdate, userToUpdate)(req, res, async () => {
+            const user = await UserService.updateUser(id, {family_name,given_name,display_name,username});
+            handleResponse(res, 200, "user updated successfully", user);
         });
-        
-        if (!user?.id || !user?.username) return res.status(500).json({message:'failed to create user'});
-
-        res.json({ user });
-        
     } catch(e) {
-        console.log('error:', e);
-        res.status(500).json({message:'failed to update user'});
+        next(e)
     }
     
 }

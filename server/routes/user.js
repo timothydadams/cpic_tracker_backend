@@ -13,7 +13,7 @@ import {
 const UserRouter = Router();
 
 
-UserRouter.get('/', [verifyToken, requireGlobalAdmin], handleGetAllUsers);
+UserRouter.get('/', [verifyToken], handleGetAllUsers);
 UserRouter.get('/:id', [verifyToken], handleGetUser);
 UserRouter.put('/:id', [verifyToken], handleUpdateUser);
 
