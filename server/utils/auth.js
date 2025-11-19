@@ -36,17 +36,6 @@ export const getAuthedGoogleClient = () => {
     });
 }
 
-export const generateCookieConfig = (duration = "SHORT") => {
-    return { 
-        httpOnly:true, 
-        sameSite:'lax', 
-        secure:process.env.NODE_ENV === 'production',
-        maxAge: duration == "SHORT"
-            ? Number(process.env.COOKIE_LIFE_SHORT)
-            : Number(process.env.COOKIE_LIFE_LONG)
-    }
-};
-
 export const createObjFromFilteredKeys = (userObject, desiredFields) => Object.fromEntries(
     Object.entries(userObject).filter(([key]) => desiredFields.includes(key))
 );
@@ -80,4 +69,35 @@ export const createJWT = (user, duration = "SHORT") => {
     )
 
     return { accessToken, refreshToken }
+}
+
+export const ensureUint8Array = (data) => {
+    if (data instanceof Uint8Array) {
+        return data;
+    }
+    
+    // Handle standard arrays of numbers
+    if (Array.isArray(data)) {
+        return new Uint8Array(data);
+    }
+    
+    // Handle Node.js Buffers
+    if (typeof Buffer !== 'undefined' && Buffer.isBuffer(data)) {
+      return new Uint8Array(data);
+    }
+
+    // Handle other TypedArrays by using their underlying buffer
+    if (ArrayBuffer.isView(data)) {
+      return new Uint8Array(data.buffer);
+    }
+    
+    // Handle simple object format like {'0': 165, '1':1, ...}
+    if (typeof data === 'object' && data !== null && '0' in data) {
+      const arr = Object.values(data);
+      if (arr.every(num => typeof num === 'number' && num >= 0 && num <= 255)) {
+        return new Uint8Array(arr);
+      }
+    }
+
+    throw new Error('Unsupported data format for Uint8Array conversion.');
 }

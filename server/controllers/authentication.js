@@ -5,6 +5,7 @@ import {
     comparePasswords, 
     createJWT,
     createObjFromFilteredKeys,
+    ensureUint8Array,
  } from "../utils/auth.js";
 import { handleResponse } from "../utils/defaultResponse.js";
 import { AppError } from "../errors/AppError.js";
@@ -51,9 +52,9 @@ export const generateAuthOptions = async (req,res) => {
 
     try {
         const socials = await AuthService.getSocialLoginOptions(email);
-        console.log('socials generated:', socials);
+        //console.log('socials generated:', socials);
         const user_passkeys = await AuthService.findExistingUserPasskeys(user.id);
-        console.log('passkeys found for user:', user_passkeys);
+        //console.log('passkeys found for user:', user_passkeys);
         const pk_options = await generateAuthenticationOptions({
             rpID,
             // Require users to use a previously-registered authenticator
@@ -63,13 +64,13 @@ export const generateAuthOptions = async (req,res) => {
             })),
         });
 
-        console.log('authentication options generated:', pk_options);
+        //console.log('authentication options generated:', pk_options);
 
         await UserService.updateUser(user.id, {passkey_auth_options: pk_options});
 
         return res.status(200).json({socials, passkey:pk_options});
     } catch(e) {
-        console.log(e)
+        //console.log(e)
         return res.status(200).json({});
     }
 }
@@ -79,7 +80,7 @@ export const generateAuthOptions = async (req,res) => {
 export const getPasskeyRegOptions = async (req, res) => {
     const { email } = req.body;
 
-    console.log("user passed to getPasskeyRegOptions", email);
+    //console.log("user passed to getPasskeyRegOptions", email);
 
     const user = await AuthService.findUserForSignIn(email, "email");
     const passkeys = await AuthService.findExistingUserPasskeys(user.id);
@@ -107,7 +108,7 @@ export const getPasskeyRegOptions = async (req, res) => {
 
     const regOptions = await generateRegistrationOptions(options);
 
-    console.log({regOptions});
+    //console.log('registration options generated:', regOptions);
 
     //add currentChallenge to user in db
     await UserService.updateUser(user.id, {passkey_reg_options: regOptions})
@@ -117,13 +118,15 @@ export const getPasskeyRegOptions = async (req, res) => {
 
 export const handlePasskeyRegVerification = async (req, res) => {
     const {email, duration, webAuth} = req.body;
+    //retrieve user object
     const user = await AuthService.findUserForSignIn(email, "email");
-    //const user = await AuthService.findUserForSignIn(userId);
+    //reset users registration options once we have what we need
+    await UserService.updateUser(user.id, {passkey_reg_options:null});
 
+    //parse challenge info for use in verification
     const {passkey_reg_options:currentOptions} = user;
-  
     const expectedChallenge = currentOptions.challenge;
-  
+
     let verification;
     try {
         verification = await verifyRegistrationResponse({
@@ -140,7 +143,7 @@ export const handlePasskeyRegVerification = async (req, res) => {
   
     const { verified, registrationInfo } = verification;
 
-    console.log("registration verification results:",{ verified, registrationInfo })
+    //console.log("registration verification results:",{ verified, registrationInfo })
   
     if (verified && registrationInfo) {
         
@@ -150,9 +153,13 @@ export const handlePasskeyRegVerification = async (req, res) => {
             credentialBackedUp,
         } = registrationInfo;
 
+        const binaryPublicKey = ensureUint8Array(credential.publicKey);
+
+        //console.log('pk is in uint8array format: ', binaryPublicKey instanceof Uint8Array);
+
         const data = {
             id: credential.id,
-            publicKey: credential.publicKey, 
+            publicKey: binaryPublicKey, 
             counter:credential.counter,
             transports:credential.transports,
             deviceType:credentialDeviceType,
@@ -162,7 +169,6 @@ export const handlePasskeyRegVerification = async (req, res) => {
         };
 
         try {
-            //await UserService.updateUser(userId, {passkey_reg_options:null});
             await AuthService.addPasskey(data);
         } catch(e) {
             console.log(e);
@@ -187,19 +193,19 @@ export const verifyAuthResponse = async (req,res) => {
 
     const {email, duration, webAuth} = req.body;
 
-    console.log('verify auth response inputs:', {email, duration, webAuth})
+    //console.log('verify auth response inputs:', {email, duration, webAuth})
     
     const user = await AuthService.findUserForSignIn(email, "email");
 
-    console.log('user found:', user)
+    //console.log('user found:', user.id);
     
     const currentOptions = user?.passkey_auth_options;
 
-    console.log('users currentOptions:', currentOptions)
+    //console.log('users currentOptions:', currentOptions)
     
-    const passkey = AuthService.getUserPasskey(user.id, webAuth.id);
+    const passkey = await AuthService.getUserPasskey(user.id, webAuth.id);
 
-    console.log('passkey found for user:', passkey);
+    const binaryPublicKey = ensureUint8Array(passkey.publicKey);
 
     if (!passkey) {
         throw new Error(`Could not find passkey ${webAuth.id} for user ${user.id}`);
@@ -212,9 +218,10 @@ export const verifyAuthResponse = async (req,res) => {
             expectedChallenge: currentOptions.challenge,
             expectedOrigin: origin,
             expectedRPID: rpID,
+            requireUserVerification:true,
             credential: {
                 id: passkey.id,
-                publicKey: passkey.publicKey,
+                publicKey: binaryPublicKey,
                 counter: passkey.counter,
                 transports: passkey.transports,
             },
@@ -225,9 +232,15 @@ export const verifyAuthResponse = async (req,res) => {
     }
 
     const { verified, authenticationInfo } = verification;
-    console.log('verification results:', verification);
-    const { newCounter } = authenticationInfo;
-    await AuthService.savePasskeyCounter(passkey.id, newCounter);
+    //console.log('verification results:', verification);
+    try {
+        const { newCounter } = authenticationInfo;
+        await AuthService.savePasskeyCounter(passkey.id, newCounter);
+    } catch(error) {
+        console.error(error);
+        return res.status(400).send({ error: error.message });
+    }
+    
     //generate access/refresh tokens and return verified status
     const {refreshToken, accessToken} = createJWT(user);
 

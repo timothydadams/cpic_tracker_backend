@@ -35,7 +35,7 @@ StrategyRouter.get("/my-strategies", [verifyToken], async(req, res) => {
         const userId = res.locals.user.id;
         const isImplementer = res.locals.user.isImplementer;
 
-         console.log('details going into lookup:', {userId, isImplementer});
+        //console.log('details going into lookup:', {userId, isImplementer});
         
         if (!userId) {
             return res.status(401).json({ error: 'Unauthorized' });
@@ -54,7 +54,7 @@ StrategyRouter.get("/my-strategies", [verifyToken], async(req, res) => {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        console.log('details going into lookup:', {user});
+        //console.log('details going into lookup:', {user});
 
         if (isImplementer && user?.implementer_org_id) {
             const leadStrategies = await prisma.strategy.findMany({
