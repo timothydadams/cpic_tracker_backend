@@ -40,7 +40,6 @@ export const viewMyStrategies = async (req, res, next) => {
     } else {
         results = []
         for (const imp of assigned_implementers) {
-            console.log('implementer assigned')
             const details = imp;
             const strategies = await ImplementerService.getImplementerStrategies(imp.id);
             results.push({details,strategies});
