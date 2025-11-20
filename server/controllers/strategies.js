@@ -52,7 +52,7 @@ export const viewMyStrategies = async (req, res, next) => {
 
 
 
-export const viewStrategy = async (req, res) => {
+export const viewStrategy = async (req, res, next) => {
     const strategyId = parseInt(req.params.id,10);
 
     const implementers = parseBoolean(req.query.implementers);
@@ -79,14 +79,18 @@ export const viewStrategy = async (req, res) => {
             ...(status ? {status:true} : {}),
     }
 
-    const strategy = await getStrategyById(strategyId, res, includeItems);
+    try {
+        const strategy = await StrategyService.getStrategyById(strategyId, includeItems);
+        authorize(canRead, strategy)(req, res, () => {
+            handleResponse(res, 200, "strategy retrieved successfully", strategy);
+        });
+    } catch(e) {
+        next(e)
+    }
 
-    authorize(canRead, strategy)(req, res, () => {
-        handleResponse(res, 200, "strategy retrieved successfully", strategy);
-    });
 }
 
-export const viewAllStrategies = async(req,res) => {
+export const viewAllStrategies = async(req,res,next) => {
     const { policy, focus_area, include } = req.query;
 
     const where ={};
