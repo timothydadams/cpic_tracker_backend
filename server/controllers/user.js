@@ -28,7 +28,7 @@ export const handleGetUser = async(req,res,next) => {
         profile_pic: true,
         implementer_org:true,
         ...(federated_idps ? {federated_idps:true} : {}),
-        ...(passkeys ? {passkeys:{select:{createdAt:true,transports:true,deviceType:true}}} : {}),
+        ...(passkeys ? {passkeys:{include:{createdAt:true,transports:true,deviceType:true}}} : {}),
     }
 
     try {

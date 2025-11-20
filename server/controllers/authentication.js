@@ -85,7 +85,7 @@ export const getPasskeyRegOptions = async (req, res) => {
     const user = await AuthService.findUserForSignIn(email, "email");
     const passkeys = await AuthService.findExistingUserPasskeys(user.id);
 
-    console.log({user, passkeys});
+    //console.log({user, passkeys});
 
     const options = {
         rpName: 'CPIC Tracker',
@@ -111,17 +111,28 @@ export const getPasskeyRegOptions = async (req, res) => {
     //console.log('registration options generated:', regOptions);
 
     //add currentChallenge to user in db
-    await UserService.updateUser(user.id, {passkey_reg_options: regOptions})
+    try {
+        await UserService.updateUser(user.id, {passkey_reg_options: regOptions})
+        return res.json(regOptions);
+    } catch(e) {
+        next(e)
+    }
     
-    return res.json(regOptions);
 }
 
-export const handlePasskeyRegVerification = async (req, res) => {
+export const handlePasskeyRegVerification = async (req, res, next) => {
     const {email, duration, webAuth} = req.body;
     //retrieve user object
-    const user = await AuthService.findUserForSignIn(email, "email");
+    let user;
+    try {
+        user = await AuthService.findUserForSignIn(email, "email");
+        await UserService.updateUser(user.id, {passkey_reg_options:null});
+    } catch(e) {
+        next(e)
+    }
+    //const user = await AuthService.findUserForSignIn(email, "email");
     //reset users registration options once we have what we need
-    await UserService.updateUser(user.id, {passkey_reg_options:null});
+    //await UserService.updateUser(user.id, {passkey_reg_options:null});
 
     //parse challenge info for use in verification
     const {passkey_reg_options:currentOptions} = user;
@@ -137,8 +148,7 @@ export const handlePasskeyRegVerification = async (req, res) => {
             requireUserVerification: true,
         });
     } catch (error) {
-        console.log(error);
-        return res.status(400).send({ error: error.message });
+        next(error)
     }
   
     const { verified, registrationInfo } = verification;
@@ -171,48 +181,51 @@ export const handlePasskeyRegVerification = async (req, res) => {
         try {
             await AuthService.addPasskey(data);
         } catch(e) {
-            console.log(e);
-            throw e
+            next(e)
         }
     }
   
-    const {refreshToken, accessToken} = createJWT(user);
+    if (duration) {
+         const {refreshToken, accessToken} = createJWT(user);
 
-    //send refresh token via httpOnly cookie (not accessible via js)
-    res.cookie('jwt_cpic', refreshToken, { 
-        ...baseCookieSettings,
-        maxAge: duration == "SHORT"
-        ? Number(process.env.COOKIE_LIFE_SHORT)
-        : Number(process.env.COOKIE_LIFE_LONG)
-    })
+        //send refresh token via httpOnly cookie (not accessible via js)
+        res.cookie('jwt_cpic', refreshToken, { 
+            ...baseCookieSettings,
+            maxAge: duration == "SHORT"
+                ? Number(process.env.COOKIE_LIFE_SHORT)
+                : Number(process.env.COOKIE_LIFE_LONG)
+        })
 
-    res.json({ verified, accessToken });
+        return res.json({ verified, accessToken });
+    }
+        
+    return res.json({verified, message: "passkey added"});
+    
 }
 
-export const verifyAuthResponse = async (req,res) => {
+export const verifyAuthResponse = async (req,res, next) => {
 
     const {email, duration, webAuth} = req.body;
 
     //console.log('verify auth response inputs:', {email, duration, webAuth})
-    
-    const user = await AuthService.findUserForSignIn(email, "email");
+    let user;
+    try {
+        user = await AuthService.findUserForSignIn(email, "email");
+    } catch(e) {
+        next(e)
+    }
 
     //console.log('user found:', user.id);
     
     const currentOptions = user?.passkey_auth_options;
 
     //console.log('users currentOptions:', currentOptions)
-    
-    const passkey = await AuthService.getUserPasskey(user.id, webAuth.id);
-
-    const binaryPublicKey = ensureUint8Array(passkey.publicKey);
-
-    if (!passkey) {
-        throw new Error(`Could not find passkey ${webAuth.id} for user ${user.id}`);
-    }
 
     let verification;
+    let passkey;
     try {
+        passkey = await AuthService.getUserPasskey(user.id, webAuth.id);
+        const binaryPublicKey = ensureUint8Array(passkey.publicKey);
         verification = await verifyAuthenticationResponse({
             response: webAuth,
             expectedChallenge: currentOptions.challenge,
@@ -227,8 +240,7 @@ export const verifyAuthResponse = async (req,res) => {
             },
         });
     } catch (error) {
-        console.error(error);
-        return res.status(400).send({ error: error.message });
+        next(error)
     }
 
     const { verified, authenticationInfo } = verification;
@@ -252,7 +264,7 @@ export const verifyAuthResponse = async (req,res) => {
         : Number(process.env.COOKIE_LIFE_LONG)
     })
 
-    res.json({ verified, accessToken });
+    return res.json({ verified, accessToken });
 }
 
 
@@ -310,7 +322,7 @@ export const handleLogout = async(req,res) => {
     }
     
     res.clearCookie('jwt_cpic', baseCookieSettings);
-    res.json({ message: "cleared cookies"});
+    return res.json({ message: "cleared cookies"});
 }
 
 /*
@@ -359,7 +371,7 @@ export const handleRefreshToken = async(req,res) => {
                 : Number(process.env.COOKIE_LIFE_LONG)
             });
             
-            res.json({ accessToken })
+            return res.json({ accessToken })
         }
     );
 
@@ -370,7 +382,7 @@ export const handleRefreshToken = async(req,res) => {
 SIGNIN CONTROLLER
 */
 
-export const handleGoogleSignIn = async(req, res) => {
+export const handleGoogleSignIn = async(req, res, next) => {
     const code = req.query.code;
 
     const clientDomain = process.env.NODE_ENV === "development" ? `http://localhost:3000` : `https://cpic.dev`;
@@ -388,11 +400,7 @@ export const handleGoogleSignIn = async(req, res) => {
 
     try {
 
-        const { data } = await AuthService.getGoogleUserData(code);
-
-        if (!data?.id) throw new AppError("failed to retrieve google profile data", 400);
-
-        const {id, ...properties} = data;
+        const { data: {id, ...properties} } = await AuthService.getGoogleUserData(code);
 
         const desired_keys = ["email", "given_name", "family_name"];
         
@@ -407,7 +415,7 @@ export const handleGoogleSignIn = async(req, res) => {
             throw new AppError("unauthorized user", 401, {inviteCode});
         }
 
-        //issue JWT and authenticate the user
+        //issue JWT and authenticate the user IF user isn't adding via profile (already logged in)
         if (!isAuthed) {
             const userWithRoles = await AuthService.findUserForSignIn(user.id, "id");
             const {refreshToken, accessToken} = createJWT(userWithRoles, duration);
@@ -424,8 +432,7 @@ export const handleGoogleSignIn = async(req, res) => {
         return res.redirect(303, `${clientDomain}${pathname}`);
 
     } catch(e) {
-        console.log('error', e);
-        throw e;
+        next(e);
     }
 }
 

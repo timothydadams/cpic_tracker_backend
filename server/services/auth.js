@@ -31,12 +31,11 @@ export const AuthService = {
                     userId,
                     id:credId,
                 }
-            })
+            });
         } catch(e) {
             console.log(e)
             throw e
         }
-
     },
 
     async savePasskeyCounter(id, counter) {
