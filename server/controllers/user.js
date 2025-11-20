@@ -17,8 +17,11 @@ export const handleGetUser = async(req,res,next) => {
     }
     const federated_idps = parseBoolean(req.query.federated_idps);
     const passkeys = parseBoolean(req.query.passkeys);
+    const implementer_org = parseBoolean(req.query.implementer_details);
+    const assigned_implementers = parseBoolean(req.query.assigned_implementers);
 
-    const includeItems = {
+    const options = {}
+    options.select = {
         email:true,
         id:true,
         family_name:true,
@@ -26,13 +29,16 @@ export const handleGetUser = async(req,res,next) => {
         display_name:true,
         username:true,
         profile_pic: true,
-        implementer_org:true,
+        username:true,
+        implementer_org: true,
         ...(federated_idps ? {federated_idps:true} : {}),
-        ...(passkeys ? {passkeys:{include:{createdAt:true,transports:true,deviceType:true}}} : {}),
+        ...(passkeys ? {passkeys:{select:{createdAt:true,transports:true,deviceType:true}}} : {}),
+        ...(implementer_org ? {implementer_org:true} : {}),
+        ...(assigned_implementers ? {assigned_implementers:true} : {}),
     }
 
     try {
-        const user = await UserService.getUserById(id, includeItems);
+        const user = await UserService.getUserById(id, options);
     
         authorize(userPolicies.canRead, user)(req, res, async () => {
             const roles = await RoleService.getUserRoles(id);
@@ -73,13 +79,26 @@ export const handleUpdateUser = async(req,res, next) => {
         given_name,
         display_name,
         username,
+        assigned_implementers,
+        implementer_org_id,
     } = req.body;
 
+    const options = {}
+
     try {
-        const userToUpdate = await UserService.getUserById(id);
+        const userToUpdate = await UserService.getUserById(id, options);
     
         authorize(userPolicies.canUpdate, userToUpdate)(req, res, async () => {
-            const user = await UserService.updateUser(id, {family_name,given_name,display_name,username});
+            let user;
+            try {
+                user = await UserService.updateUser(id, {family_name,given_name,display_name,username});
+                if (assigned_implementers) {
+                    await UserService.updateAssignedImplementers(id, assigned_implementers);
+                }
+            } catch(e) {
+                next(e)
+            }
+
             handleResponse(res, 200, "user updated successfully", user);
         });
     } catch(e) {

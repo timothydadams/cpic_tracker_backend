@@ -400,8 +400,13 @@ export const handleGoogleSignIn = async(req, res, next) => {
 
     try {
 
-        const { data: {id, ...properties} } = await AuthService.getGoogleUserData(code);
+        const { data } = await AuthService.getGoogleUserData(code);
+        const { id, ...properties} = data;
 
+        if (!data) {
+            throw new AppError("unable to parse google user data", 400);
+        }
+        
         const desired_keys = ["email", "given_name", "family_name"];
         
         //generate user object from google identity
@@ -416,7 +421,7 @@ export const handleGoogleSignIn = async(req, res, next) => {
         }
 
         //issue JWT and authenticate the user IF user isn't adding via profile (already logged in)
-        if (!isAuthed) {
+        if (isAuthed == false) {
             const userWithRoles = await AuthService.findUserForSignIn(user.id, "id");
             const {refreshToken, accessToken} = createJWT(userWithRoles, duration);
             //send refresh token via httpOnly cookie (not accessible via js)

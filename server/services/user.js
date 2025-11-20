@@ -17,15 +17,31 @@ export const UserService = {
             throw e
         }
     },
+
+    async updateAssignedImplementers(userId, implementerIdArray){
+        try {
+            return await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    assigned_implementers: {
+                        set: implementerIdArray.map(id => ({id: Number(id)})), // Replace all authors with these two
+                    },
+                },
+            });
+        } catch(e){
+            throw e
+        }
+    },
     
 
-    async getUserById(id, includedItems = null) {
+    async getUserById(id, {include = null, select = null}) {
         try {
             return await prisma.user.findUnique({
                 where:{
                     id
                 },
-                ...(includedItems != null && {select:includedItems}),
+                ...(include ? {include} : {}),
+                ...(select ? {select} : {}),
             });
         } catch (error) {
             throw error

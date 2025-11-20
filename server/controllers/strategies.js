@@ -1,67 +1,56 @@
 import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
+import { handleResponse } from "../utils/defaultResponse.js";
+import { StrategyService } from "../services/strategies.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../policies/strategies.js";
 import { parseBoolean, buildNestedIncludeObject } from "../utils/queryStringParsers.js";
+import { AppError } from "../errors/AppError.js";
+import { UserService } from "../services/user.js";
+import { ImplementerService } from "../services/implementers.js";
 
-const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status,
-        message,
-        data,
-    })
-}
 
-const deleteSpecificImplementersFromStrategy = async (implementerIds, strategyId) => {
-    try {
-        const deleteCount = await prisma.strategyImplementer.deleteMany({
-            where: {
-                strategy_id: strategyId,
-                implementer_id: {
-                    in: implementerIds //array of implementer ids
-                },
-            }
-        });
-        return deleteCount;
-    }catch(e) {
-        console.log('error removing implementers');
-        return {"message": "error removing implementers"}
+export const viewMyStrategies = async (req, res, next) => {
+    const userId = res.locals.user.id;
+    const isImplementer = res.locals.user.isImplementer;
+
+    if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 
-}
-
-const addImplementersToStrategy = async (implementerIds, strategyId) => {
-
-    const data = implementerIds.map(id => ({
-        implementer_id: id,
-        strategy_id: strategyId,
-    }));
-
+    let user;
     try {
-        const result = await prisma.strategyImplementer.createMany({
-            data
-        });
-        return result;
+        const options = {}
+        options.select = isImplementer ? { implementer_org:true } : {assigned_implementers: true }
+        user = await UserService.getUserById(userId, options);
     } catch(e) {
-        console.log('error adding implementers', e);
-        return {"message": "error adding implementers"}
+        next(e)
     }
 
-}
+    const {implementer_org = null, assigned_implementers = null} = user;
 
-const getStrategyById = async (id, res, includes = null) => {
-    const strategy = await prisma.strategy.findUnique({
-        where:{
-            id
-        },
-        ...(includes != null && {include:includes}),
-    });
-
-    if (!strategy) {
-        handleResponse(res, 404, "strategy not found");
+    let results;
+    if (implementer_org) {
+        results = {}
+        results.implementer = {...implementer_org}
+        try {
+            results.strategies = await ImplementerService.getImplementerStrategies(implementer_org.id);
+        } catch(e) {
+            next(e)
+        }
     } else {
-        return strategy
+        results = []
+        for (const imp of assigned_implementers) {
+            console.log('implementer assigned')
+            const details = imp;
+            const strategies = await ImplementerService.getImplementerStrategies(imp.id);
+            results.push({details,strategies});
+        }
     }
+
+    handleResponse(res, 200, "strategies retrieved", results);
 }
+
+
 
 export const viewStrategy = async (req, res) => {
     const strategyId = parseInt(req.params.id,10);
@@ -214,82 +203,66 @@ export const createStrategy = async(req, res) =>{
     });
 }
 
-export const updateStrategy = async (req, res) => {
+export const handleUpdateStrategy = async (req, res, next) => {
     const strategyId = parseInt(req.params.id);
-    const {implementers = {}, primary_implementer = null, ...rest} = req.body;
 
-    const strategy = await getStrategyById(strategyId, res);
-
-    //convert any numeric string fields back to numbers for db (typically foreign key references for integer id)
-    for (const key in strategy) {
-        if (typeof strategy[key] == "number" && rest[key] !== undefined) {
-            rest[key] = Number(rest[key]);
-        }
+    let strategy;
+    try {
+        strategy = await StrategyService.getStrategyById(id);
+    } catch(e) {
+        next(e);
     }
 
-    /*
-    console.log("attempting to update:", {
-        strategyId,
-        strategy,
-        implementers,
-        "body": rest,
-    });
-    */
-
     authorize(canUpdate, strategy)(req, res, async () => {
+        const {implementers = {}, primary_implementer = null, ...rest} = req.body;
+
+        //convert any numeric string fields in req.body back to numbers for db 
+        // (typically foreign key references for integer id)
+        for (const key in strategy) {
+            if (typeof strategy[key] == "number" && rest[key] !== undefined) {
+                rest[key] = Number(rest[key]);
+            }
+        }
         
         //add implementers if changed
         const { add=[], remove=[] } = implementers;
         
         if (add.length > 0) {
-            await addImplementersToStrategy(add, strategyId);
+            try {
+                await StrategyService.addImplementersToStrategy(add, strategyId);
+            } catch(e) {
+                next(e)
+            }
         }
 
         //remove implementers if changed
         if (remove.length > 0) {
-            await deleteSpecificImplementersFromStrategy(remove, strategyId);
+            try {
+                await StrategyService.deleteImplementersFromStrategy(remove, strategyId)
+            } catch(e) {
+                next(e)
+            }
         }
 
         if (primary_implementer) {
-            console.log('attempting to update primary', {strategyId, primary_implementer});
-            const updated = await prisma.strategyImplementer.updateManyAndReturn({
-                where: {
-                    strategy_id: strategyId
-                },
-                data: {
-                    is_primary: false,
-                }
-            });
-
-            console.log('updated imps:', updated);
-
-
-            const updatedPrimary = await prisma.strategyImplementer.update({
-                where: {
-                  implementer_id_strategy_id: {
-                    implementer_id: Number(primary_implementer),
-                    strategy_id: strategyId,
-                  },
-                },
-                data: {
-                    is_primary: true,
-                }
-            });
-
-            console.log('updated primary imp:', updatedPrimary);
+            try {
+                console.log('attempting to update primary', {strategyId, primary_implementer});
+                await StrategyService.updatePrimaryImplementer(strategyId, primary_implementer)
+            } catch(e) {
+                next(e)
+            }
         }
 
-        const updatedStrategy = await prisma.strategy.update({
-            where:{
-                id: strategyId
-            },
-            data: {
+        try {
+            const updatedStrategy = await StrategyService.updateStrategyDetails(strategyId, {
                 ...rest,
                 updatedAt: new Date(),
-            }
-        });
-        
-        handleResponse(res, 200, "strategy updated successfully", updatedStrategy);
+            });
+            handleResponse(res, 200, "strategy updated successfully", updatedStrategy);
+        } catch(e) {
+            next(e)
+        }
+    
     });
 
 }
