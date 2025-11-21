@@ -213,6 +213,7 @@ export const verifyAuthResponse = async (req,res, next) => {
     let user;
     try {
         user = await AuthService.findUserForSignIn(email, "email");
+        await UserService.updateUser(user.id, {passkey_auth_options: null});
     } catch(e) {
         next(e)
     }

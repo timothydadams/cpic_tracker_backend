@@ -26,6 +26,12 @@ export const canDelete = (requesting_user, userObject) => {
     );
 }
 
+export const canAddRemoveRoles = (requesting_user, userObj = null) => {
+    return (
+        requesting_user.roles.includes("Admin")
+    );
+}
+
 export const canRemovePasskey = (requesting_user, object) => {
     return (
         object && requesting_user.id === object?.userId

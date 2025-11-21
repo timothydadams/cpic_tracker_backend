@@ -113,25 +113,23 @@ export const handleUpdateUser = async(req,res, next) => {
     
 }
 
-export const getUserRoles = async(req,res) => {
+export const getUserRoles = async(req,res, next) => {
     const { id:userId } = req.params;
     authorize(userPolicies.canRead)(req, res, async() => {
-        const userRoles = await prisma.userRole.findMany({
-            where:{
-                user_id: userId,
-            },
-            include:{
-                role_id:false,
-                user_id:false,
-                role:true,
-            }
-        })
-        handleResponse(res, 200, "user roles retrieved", userRoles);
-
+        try {
+            let userRoles = await RoleService.getUserRoles(userId);
+            userRoles = userRoles.map(({ createdAt, role }) => ({
+                ...role,
+                createdAt,
+            }));
+            handleResponse(res, 200, "user roles retrieved", userRoles);
+        } catch(e) {
+            next(e)
+        }
     })
 }
 
-export const removeRoleFromUser = async(req, res) => {
+export const removeRoleFromUser = async(req, res, next) => {
     const { id:userId } = req.params
     const { roleId } = req.body
 
@@ -140,7 +138,7 @@ export const removeRoleFromUser = async(req, res) => {
     }
     
     try {
-        authorize(userPolicies.canUpdate)(req, res, async () => {
+        authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
             const result = await RoleService.removeRoleFromUser(userId, roleId);
             handleResponse(res, 200, "role removed from user", result);
         });
@@ -151,18 +149,21 @@ export const removeRoleFromUser = async(req, res) => {
 }
 
 
-export const addRoleToUser = async(req, res) => {
+export const addRoleToUser = async(req, res, next) => {
     const { id:userId } = req.params
     const { roleId } = req.body
     if (!userId || !roleId) {
         throw new AppError("userId and roleId must be provided");
     }
-    
-    authorize(userPolicies.canUpdate)(req, res, async () => {
-        const result = await RoleService.addRoleToUser(userId,roleId);
-        handleResponse(res, 200, "role added to user", result);
-    });
-    
+
+    try {
+        authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
+            const result = await RoleService.addRoleToUser(userId,roleId);
+            handleResponse(res, 200, "role added to user", result);
+        });
+    }catch(e){
+        next(e)
+    }
 }
 
     

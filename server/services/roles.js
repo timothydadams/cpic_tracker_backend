@@ -25,7 +25,8 @@ export const RoleService = {
                 include: {
                     role: {
                         select: {
-                            name:true
+                            name:true,
+                            id:true,
                         }
                     }
                 }
