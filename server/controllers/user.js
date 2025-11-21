@@ -32,7 +32,7 @@ export const handleGetUser = async(req,res,next) => {
         username:true,
         implementer_org: true,
         ...(federated_idps ? {federated_idps:true} : {}),
-        ...(passkeys ? {passkeys:{select:{createdAt:true,transports:true,deviceType:true}}} : {}),
+        ...(passkeys ? {passkeys:{select:{id:true,createdAt:true,transports:true,deviceType:true, user_agent:true}}} : {}),
         ...(implementer_org ? {implementer_org:true} : {}),
         ...(assigned_implementers ? {assigned_implementers:true} : {}),
     }
@@ -91,7 +91,13 @@ export const handleUpdateUser = async(req,res, next) => {
         authorize(userPolicies.canUpdate, userToUpdate)(req, res, async () => {
             let user;
             try {
-                user = await UserService.updateUser(id, {family_name,given_name,display_name,username});
+                user = await UserService.updateUser(id, {
+                    family_name,
+                    given_name,
+                    display_name,
+                    username,
+                    implementer_org_id: Number(implementer_org_id),
+                });
                 if (assigned_implementers) {
                     await UserService.updateAssignedImplementers(id, assigned_implementers);
                 }
@@ -156,5 +162,27 @@ export const addRoleToUser = async(req, res) => {
         const result = await RoleService.addRoleToUser(userId,roleId);
         handleResponse(res, 200, "role added to user", result);
     });
+    
+}
+
+    
+export const deleteUserPasskey = async(req, res, next) => {
+    const {id:userId} = req.params;
+    const {pk_id} = req.body;
+    if (!userId || !pk_id) {
+        throw new AppError("userId and pk_id must be provided", 400);
+    }
+
+    try {
+        const passkey = await prisma.passkey.findUnique({
+            where: {id: pk_id}
+        });
+        authorize(userPolicies.canRemovePasskey, passkey)(req,res, async()=>{
+            const count = UserService.deletePasskey(pk_id);
+            handleResponse(res, 200, "passkey deleted", count);
+        });
+    } catch(e) {
+        next(e)
+    }
     
 }

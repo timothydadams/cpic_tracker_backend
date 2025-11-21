@@ -18,6 +18,18 @@ export const UserService = {
         }
     },
 
+    async deletePasskey(id) {
+        try {
+            return await prisma.passkey.delete({
+                where: {
+                    id
+                }
+            });
+        } catch(e) {
+            throw e
+        }
+    },
+
     async updateAssignedImplementers(userId, implementerIdArray){
         try {
             return await prisma.user.update({

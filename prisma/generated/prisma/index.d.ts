@@ -2588,6 +2588,7 @@ export namespace Prisma {
   export type PasskeyCountAggregateOutputType = {
     id: number
     createdAt: number
+    user_agent: number
     publicKey: number
     counter: number
     transports: number
@@ -2632,6 +2633,7 @@ export namespace Prisma {
   export type PasskeyCountAggregateInputType = {
     id?: true
     createdAt?: true
+    user_agent?: true
     publicKey?: true
     counter?: true
     transports?: true
@@ -2731,6 +2733,7 @@ export namespace Prisma {
   export type PasskeyGroupByOutputType = {
     id: string
     createdAt: Date
+    user_agent: JsonValue | null
     publicKey: Bytes
     counter: bigint
     transports: string[]
@@ -2762,6 +2765,7 @@ export namespace Prisma {
   export type PasskeySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     createdAt?: boolean
+    user_agent?: boolean
     publicKey?: boolean
     counter?: boolean
     transports?: boolean
@@ -2775,6 +2779,7 @@ export namespace Prisma {
   export type PasskeySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     createdAt?: boolean
+    user_agent?: boolean
     publicKey?: boolean
     counter?: boolean
     transports?: boolean
@@ -2788,6 +2793,7 @@ export namespace Prisma {
   export type PasskeySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     createdAt?: boolean
+    user_agent?: boolean
     publicKey?: boolean
     counter?: boolean
     transports?: boolean
@@ -2801,6 +2807,7 @@ export namespace Prisma {
   export type PasskeySelectScalar = {
     id?: boolean
     createdAt?: boolean
+    user_agent?: boolean
     publicKey?: boolean
     counter?: boolean
     transports?: boolean
@@ -2810,7 +2817,7 @@ export namespace Prisma {
     userId?: boolean
   }
 
-  export type PasskeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "publicKey" | "counter" | "transports" | "deviceType" | "webAuthn_userId" | "backedUp" | "userId", ExtArgs["result"]["passkey"]>
+  export type PasskeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "user_agent" | "publicKey" | "counter" | "transports" | "deviceType" | "webAuthn_userId" | "backedUp" | "userId", ExtArgs["result"]["passkey"]>
   export type PasskeyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -2829,6 +2836,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       createdAt: Date
+      user_agent: Prisma.JsonValue | null
       publicKey: Prisma.Bytes
       counter: bigint
       transports: string[]
@@ -3262,6 +3270,7 @@ export namespace Prisma {
   interface PasskeyFieldRefs {
     readonly id: FieldRef<"Passkey", 'String'>
     readonly createdAt: FieldRef<"Passkey", 'DateTime'>
+    readonly user_agent: FieldRef<"Passkey", 'Json'>
     readonly publicKey: FieldRef<"Passkey", 'Bytes'>
     readonly counter: FieldRef<"Passkey", 'BigInt'>
     readonly transports: FieldRef<"Passkey", 'String[]'>
@@ -19903,6 +19912,7 @@ export namespace Prisma {
   export const PasskeyScalarFieldEnum: {
     id: 'id',
     createdAt: 'createdAt',
+    user_agent: 'user_agent',
     publicKey: 'publicKey',
     counter: 'counter',
     transports: 'transports',
@@ -20169,6 +20179,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'Bytes'
    */
   export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
@@ -20200,20 +20224,6 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -20254,6 +20264,7 @@ export namespace Prisma {
     NOT?: PasskeyWhereInput | PasskeyWhereInput[]
     id?: StringFilter<"Passkey"> | string
     createdAt?: DateTimeFilter<"Passkey"> | Date | string
+    user_agent?: JsonNullableFilter<"Passkey">
     publicKey?: BytesFilter<"Passkey"> | Bytes
     counter?: BigIntFilter<"Passkey"> | bigint | number
     transports?: StringNullableListFilter<"Passkey">
@@ -20267,6 +20278,7 @@ export namespace Prisma {
   export type PasskeyOrderByWithRelationInput = {
     id?: SortOrder
     createdAt?: SortOrder
+    user_agent?: SortOrderInput | SortOrder
     publicKey?: SortOrder
     counter?: SortOrder
     transports?: SortOrder
@@ -20285,6 +20297,7 @@ export namespace Prisma {
     OR?: PasskeyWhereInput[]
     NOT?: PasskeyWhereInput | PasskeyWhereInput[]
     createdAt?: DateTimeFilter<"Passkey"> | Date | string
+    user_agent?: JsonNullableFilter<"Passkey">
     publicKey?: BytesFilter<"Passkey"> | Bytes
     counter?: BigIntFilter<"Passkey"> | bigint | number
     transports?: StringNullableListFilter<"Passkey">
@@ -20298,6 +20311,7 @@ export namespace Prisma {
   export type PasskeyOrderByWithAggregationInput = {
     id?: SortOrder
     createdAt?: SortOrder
+    user_agent?: SortOrderInput | SortOrder
     publicKey?: SortOrder
     counter?: SortOrder
     transports?: SortOrder
@@ -20318,6 +20332,7 @@ export namespace Prisma {
     NOT?: PasskeyScalarWhereWithAggregatesInput | PasskeyScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Passkey"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Passkey"> | Date | string
+    user_agent?: JsonNullableWithAggregatesFilter<"Passkey">
     publicKey?: BytesWithAggregatesFilter<"Passkey"> | Bytes
     counter?: BigIntWithAggregatesFilter<"Passkey"> | bigint | number
     transports?: StringNullableListFilter<"Passkey">
@@ -21286,6 +21301,7 @@ export namespace Prisma {
   export type PasskeyCreateInput = {
     id: string
     createdAt?: Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey: Bytes
     counter: bigint | number
     transports?: PasskeyCreatetransportsInput | string[]
@@ -21298,6 +21314,7 @@ export namespace Prisma {
   export type PasskeyUncheckedCreateInput = {
     id: string
     createdAt?: Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey: Bytes
     counter: bigint | number
     transports?: PasskeyCreatetransportsInput | string[]
@@ -21310,6 +21327,7 @@ export namespace Prisma {
   export type PasskeyUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey?: BytesFieldUpdateOperationsInput | Bytes
     counter?: BigIntFieldUpdateOperationsInput | bigint | number
     transports?: PasskeyUpdatetransportsInput | string[]
@@ -21322,6 +21340,7 @@ export namespace Prisma {
   export type PasskeyUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey?: BytesFieldUpdateOperationsInput | Bytes
     counter?: BigIntFieldUpdateOperationsInput | bigint | number
     transports?: PasskeyUpdatetransportsInput | string[]
@@ -21334,6 +21353,7 @@ export namespace Prisma {
   export type PasskeyCreateManyInput = {
     id: string
     createdAt?: Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey: Bytes
     counter: bigint | number
     transports?: PasskeyCreatetransportsInput | string[]
@@ -21346,6 +21366,7 @@ export namespace Prisma {
   export type PasskeyUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey?: BytesFieldUpdateOperationsInput | Bytes
     counter?: BigIntFieldUpdateOperationsInput | bigint | number
     transports?: PasskeyUpdatetransportsInput | string[]
@@ -21357,6 +21378,7 @@ export namespace Prisma {
   export type PasskeyUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey?: BytesFieldUpdateOperationsInput | Bytes
     counter?: BigIntFieldUpdateOperationsInput | bigint | number
     transports?: PasskeyUpdatetransportsInput | string[]
@@ -22336,6 +22358,29 @@ export namespace Prisma {
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type BytesFilter<$PrismaModel = never> = {
     equals?: Bytes | BytesFieldRefInput<$PrismaModel>
@@ -22373,6 +22418,11 @@ export namespace Prisma {
     isNot?: UserWhereInput
   }
 
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type PasskeyWebAuthn_userIdUserIdCompoundUniqueInput = {
     webAuthn_userId: string
     userId: string
@@ -22386,6 +22436,7 @@ export namespace Prisma {
   export type PasskeyCountOrderByAggregateInput = {
     id?: SortOrder
     createdAt?: SortOrder
+    user_agent?: SortOrder
     publicKey?: SortOrder
     counter?: SortOrder
     transports?: SortOrder
@@ -22456,6 +22507,32 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
 
   export type BytesWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Bytes | BytesFieldRefInput<$PrismaModel>
@@ -22489,29 +22566,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type StringNullableFilter<$PrismaModel = never> = {
@@ -22589,11 +22643,6 @@ export namespace Prisma {
   export type UserNullableScalarRelationFilter = {
     is?: UserWhereInput | null
     isNot?: UserWhereInput | null
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
   }
 
   export type PasskeyOrderByRelationAggregateInput = {
@@ -22680,32 +22729,6 @@ export namespace Prisma {
 
   export type UserSumOrderByAggregateInput = {
     implementer_org_id?: SortOrder
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -24644,6 +24667,40 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
   export type NestedBytesWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Bytes | BytesFieldRefInput<$PrismaModel>
     in?: Bytes[] | ListBytesFieldRefInput<$PrismaModel>
@@ -24701,40 +24758,6 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -24941,6 +24964,7 @@ export namespace Prisma {
   export type PasskeyCreateWithoutUserInput = {
     id: string
     createdAt?: Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey: Bytes
     counter: bigint | number
     transports?: PasskeyCreatetransportsInput | string[]
@@ -24952,6 +24976,7 @@ export namespace Prisma {
   export type PasskeyUncheckedCreateWithoutUserInput = {
     id: string
     createdAt?: Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey: Bytes
     counter: bigint | number
     transports?: PasskeyCreatetransportsInput | string[]
@@ -25283,6 +25308,7 @@ export namespace Prisma {
     NOT?: PasskeyScalarWhereInput | PasskeyScalarWhereInput[]
     id?: StringFilter<"Passkey"> | string
     createdAt?: DateTimeFilter<"Passkey"> | Date | string
+    user_agent?: JsonNullableFilter<"Passkey">
     publicKey?: BytesFilter<"Passkey"> | Bytes
     counter?: BigIntFilter<"Passkey"> | bigint | number
     transports?: StringNullableListFilter<"Passkey">
@@ -27412,6 +27438,7 @@ export namespace Prisma {
   export type PasskeyCreateManyUserInput = {
     id: string
     createdAt?: Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey: Bytes
     counter: bigint | number
     transports?: PasskeyCreatetransportsInput | string[]
@@ -27467,6 +27494,7 @@ export namespace Prisma {
   export type PasskeyUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey?: BytesFieldUpdateOperationsInput | Bytes
     counter?: BigIntFieldUpdateOperationsInput | bigint | number
     transports?: PasskeyUpdatetransportsInput | string[]
@@ -27478,6 +27506,7 @@ export namespace Prisma {
   export type PasskeyUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey?: BytesFieldUpdateOperationsInput | Bytes
     counter?: BigIntFieldUpdateOperationsInput | bigint | number
     transports?: PasskeyUpdatetransportsInput | string[]
@@ -27489,6 +27518,7 @@ export namespace Prisma {
   export type PasskeyUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_agent?: NullableJsonNullValueInput | InputJsonValue
     publicKey?: BytesFieldUpdateOperationsInput | Bytes
     counter?: BigIntFieldUpdateOperationsInput | bigint | number
     transports?: PasskeyUpdatetransportsInput | string[]

@@ -25,3 +25,9 @@ export const canDelete = (requesting_user, userObject) => {
         userObject && requesting_user.id === userObject?.id
     );
 }
+
+export const canRemovePasskey = (requesting_user, object) => {
+    return (
+        object && requesting_user.id === object?.userId
+    );
+}

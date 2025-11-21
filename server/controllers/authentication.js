@@ -122,6 +122,7 @@ export const getPasskeyRegOptions = async (req, res) => {
 
 export const handlePasskeyRegVerification = async (req, res, next) => {
     const {email, duration, webAuth} = req.body;
+   
     //retrieve user object
     let user;
     try {
@@ -169,6 +170,7 @@ export const handlePasskeyRegVerification = async (req, res, next) => {
 
         const data = {
             id: credential.id,
+            user_agent: req.useragent,
             publicKey: binaryPublicKey, 
             counter:credential.counter,
             transports:credential.transports,

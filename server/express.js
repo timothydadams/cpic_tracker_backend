@@ -9,12 +9,14 @@ import { fileURLToPath } from 'url';
 import AppRouter from "./routes/index.js";
 import { errorHandler } from "./middleware/handleErrors.js";
 import { userContextMiddleware } from "./middleware/prisma-als-middleware.js";
+import { express as useragent } from 'express-useragent';
 
 /* Needed to support ES6 module instead of CommonJS */
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
+app.use(useragent());
 app.use(morgan('common'));
 app.use(helmet());
 app.use(cors(corsOptionsDelegate));

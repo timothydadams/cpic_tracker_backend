@@ -8,7 +8,6 @@ import { AppError } from "../errors/AppError.js";
 import { UserService } from "../services/user.js";
 import { ImplementerService } from "../services/implementers.js";
 
-
 export const viewMyStrategies = async (req, res, next) => {
     const userId = res.locals.user.id;
     const isImplementer = res.locals.user.isImplementer;

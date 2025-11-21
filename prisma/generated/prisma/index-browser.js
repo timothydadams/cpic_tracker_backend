@@ -124,6 +124,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.PasskeyScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
+  user_agent: 'user_agent',
   publicKey: 'publicKey',
   counter: 'counter',
   transports: 'transports',
