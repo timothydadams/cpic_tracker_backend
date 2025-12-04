@@ -283,7 +283,9 @@ export const registerNewUser = async (req, res, next) => {
             user.assigned_implementers = user.assigned_implementers.map(x=>Number(x))
         }
 
-        if (user.implementer_org_id != "") {
+        if (user.implementer_org_id != null && 
+            typeof Number(user.implementer_org_id) === 'number'
+        ) {
             user.implementer_org_id = Number(user.implementer_org_id);
         } else {
             user.implementer_org_id = null;
