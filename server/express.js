@@ -23,7 +23,9 @@ app.use(cors(corsOptionsDelegate));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended:true}));
-app.use(express.static(join(__dirname, '../public')));
+
+//not needed right now with hosting front-end separately
+//app.use(express.static(join(__dirname, '../public')));
 
 // Middleware to set user context using AsyncLocalStorage (used with prisma PII extension)
 app.use(userContextMiddleware);
@@ -33,10 +35,9 @@ app.use('/api', AppRouter);
 //Error handling
 app.use(errorHandler)
 
-// Catch-all route to serve index.html for any other requests (e.g., for client-side routing)
-// This should be placed AFTER all API routes
+// Catch-all route to redirect non-existent routes to front-end domain
 app.get('/*splat', (req, res) => {
-   res.sendFile(join(__dirname, '../public', 'index.html'));
+   res.redirect(301, process.env.FRONTEND_DOMAIN)
 });
 
 export const expressApp = app;
