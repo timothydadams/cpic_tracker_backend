@@ -210,7 +210,7 @@ export const handleUpdateStrategy = async (req, res, next) => {
 
     let strategy;
     try {
-        strategy = await StrategyService.getStrategyById(id);
+        strategy = await StrategyService.getStrategyById(strategyId);
     } catch(e) {
         next(e);
     }
