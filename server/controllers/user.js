@@ -17,7 +17,7 @@ export const handleGetUser = async(req,res,next) => {
     }
     const federated_idps = parseBoolean(req.query.federated_idps);
     const passkeys = parseBoolean(req.query.passkeys);
-    const implementer_org = parseBoolean(req.query.implementer_details);
+    const implementer_details = parseBoolean(req.query.implementer_details);
     const assigned_implementers = parseBoolean(req.query.assigned_implementers);
 
     const options = {}
@@ -30,10 +30,10 @@ export const handleGetUser = async(req,res,next) => {
         username:true,
         profile_pic: true,
         username:true,
-        implementer_org: true,
+        //implementer_org: true,
         ...(federated_idps ? {federated_idps:true} : {}),
         ...(passkeys ? {passkeys:{select:{id:true,createdAt:true,transports:true,deviceType:true, user_agent:true}}} : {}),
-        ...(implementer_org ? {implementer_org:true} : {}),
+        ...(implementer_details ? {implementer_org:true} : {}),
         ...(assigned_implementers ? {assigned_implementers:true} : {}),
     }
 
