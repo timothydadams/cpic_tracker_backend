@@ -66,6 +66,27 @@ export const handleGetAllUsers = async(req,res,next) => {
     }
 }
 
+const generateUserProfileSelectOptions = ({
+    federated_idps = false,
+    passkeys = false,
+    implementer_org = false,
+    assigned_implementers = false,
+}) => ({
+    select : {
+        email:true,
+        id:true,
+        family_name:true,
+        given_name:true,
+        display_name:true,
+        username:true,
+        profile_pic: true,
+        username:true,
+        ...(federated_idps ? {federated_idps:true} : {}),
+        ...(passkeys ? {passkeys:{select:{id:true,createdAt:true,transports:true,deviceType:true, user_agent:true}}} : {}),
+        ...(implementer_org ? {implementer_org:true} : {}),
+        ...(assigned_implementers ? {assigned_implementers:true} : {}),
+    }
+})
 
 export const handleUpdateUser = async(req,res, next) => {
     const { id } = req.params;
@@ -83,24 +104,39 @@ export const handleUpdateUser = async(req,res, next) => {
         implementer_org_id,
     } = req.body;
 
-    const options = {}
+    const options = {
+        include: {
+            implementer_org:true,
+            assigned_implementers:true,
+        }
+    }
 
     try {
         const userToUpdate = await UserService.getUserById(id, options);
+
+        //console.log('user prior to to update:', userToUpdate);
     
         authorize(userPolicies.canUpdate, userToUpdate)(req, res, async () => {
             let user;
             try {
-                user = await UserService.updateUser(id, {
-                    family_name,
-                    given_name,
-                    display_name,
-                    username,
-                    implementer_org_id: Number(implementer_org_id),
+                await UserService.updateUser(id, {
+                    ...(family_name ? {family_name} : {}),
+                    ...(given_name ? {given_name} : {}),
+                    ...(display_name ? {display_name} : {}),
+                    ...(username ? {username} : {}),
+                    ...(implementer_org_id ? {implementer_org_id:Number(implementer_org_id)} : {}),
                 });
+
                 if (assigned_implementers) {
                     await UserService.updateAssignedImplementers(id, assigned_implementers);
                 }
+
+                const options = generateUserProfileSelectOptions({
+                    ...(userToUpdate.implementer_org_id ? {implementer_org:true} : {}),
+                    ...(userToUpdate.assigned_implementers.length > 0 ? {assigned_implementers:true} : {}),
+                });
+                
+                user = await UserService.getUserById(id, options);
             } catch(e) {
                 next(e)
             }
