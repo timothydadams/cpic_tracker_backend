@@ -455,31 +455,7 @@ async function main() {
     //await addImplementers();
     //await addImplementerStrategies();
     //await addUsersWithRoles();
-    await addFocusAreaFkToStrategies();
-
-    
-
-    /*
-    const adminUser = await prisma.user.findUnique({
-        where: {
-            email:"adams.timothy.d@gmail.com",
-        },
-    });
-
-    const adminRole = await prisma.role.findUnique({
-        where:{
-            name: "Admin"
-        }
-    });
-
-    await prisma.userRole.create({
-        data:{
-            user_id: adminUser.id,
-            role_id: adminRole.id
-        }
-    });
-
-    */
+    //await addFocusAreaFkToStrategies();
 
     console.log('seed completed');
   

@@ -89,9 +89,9 @@ export const viewStrategy = async (req, res, next) => {
 }
 
 export const viewAllStrategies = async(req,res,next) => {
-    const { policy, focus_area, include } = req.query;
+    const { policy, focus_area, include, orderBy = null } = req.query;
 
-    const where ={};
+    const where = {};
 
     if (policy) {
         where.policy_id = policy;
@@ -116,6 +116,7 @@ export const viewAllStrategies = async(req,res,next) => {
     const strategies = await prisma.strategy.findMany({
         where,
         include: prismaInclude,
+        ...(orderBy ? {orderBy: JSON.parse(orderBy)} : {}),
     });
     
     handleResponse(res, 200, "strategies retrieved successfully", strategies);
