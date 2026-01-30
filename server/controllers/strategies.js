@@ -2,7 +2,7 @@ import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { handleResponse } from "../utils/defaultResponse.js";
 import { StrategyService } from "../services/strategies.js";
-import { canCreate, canRead, canUpdate, canDelete } from "../policies/strategies.js";
+import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/strategies.js";
 import { parseBoolean, buildNestedIncludeObject } from "../utils/queryStringParsers.js";
 import { AppError } from "../errors/AppError.js";
 import { UserService } from "../services/user.js";

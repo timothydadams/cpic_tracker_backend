@@ -1,6 +1,6 @@
 import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
-import { canCreate, canRead, canUpdate, canDelete } from "../policies/roles.js";
+import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/roles.js";
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({

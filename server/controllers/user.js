@@ -1,8 +1,8 @@
 import { prisma } from "../configs/db.js";
 import { createJWT, hashPassword } from "../utils/auth.js";
 import { authorize } from "../middleware/authorize.js";
-import * as userPolicies from "../policies/users.js";
-import * as rolePolicies from "../policies/roles.js";
+import * as userPolicies from "../resource_permissions/users.js";
+import * as rolePolicies from "../resource_permissions/roles.js";
 import { handleResponse} from '../utils/defaultResponse.js'
 import { AppError } from "../errors/AppError.js";
 import { UserService } from "../services/user.js";
