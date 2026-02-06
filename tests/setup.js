@@ -1,0 +1,13 @@
+process.env.NODE_ENV = 'test';
+process.env.PORT = '3500';
+process.env.PW_SALT = '5';
+process.env.JWT_ACCESS_SECRET = 'test-access-secret';
+process.env.JWT_REFRESH_SECRET = 'test-refresh-secret';
+process.env.JWT_ACCESS_LIFE = '15m';
+process.env.JWT_REFRESH_LIFE_SHORT = '2m';
+process.env.JWT_REFRESH_LIFE_LONG = '10m';
+process.env.COOKIE_LIFE_SHORT = '120000';
+process.env.COOKIE_LIFE_LONG = '600000';
+process.env.FRONTEND_DOMAIN = 'http://localhost:3000';
+process.env.GOOGLE_CLIENT_ID = 'test-google-client-id';
+process.env.GOOGLE_CLIENT_SECRET = 'test-google-client-secret';
