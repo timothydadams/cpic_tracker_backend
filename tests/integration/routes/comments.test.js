@@ -119,6 +119,17 @@ describe('Comments Routes', () => {
 
       expect(res.status).toBe(200);
     });
+
+    it('returns 404 when comment not found', async () => {
+      mockPrisma.comment.findUnique.mockResolvedValue(null);
+
+      const res = await supertest(expressApp)
+        .put('/api/comments/999')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ content: 'updated' });
+
+      expect(res.status).toBe(404);
+    });
   });
 
   describe('DELETE /api/comments/:id', () => {
@@ -136,6 +147,16 @@ describe('Comments Routes', () => {
         .set('Authorization', `Bearer ${adminToken}`);
 
       expect(res.status).toBe(200);
+    });
+
+    it('returns 404 when comment not found', async () => {
+      mockPrisma.comment.findUnique.mockResolvedValue(null);
+
+      const res = await supertest(expressApp)
+        .delete('/api/comments/999')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(404);
     });
   });
 });
