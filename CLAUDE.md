@@ -16,7 +16,13 @@ CPIC Tracker Backend — an Express.js 5 REST API for a strategic planning/polic
 - **Seed database:** `npx prisma db seed`
 - **Reset database:** `npx prisma migrate reset`
 
-No test framework or linter is currently configured.
+### Testing
+
+- **Run all tests:** `npm test` (vitest run)
+- **Watch mode:** `npm run test:watch` (vitest)
+- **Unit tests only:** `npm run test:unit`
+- **Integration tests only:** `npm run test:integration`
+- **Coverage:** `npm run test:coverage` (v8 provider, covers `server/**/*.js`)
 
 ## Architecture
 
@@ -47,9 +53,17 @@ The `authorize(policy, resource)` middleware in `server/middleware/authorize.js`
 
 Multiple auth methods: WebAuthn passkeys (`@simplewebauthn/server`), Google OAuth, and email/password (bcrypt). JWT access tokens in Bearer headers, refresh tokens in secure HTTP-only cookies. Token blacklisting via Redis on logout.
 
-### PII Privacy Extension
+### Auth-Aware PII Stripping
 
-A custom Prisma client extension (`server/configs/prisma-pii-extenstion.js`) uses AsyncLocalStorage (`server/middleware/prisma-als-middleware.js`) to strip PII fields (emails, phone numbers) from query results for unauthenticated users.
+The system uses AsyncLocalStorage (ALS) to propagate auth state from the middleware layer into the Prisma ORM layer, where a client extension strips PII fields (emails, phone numbers) for unauthenticated users. Three components cooperate:
+
+1. **`userContextMiddleware`** (`server/middleware/prisma-als-middleware.js`) — Runs globally on every request. Uses hybrid auth detection: first checks the access token from the Authorization header (with Redis blacklist check), then falls back to the refresh token cookie. Sets `{ isAuthenticated, user }` in ALS. Never rejects requests.
+
+2. **`verifyToken`** (`server/middleware/requireAuth.js`) — Runs per-route on protected endpoints. After successful verification, syncs the ALS store to ensure consistency between route-level auth and PII-level auth.
+
+3. **`removePiiExtension`** (`server/configs/prisma-pii-extenstion.js`) — Prisma client extension that reads `isAuthenticated` from ALS. For unauthenticated users, applies `omit` on top-level PII fields and recursively sanitizes nested includes.
+
+**Design rationale**: The cookie fallback ensures logged-in users see PII on public routes (where the frontend doesn't send an Authorization header). The `verifyToken` ALS sync ensures protected routes always have consistent auth state. The Redis blacklist check in `userContextMiddleware` prevents revoked tokens from bypassing PII stripping.
 
 ### Database
 
@@ -58,6 +72,31 @@ PostgreSQL with Prisma ORM. Schema at `prisma/schema.prisma`. Prisma client is g
 ### Error Handling
 
 Global error handler in `server/middleware/handleErrors.js` maps `AppError` instances and Prisma error codes (P2002 unique, P2025 not found, P2003 foreign key) to appropriate HTTP status codes.
+
+### Testing Structure
+
+Uses **Vitest** with globals enabled and Node environment. Config at `vitest.config.js`, setup file at `tests/setup.js` (sets test env vars).
+
+```
+tests/
+├── setup.js                        — Test environment variables
+├── fixtures/users.js               — Shared user fixtures
+├── mocks/
+│   ├── prisma.js                   — Prisma client mock
+│   ├── redis.js                    — Redis client mock
+│   └── express.js                  — Express req/res/next mock helpers
+├── unit/
+│   ├── middleware/                  — verifyToken, authorize, errorHandler, etc.
+│   ├── resource_permissions/       — Permission policy tests per resource
+│   ├── services/                   — Service layer tests
+│   └── utils/                      — Utility function tests
+└── integration/
+    └── routes/                     — Supertest-based route tests per resource
+```
+
+- **Unit tests** mock Prisma and Redis via `tests/mocks/`. Use `vi.mock()` for module-level mocking.
+- **Integration tests** use Supertest against the Express app to test full request/response cycles.
+- Test files follow the naming convention `<module>.test.js` and mirror the `server/` directory structure.
 
 ## Environment
 

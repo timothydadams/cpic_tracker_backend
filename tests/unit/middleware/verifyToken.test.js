@@ -9,11 +9,19 @@ vi.mock('../../../server/index.js', () => ({
   redis: mockRedis,
 }));
 
+// Mock ALS context store
+const mockStore = { isAuthenticated: false, user: null };
+vi.mock('../../../server/configs/context.js', () => ({
+  als: { getStore: vi.fn(() => mockStore) },
+}));
+
 const { verifyToken, requireGlobalAdmin } = await import('../../../server/middleware/requireAuth.js');
 
 describe('verifyToken', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockStore.isAuthenticated = false;
+    mockStore.user = null;
   });
 
   it('returns 401 when no Authorization header', async () => {
@@ -113,6 +121,47 @@ describe('verifyToken', () => {
 
     await verifyToken(req, res, next);
     expect(res.locals.user.isImplementer).toBe(true);
+  });
+
+  it('updates ALS store on successful auth', async () => {
+    mockRedis.exists.mockResolvedValue(0);
+    const payload = { id: 'user-456', roles: ['Admin'] };
+    const token = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+
+    const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
+    const res = createMockRes();
+    const next = createMockNext();
+
+    await verifyToken(req, res, next);
+
+    expect(mockStore.isAuthenticated).toBe(true);
+    expect(mockStore.user).toBe('user-456');
+  });
+
+  it('does not update ALS store on failed auth', async () => {
+    mockRedis.exists.mockResolvedValue(0);
+    const req = createMockReq({ headers: { authorization: 'Bearer invalid.token' } });
+    const res = createMockRes();
+    const next = createMockNext();
+
+    await verifyToken(req, res, next);
+
+    expect(mockStore.isAuthenticated).toBe(false);
+    expect(mockStore.user).toBeNull();
+  });
+
+  it('does not update ALS store when token is blacklisted', async () => {
+    const token = jwt.sign({ id: 'user-789', roles: ['Admin'] }, process.env.JWT_ACCESS_SECRET);
+    mockRedis.exists.mockResolvedValue(1);
+
+    const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
+    const res = createMockRes();
+    const next = createMockNext();
+
+    await verifyToken(req, res, next);
+
+    expect(mockStore.isAuthenticated).toBe(false);
+    expect(mockStore.user).toBeNull();
   });
 });
 

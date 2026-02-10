@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { redis } from '../index.js';
+import { als } from '../configs/context.js';
 
 export const requireGlobalAdmin = async(req,res,next) => {
     const { id, isGlobalAdmin } = res.locals.user;
@@ -34,7 +35,13 @@ export const verifyToken = async (req, res, next) => {
             res.locals.user.isCPICAdmin = ["cpic admin"].some((needle) => roleNames.includes(needle));
             res.locals.user.isImplementer = ["implementer"].some((needle) => roleNames.includes(needle));
 
-            //console.log('res user object:', res.locals.user);
+            // Sync ALS store so PII extension is consistent with route-level auth
+            const store = als.getStore();
+            if (store) {
+                store.isAuthenticated = true;
+                store.user = decoded.id;
+            }
+
             next();
         }
     );
