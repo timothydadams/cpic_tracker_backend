@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { 
+import {
     viewAllStrategies,
     viewStrategy,
     handleUpdateStrategy,
@@ -9,6 +9,7 @@ import {
     viewPolicies,
     viewStrategyComments,
     viewMyStrategies,
+    viewStrategyActivities,
 } from "../controllers/strategies.js";
 
 import {
@@ -40,6 +41,7 @@ StrategyRouter.get('/:id', viewStrategy);
 StrategyRouter.put('/:id', [verifyToken], handleUpdateStrategy);
 StrategyRouter.post('/:id/comments', [verifyToken], createComment)
 StrategyRouter.get('/:id/comments', viewStrategyComments);
+StrategyRouter.get('/:id/activities', [verifyToken], viewStrategyActivities);
 
 export default StrategyRouter;
 

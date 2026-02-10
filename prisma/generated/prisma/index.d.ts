@@ -79,6 +79,11 @@ export type StrategyImplementer = $Result.DefaultSelection<Prisma.$StrategyImple
  */
 export type Comment = $Result.DefaultSelection<Prisma.$CommentPayload>
 /**
+ * Model StrategyActivity
+ * 
+ */
+export type StrategyActivity = $Result.DefaultSelection<Prisma.$StrategyActivityPayload>
+/**
  * Model Faq
  * 
  */
@@ -336,6 +341,16 @@ export class PrismaClient<
     * ```
     */
   get comment(): Prisma.CommentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.strategyActivity`: Exposes CRUD operations for the **StrategyActivity** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StrategyActivities
+    * const strategyActivities = await prisma.strategyActivity.findMany()
+    * ```
+    */
+  get strategyActivity(): Prisma.StrategyActivityDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.faq`: Exposes CRUD operations for the **Faq** model.
@@ -810,6 +825,7 @@ export namespace Prisma {
     Stakeholder: 'Stakeholder',
     StrategyImplementer: 'StrategyImplementer',
     Comment: 'Comment',
+    StrategyActivity: 'StrategyActivity',
     Faq: 'Faq',
     InviteCode: 'InviteCode'
   };
@@ -830,7 +846,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "passkey" | "user" | "role" | "userRole" | "focusArea" | "policies" | "timelineOptions" | "statusOptions" | "strategy" | "implementer" | "stakeholder" | "strategyImplementer" | "comment" | "faq" | "inviteCode"
+      modelProps: "passkey" | "user" | "role" | "userRole" | "focusArea" | "policies" | "timelineOptions" | "statusOptions" | "strategy" | "implementer" | "stakeholder" | "strategyImplementer" | "comment" | "strategyActivity" | "faq" | "inviteCode"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1796,6 +1812,80 @@ export namespace Prisma {
           }
         }
       }
+      StrategyActivity: {
+        payload: Prisma.$StrategyActivityPayload<ExtArgs>
+        fields: Prisma.StrategyActivityFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StrategyActivityFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StrategyActivityFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload>
+          }
+          findFirst: {
+            args: Prisma.StrategyActivityFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StrategyActivityFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload>
+          }
+          findMany: {
+            args: Prisma.StrategyActivityFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload>[]
+          }
+          create: {
+            args: Prisma.StrategyActivityCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload>
+          }
+          createMany: {
+            args: Prisma.StrategyActivityCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StrategyActivityCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload>[]
+          }
+          delete: {
+            args: Prisma.StrategyActivityDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload>
+          }
+          update: {
+            args: Prisma.StrategyActivityUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload>
+          }
+          deleteMany: {
+            args: Prisma.StrategyActivityDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StrategyActivityUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.StrategyActivityUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload>[]
+          }
+          upsert: {
+            args: Prisma.StrategyActivityUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StrategyActivityPayload>
+          }
+          aggregate: {
+            args: Prisma.StrategyActivityAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStrategyActivity>
+          }
+          groupBy: {
+            args: Prisma.StrategyActivityGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StrategyActivityGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StrategyActivityCountArgs<ExtArgs>
+            result: $Utils.Optional<StrategyActivityCountAggregateOutputType> | number
+          }
+        }
+      }
       Faq: {
         payload: Prisma.$FaqPayload<ExtArgs>
         fields: Prisma.FaqFieldRefs
@@ -2053,6 +2143,7 @@ export namespace Prisma {
     stakeholder?: StakeholderOmit
     strategyImplementer?: StrategyImplementerOmit
     comment?: CommentOmit
+    strategyActivity?: StrategyActivityOmit
     faq?: FaqOmit
     inviteCode?: InviteCodeOmit
   }
@@ -2139,6 +2230,7 @@ export namespace Prisma {
     assigned_implementers: number
     userRoles: number
     comments: number
+    activities: number
     inviteCodesCreated: number
     invitedUsers: number
   }
@@ -2148,6 +2240,7 @@ export namespace Prisma {
     assigned_implementers?: boolean | UserCountOutputTypeCountAssigned_implementersArgs
     userRoles?: boolean | UserCountOutputTypeCountUserRolesArgs
     comments?: boolean | UserCountOutputTypeCountCommentsArgs
+    activities?: boolean | UserCountOutputTypeCountActivitiesArgs
     inviteCodesCreated?: boolean | UserCountOutputTypeCountInviteCodesCreatedArgs
     invitedUsers?: boolean | UserCountOutputTypeCountInvitedUsersArgs
   }
@@ -2189,6 +2282,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountCommentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CommentWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StrategyActivityWhereInput
   }
 
   /**
@@ -2387,12 +2487,14 @@ export namespace Prisma {
     stakeholders: number
     comments: number
     implementers: number
+    activities: number
   }
 
   export type StrategyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     stakeholders?: boolean | StrategyCountOutputTypeCountStakeholdersArgs
     comments?: boolean | StrategyCountOutputTypeCountCommentsArgs
     implementers?: boolean | StrategyCountOutputTypeCountImplementersArgs
+    activities?: boolean | StrategyCountOutputTypeCountActivitiesArgs
   }
 
   // Custom InputTypes
@@ -2425,6 +2527,13 @@ export namespace Prisma {
    */
   export type StrategyCountOutputTypeCountImplementersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: StrategyImplementerWhereInput
+  }
+
+  /**
+   * StrategyCountOutputType without action
+   */
+  export type StrategyCountOutputTypeCountActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StrategyActivityWhereInput
   }
 
 
@@ -3988,6 +4097,7 @@ export namespace Prisma {
     assigned_implementers?: boolean | User$assigned_implementersArgs<ExtArgs>
     userRoles?: boolean | User$userRolesArgs<ExtArgs>
     comments?: boolean | User$commentsArgs<ExtArgs>
+    activities?: boolean | User$activitiesArgs<ExtArgs>
     inviteCodesCreated?: boolean | User$inviteCodesCreatedArgs<ExtArgs>
     inviteCodeUsed?: boolean | User$inviteCodeUsedArgs<ExtArgs>
     invitedUsers?: boolean | User$invitedUsersArgs<ExtArgs>
@@ -4068,6 +4178,7 @@ export namespace Prisma {
     assigned_implementers?: boolean | User$assigned_implementersArgs<ExtArgs>
     userRoles?: boolean | User$userRolesArgs<ExtArgs>
     comments?: boolean | User$commentsArgs<ExtArgs>
+    activities?: boolean | User$activitiesArgs<ExtArgs>
     inviteCodesCreated?: boolean | User$inviteCodesCreatedArgs<ExtArgs>
     inviteCodeUsed?: boolean | User$inviteCodeUsedArgs<ExtArgs>
     invitedUsers?: boolean | User$invitedUsersArgs<ExtArgs>
@@ -4093,6 +4204,7 @@ export namespace Prisma {
       assigned_implementers: Prisma.$ImplementerPayload<ExtArgs>[]
       userRoles: Prisma.$UserRolePayload<ExtArgs>[]
       comments: Prisma.$CommentPayload<ExtArgs>[]
+      activities: Prisma.$StrategyActivityPayload<ExtArgs>[]
       inviteCodesCreated: Prisma.$InviteCodePayload<ExtArgs>[]
       inviteCodeUsed: Prisma.$InviteCodePayload<ExtArgs> | null
       invitedUsers: Prisma.$UserPayload<ExtArgs>[]
@@ -4515,6 +4627,7 @@ export namespace Prisma {
     assigned_implementers<T extends User$assigned_implementersArgs<ExtArgs> = {}>(args?: Subset<T, User$assigned_implementersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ImplementerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     userRoles<T extends User$userRolesArgs<ExtArgs> = {}>(args?: Subset<T, User$userRolesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     comments<T extends User$commentsArgs<ExtArgs> = {}>(args?: Subset<T, User$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    activities<T extends User$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, User$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     inviteCodesCreated<T extends User$inviteCodesCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$inviteCodesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InviteCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     inviteCodeUsed<T extends User$inviteCodeUsedArgs<ExtArgs> = {}>(args?: Subset<T, User$inviteCodeUsedArgs<ExtArgs>>): Prisma__InviteCodeClient<$Result.GetResult<Prisma.$InviteCodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     invitedUsers<T extends User$invitedUsersArgs<ExtArgs> = {}>(args?: Subset<T, User$invitedUsersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5082,6 +5195,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CommentScalarFieldEnum | CommentScalarFieldEnum[]
+  }
+
+  /**
+   * User.activities
+   */
+  export type User$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    where?: StrategyActivityWhereInput
+    orderBy?: StrategyActivityOrderByWithRelationInput | StrategyActivityOrderByWithRelationInput[]
+    cursor?: StrategyActivityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StrategyActivityScalarFieldEnum | StrategyActivityScalarFieldEnum[]
   }
 
   /**
@@ -12004,6 +12141,7 @@ export namespace Prisma {
     status?: boolean | StatusOptionsDefaultArgs<ExtArgs>
     policy?: boolean | PoliciesDefaultArgs<ExtArgs>
     implementers?: boolean | Strategy$implementersArgs<ExtArgs>
+    activities?: boolean | Strategy$activitiesArgs<ExtArgs>
     _count?: boolean | StrategyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["strategy"]>
 
@@ -12063,6 +12201,7 @@ export namespace Prisma {
     status?: boolean | StatusOptionsDefaultArgs<ExtArgs>
     policy?: boolean | PoliciesDefaultArgs<ExtArgs>
     implementers?: boolean | Strategy$implementersArgs<ExtArgs>
+    activities?: boolean | Strategy$activitiesArgs<ExtArgs>
     _count?: boolean | StrategyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StrategyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12088,6 +12227,7 @@ export namespace Prisma {
       status: Prisma.$StatusOptionsPayload<ExtArgs>
       policy: Prisma.$PoliciesPayload<ExtArgs>
       implementers: Prisma.$StrategyImplementerPayload<ExtArgs>[]
+      activities: Prisma.$StrategyActivityPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -12501,6 +12641,7 @@ export namespace Prisma {
     status<T extends StatusOptionsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StatusOptionsDefaultArgs<ExtArgs>>): Prisma__StatusOptionsClient<$Result.GetResult<Prisma.$StatusOptionsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     policy<T extends PoliciesDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PoliciesDefaultArgs<ExtArgs>>): Prisma__PoliciesClient<$Result.GetResult<Prisma.$PoliciesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     implementers<T extends Strategy$implementersArgs<ExtArgs> = {}>(args?: Subset<T, Strategy$implementersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategyImplementerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    activities<T extends Strategy$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, Strategy$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13014,6 +13155,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: StrategyImplementerScalarFieldEnum | StrategyImplementerScalarFieldEnum[]
+  }
+
+  /**
+   * Strategy.activities
+   */
+  export type Strategy$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    where?: StrategyActivityWhereInput
+    orderBy?: StrategyActivityOrderByWithRelationInput | StrategyActivityOrderByWithRelationInput[]
+    cursor?: StrategyActivityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StrategyActivityScalarFieldEnum | StrategyActivityScalarFieldEnum[]
   }
 
   /**
@@ -17689,6 +17854,1141 @@ export namespace Prisma {
 
 
   /**
+   * Model StrategyActivity
+   */
+
+  export type AggregateStrategyActivity = {
+    _count: StrategyActivityCountAggregateOutputType | null
+    _avg: StrategyActivityAvgAggregateOutputType | null
+    _sum: StrategyActivitySumAggregateOutputType | null
+    _min: StrategyActivityMinAggregateOutputType | null
+    _max: StrategyActivityMaxAggregateOutputType | null
+  }
+
+  export type StrategyActivityAvgAggregateOutputType = {
+    id: number | null
+    strategy_id: number | null
+  }
+
+  export type StrategyActivitySumAggregateOutputType = {
+    id: number | null
+    strategy_id: number | null
+  }
+
+  export type StrategyActivityMinAggregateOutputType = {
+    id: number | null
+    strategy_id: number | null
+    user_id: string | null
+    action: string | null
+    summary: string | null
+    createdAt: Date | null
+  }
+
+  export type StrategyActivityMaxAggregateOutputType = {
+    id: number | null
+    strategy_id: number | null
+    user_id: string | null
+    action: string | null
+    summary: string | null
+    createdAt: Date | null
+  }
+
+  export type StrategyActivityCountAggregateOutputType = {
+    id: number
+    strategy_id: number
+    user_id: number
+    action: number
+    summary: number
+    changes: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type StrategyActivityAvgAggregateInputType = {
+    id?: true
+    strategy_id?: true
+  }
+
+  export type StrategyActivitySumAggregateInputType = {
+    id?: true
+    strategy_id?: true
+  }
+
+  export type StrategyActivityMinAggregateInputType = {
+    id?: true
+    strategy_id?: true
+    user_id?: true
+    action?: true
+    summary?: true
+    createdAt?: true
+  }
+
+  export type StrategyActivityMaxAggregateInputType = {
+    id?: true
+    strategy_id?: true
+    user_id?: true
+    action?: true
+    summary?: true
+    createdAt?: true
+  }
+
+  export type StrategyActivityCountAggregateInputType = {
+    id?: true
+    strategy_id?: true
+    user_id?: true
+    action?: true
+    summary?: true
+    changes?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type StrategyActivityAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StrategyActivity to aggregate.
+     */
+    where?: StrategyActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StrategyActivities to fetch.
+     */
+    orderBy?: StrategyActivityOrderByWithRelationInput | StrategyActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StrategyActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StrategyActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StrategyActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StrategyActivities
+    **/
+    _count?: true | StrategyActivityCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: StrategyActivityAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StrategyActivitySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StrategyActivityMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StrategyActivityMaxAggregateInputType
+  }
+
+  export type GetStrategyActivityAggregateType<T extends StrategyActivityAggregateArgs> = {
+        [P in keyof T & keyof AggregateStrategyActivity]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStrategyActivity[P]>
+      : GetScalarType<T[P], AggregateStrategyActivity[P]>
+  }
+
+
+
+
+  export type StrategyActivityGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StrategyActivityWhereInput
+    orderBy?: StrategyActivityOrderByWithAggregationInput | StrategyActivityOrderByWithAggregationInput[]
+    by: StrategyActivityScalarFieldEnum[] | StrategyActivityScalarFieldEnum
+    having?: StrategyActivityScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StrategyActivityCountAggregateInputType | true
+    _avg?: StrategyActivityAvgAggregateInputType
+    _sum?: StrategyActivitySumAggregateInputType
+    _min?: StrategyActivityMinAggregateInputType
+    _max?: StrategyActivityMaxAggregateInputType
+  }
+
+  export type StrategyActivityGroupByOutputType = {
+    id: number
+    strategy_id: number
+    user_id: string
+    action: string
+    summary: string
+    changes: JsonValue
+    createdAt: Date
+    _count: StrategyActivityCountAggregateOutputType | null
+    _avg: StrategyActivityAvgAggregateOutputType | null
+    _sum: StrategyActivitySumAggregateOutputType | null
+    _min: StrategyActivityMinAggregateOutputType | null
+    _max: StrategyActivityMaxAggregateOutputType | null
+  }
+
+  type GetStrategyActivityGroupByPayload<T extends StrategyActivityGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StrategyActivityGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StrategyActivityGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StrategyActivityGroupByOutputType[P]>
+            : GetScalarType<T[P], StrategyActivityGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StrategyActivitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    strategy_id?: boolean
+    user_id?: boolean
+    action?: boolean
+    summary?: boolean
+    changes?: boolean
+    createdAt?: boolean
+    strategy?: boolean | StrategyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["strategyActivity"]>
+
+  export type StrategyActivitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    strategy_id?: boolean
+    user_id?: boolean
+    action?: boolean
+    summary?: boolean
+    changes?: boolean
+    createdAt?: boolean
+    strategy?: boolean | StrategyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["strategyActivity"]>
+
+  export type StrategyActivitySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    strategy_id?: boolean
+    user_id?: boolean
+    action?: boolean
+    summary?: boolean
+    changes?: boolean
+    createdAt?: boolean
+    strategy?: boolean | StrategyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["strategyActivity"]>
+
+  export type StrategyActivitySelectScalar = {
+    id?: boolean
+    strategy_id?: boolean
+    user_id?: boolean
+    action?: boolean
+    summary?: boolean
+    changes?: boolean
+    createdAt?: boolean
+  }
+
+  export type StrategyActivityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "strategy_id" | "user_id" | "action" | "summary" | "changes" | "createdAt", ExtArgs["result"]["strategyActivity"]>
+  export type StrategyActivityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    strategy?: boolean | StrategyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type StrategyActivityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    strategy?: boolean | StrategyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type StrategyActivityIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    strategy?: boolean | StrategyDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $StrategyActivityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StrategyActivity"
+    objects: {
+      strategy: Prisma.$StrategyPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      strategy_id: number
+      user_id: string
+      action: string
+      summary: string
+      changes: Prisma.JsonValue
+      createdAt: Date
+    }, ExtArgs["result"]["strategyActivity"]>
+    composites: {}
+  }
+
+  type StrategyActivityGetPayload<S extends boolean | null | undefined | StrategyActivityDefaultArgs> = $Result.GetResult<Prisma.$StrategyActivityPayload, S>
+
+  type StrategyActivityCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StrategyActivityFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
+      select?: StrategyActivityCountAggregateInputType | true
+    }
+
+  export interface StrategyActivityDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StrategyActivity'], meta: { name: 'StrategyActivity' } }
+    /**
+     * Find zero or one StrategyActivity that matches the filter.
+     * @param {StrategyActivityFindUniqueArgs} args - Arguments to find a StrategyActivity
+     * @example
+     * // Get one StrategyActivity
+     * const strategyActivity = await prisma.strategyActivity.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StrategyActivityFindUniqueArgs>(args: SelectSubset<T, StrategyActivityFindUniqueArgs<ExtArgs>>): Prisma__StrategyActivityClient<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one StrategyActivity that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {StrategyActivityFindUniqueOrThrowArgs} args - Arguments to find a StrategyActivity
+     * @example
+     * // Get one StrategyActivity
+     * const strategyActivity = await prisma.strategyActivity.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StrategyActivityFindUniqueOrThrowArgs>(args: SelectSubset<T, StrategyActivityFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StrategyActivityClient<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StrategyActivity that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategyActivityFindFirstArgs} args - Arguments to find a StrategyActivity
+     * @example
+     * // Get one StrategyActivity
+     * const strategyActivity = await prisma.strategyActivity.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StrategyActivityFindFirstArgs>(args?: SelectSubset<T, StrategyActivityFindFirstArgs<ExtArgs>>): Prisma__StrategyActivityClient<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StrategyActivity that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategyActivityFindFirstOrThrowArgs} args - Arguments to find a StrategyActivity
+     * @example
+     * // Get one StrategyActivity
+     * const strategyActivity = await prisma.strategyActivity.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StrategyActivityFindFirstOrThrowArgs>(args?: SelectSubset<T, StrategyActivityFindFirstOrThrowArgs<ExtArgs>>): Prisma__StrategyActivityClient<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more StrategyActivities that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategyActivityFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StrategyActivities
+     * const strategyActivities = await prisma.strategyActivity.findMany()
+     * 
+     * // Get first 10 StrategyActivities
+     * const strategyActivities = await prisma.strategyActivity.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const strategyActivityWithIdOnly = await prisma.strategyActivity.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StrategyActivityFindManyArgs>(args?: SelectSubset<T, StrategyActivityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a StrategyActivity.
+     * @param {StrategyActivityCreateArgs} args - Arguments to create a StrategyActivity.
+     * @example
+     * // Create one StrategyActivity
+     * const StrategyActivity = await prisma.strategyActivity.create({
+     *   data: {
+     *     // ... data to create a StrategyActivity
+     *   }
+     * })
+     * 
+     */
+    create<T extends StrategyActivityCreateArgs>(args: SelectSubset<T, StrategyActivityCreateArgs<ExtArgs>>): Prisma__StrategyActivityClient<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many StrategyActivities.
+     * @param {StrategyActivityCreateManyArgs} args - Arguments to create many StrategyActivities.
+     * @example
+     * // Create many StrategyActivities
+     * const strategyActivity = await prisma.strategyActivity.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StrategyActivityCreateManyArgs>(args?: SelectSubset<T, StrategyActivityCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StrategyActivities and returns the data saved in the database.
+     * @param {StrategyActivityCreateManyAndReturnArgs} args - Arguments to create many StrategyActivities.
+     * @example
+     * // Create many StrategyActivities
+     * const strategyActivity = await prisma.strategyActivity.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StrategyActivities and only return the `id`
+     * const strategyActivityWithIdOnly = await prisma.strategyActivity.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StrategyActivityCreateManyAndReturnArgs>(args?: SelectSubset<T, StrategyActivityCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a StrategyActivity.
+     * @param {StrategyActivityDeleteArgs} args - Arguments to delete one StrategyActivity.
+     * @example
+     * // Delete one StrategyActivity
+     * const StrategyActivity = await prisma.strategyActivity.delete({
+     *   where: {
+     *     // ... filter to delete one StrategyActivity
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StrategyActivityDeleteArgs>(args: SelectSubset<T, StrategyActivityDeleteArgs<ExtArgs>>): Prisma__StrategyActivityClient<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one StrategyActivity.
+     * @param {StrategyActivityUpdateArgs} args - Arguments to update one StrategyActivity.
+     * @example
+     * // Update one StrategyActivity
+     * const strategyActivity = await prisma.strategyActivity.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StrategyActivityUpdateArgs>(args: SelectSubset<T, StrategyActivityUpdateArgs<ExtArgs>>): Prisma__StrategyActivityClient<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more StrategyActivities.
+     * @param {StrategyActivityDeleteManyArgs} args - Arguments to filter StrategyActivities to delete.
+     * @example
+     * // Delete a few StrategyActivities
+     * const { count } = await prisma.strategyActivity.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StrategyActivityDeleteManyArgs>(args?: SelectSubset<T, StrategyActivityDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StrategyActivities.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategyActivityUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StrategyActivities
+     * const strategyActivity = await prisma.strategyActivity.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StrategyActivityUpdateManyArgs>(args: SelectSubset<T, StrategyActivityUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StrategyActivities and returns the data updated in the database.
+     * @param {StrategyActivityUpdateManyAndReturnArgs} args - Arguments to update many StrategyActivities.
+     * @example
+     * // Update many StrategyActivities
+     * const strategyActivity = await prisma.strategyActivity.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more StrategyActivities and only return the `id`
+     * const strategyActivityWithIdOnly = await prisma.strategyActivity.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends StrategyActivityUpdateManyAndReturnArgs>(args: SelectSubset<T, StrategyActivityUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one StrategyActivity.
+     * @param {StrategyActivityUpsertArgs} args - Arguments to update or create a StrategyActivity.
+     * @example
+     * // Update or create a StrategyActivity
+     * const strategyActivity = await prisma.strategyActivity.upsert({
+     *   create: {
+     *     // ... data to create a StrategyActivity
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StrategyActivity we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StrategyActivityUpsertArgs>(args: SelectSubset<T, StrategyActivityUpsertArgs<ExtArgs>>): Prisma__StrategyActivityClient<$Result.GetResult<Prisma.$StrategyActivityPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of StrategyActivities.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategyActivityCountArgs} args - Arguments to filter StrategyActivities to count.
+     * @example
+     * // Count the number of StrategyActivities
+     * const count = await prisma.strategyActivity.count({
+     *   where: {
+     *     // ... the filter for the StrategyActivities we want to count
+     *   }
+     * })
+    **/
+    count<T extends StrategyActivityCountArgs>(
+      args?: Subset<T, StrategyActivityCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StrategyActivityCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StrategyActivity.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategyActivityAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StrategyActivityAggregateArgs>(args: Subset<T, StrategyActivityAggregateArgs>): Prisma.PrismaPromise<GetStrategyActivityAggregateType<T>>
+
+    /**
+     * Group by StrategyActivity.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StrategyActivityGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StrategyActivityGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StrategyActivityGroupByArgs['orderBy'] }
+        : { orderBy?: StrategyActivityGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StrategyActivityGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStrategyActivityGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StrategyActivity model
+   */
+  readonly fields: StrategyActivityFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StrategyActivity.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StrategyActivityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    strategy<T extends StrategyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StrategyDefaultArgs<ExtArgs>>): Prisma__StrategyClient<$Result.GetResult<Prisma.$StrategyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StrategyActivity model
+   */
+  interface StrategyActivityFieldRefs {
+    readonly id: FieldRef<"StrategyActivity", 'Int'>
+    readonly strategy_id: FieldRef<"StrategyActivity", 'Int'>
+    readonly user_id: FieldRef<"StrategyActivity", 'String'>
+    readonly action: FieldRef<"StrategyActivity", 'String'>
+    readonly summary: FieldRef<"StrategyActivity", 'String'>
+    readonly changes: FieldRef<"StrategyActivity", 'Json'>
+    readonly createdAt: FieldRef<"StrategyActivity", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StrategyActivity findUnique
+   */
+  export type StrategyActivityFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategyActivity to fetch.
+     */
+    where: StrategyActivityWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * StrategyActivity findUniqueOrThrow
+   */
+  export type StrategyActivityFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategyActivity to fetch.
+     */
+    where: StrategyActivityWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * StrategyActivity findFirst
+   */
+  export type StrategyActivityFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategyActivity to fetch.
+     */
+    where?: StrategyActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StrategyActivities to fetch.
+     */
+    orderBy?: StrategyActivityOrderByWithRelationInput | StrategyActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StrategyActivities.
+     */
+    cursor?: StrategyActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StrategyActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StrategyActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StrategyActivities.
+     */
+    distinct?: StrategyActivityScalarFieldEnum | StrategyActivityScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * StrategyActivity findFirstOrThrow
+   */
+  export type StrategyActivityFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategyActivity to fetch.
+     */
+    where?: StrategyActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StrategyActivities to fetch.
+     */
+    orderBy?: StrategyActivityOrderByWithRelationInput | StrategyActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StrategyActivities.
+     */
+    cursor?: StrategyActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StrategyActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StrategyActivities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StrategyActivities.
+     */
+    distinct?: StrategyActivityScalarFieldEnum | StrategyActivityScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * StrategyActivity findMany
+   */
+  export type StrategyActivityFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    /**
+     * Filter, which StrategyActivities to fetch.
+     */
+    where?: StrategyActivityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StrategyActivities to fetch.
+     */
+    orderBy?: StrategyActivityOrderByWithRelationInput | StrategyActivityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StrategyActivities.
+     */
+    cursor?: StrategyActivityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StrategyActivities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StrategyActivities.
+     */
+    skip?: number
+    distinct?: StrategyActivityScalarFieldEnum | StrategyActivityScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * StrategyActivity create
+   */
+  export type StrategyActivityCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    /**
+     * The data needed to create a StrategyActivity.
+     */
+    data: XOR<StrategyActivityCreateInput, StrategyActivityUncheckedCreateInput>
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * StrategyActivity createMany
+   */
+  export type StrategyActivityCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StrategyActivities.
+     */
+    data: StrategyActivityCreateManyInput | StrategyActivityCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StrategyActivity createManyAndReturn
+   */
+  export type StrategyActivityCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * The data used to create many StrategyActivities.
+     */
+    data: StrategyActivityCreateManyInput | StrategyActivityCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StrategyActivity update
+   */
+  export type StrategyActivityUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    /**
+     * The data needed to update a StrategyActivity.
+     */
+    data: XOR<StrategyActivityUpdateInput, StrategyActivityUncheckedUpdateInput>
+    /**
+     * Choose, which StrategyActivity to update.
+     */
+    where: StrategyActivityWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * StrategyActivity updateMany
+   */
+  export type StrategyActivityUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StrategyActivities.
+     */
+    data: XOR<StrategyActivityUpdateManyMutationInput, StrategyActivityUncheckedUpdateManyInput>
+    /**
+     * Filter which StrategyActivities to update
+     */
+    where?: StrategyActivityWhereInput
+    /**
+     * Limit how many StrategyActivities to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StrategyActivity updateManyAndReturn
+   */
+  export type StrategyActivityUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * The data used to update StrategyActivities.
+     */
+    data: XOR<StrategyActivityUpdateManyMutationInput, StrategyActivityUncheckedUpdateManyInput>
+    /**
+     * Filter which StrategyActivities to update
+     */
+    where?: StrategyActivityWhereInput
+    /**
+     * Limit how many StrategyActivities to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StrategyActivity upsert
+   */
+  export type StrategyActivityUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    /**
+     * The filter to search for the StrategyActivity to update in case it exists.
+     */
+    where: StrategyActivityWhereUniqueInput
+    /**
+     * In case the StrategyActivity found by the `where` argument doesn't exist, create a new StrategyActivity with this data.
+     */
+    create: XOR<StrategyActivityCreateInput, StrategyActivityUncheckedCreateInput>
+    /**
+     * In case the StrategyActivity was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StrategyActivityUpdateInput, StrategyActivityUncheckedUpdateInput>
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * StrategyActivity delete
+   */
+  export type StrategyActivityDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+    /**
+     * Filter which StrategyActivity to delete.
+     */
+    where: StrategyActivityWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * StrategyActivity deleteMany
+   */
+  export type StrategyActivityDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StrategyActivities to delete
+     */
+    where?: StrategyActivityWhereInput
+    /**
+     * Limit how many StrategyActivities to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * StrategyActivity without action
+   */
+  export type StrategyActivityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StrategyActivity
+     */
+    select?: StrategyActivitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StrategyActivity
+     */
+    omit?: StrategyActivityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StrategyActivityInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Faq
    */
 
@@ -20080,6 +21380,19 @@ export namespace Prisma {
   export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
 
 
+  export const StrategyActivityScalarFieldEnum: {
+    id: 'id',
+    strategy_id: 'strategy_id',
+    user_id: 'user_id',
+    action: 'action',
+    summary: 'summary',
+    changes: 'changes',
+    createdAt: 'createdAt'
+  };
+
+  export type StrategyActivityScalarFieldEnum = (typeof StrategyActivityScalarFieldEnum)[keyof typeof StrategyActivityScalarFieldEnum]
+
+
   export const FaqScalarFieldEnum: {
     id: 'id',
     question: 'question',
@@ -20118,6 +21431,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -20368,6 +21688,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerListRelationFilter
     userRoles?: UserRoleListRelationFilter
     comments?: CommentListRelationFilter
+    activities?: StrategyActivityListRelationFilter
     inviteCodesCreated?: InviteCodeListRelationFilter
     inviteCodeUsed?: XOR<InviteCodeNullableScalarRelationFilter, InviteCodeWhereInput> | null
     invitedUsers?: UserListRelationFilter
@@ -20397,6 +21718,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerOrderByRelationAggregateInput
     userRoles?: UserRoleOrderByRelationAggregateInput
     comments?: CommentOrderByRelationAggregateInput
+    activities?: StrategyActivityOrderByRelationAggregateInput
     inviteCodesCreated?: InviteCodeOrderByRelationAggregateInput
     inviteCodeUsed?: InviteCodeOrderByWithRelationInput
     invitedUsers?: UserOrderByRelationAggregateInput
@@ -20429,6 +21751,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerListRelationFilter
     userRoles?: UserRoleListRelationFilter
     comments?: CommentListRelationFilter
+    activities?: StrategyActivityListRelationFilter
     inviteCodesCreated?: InviteCodeListRelationFilter
     inviteCodeUsed?: XOR<InviteCodeNullableScalarRelationFilter, InviteCodeWhereInput> | null
     invitedUsers?: UserListRelationFilter
@@ -20805,6 +22128,7 @@ export namespace Prisma {
     status?: XOR<StatusOptionsScalarRelationFilter, StatusOptionsWhereInput>
     policy?: XOR<PoliciesScalarRelationFilter, PoliciesWhereInput>
     implementers?: StrategyImplementerListRelationFilter
+    activities?: StrategyActivityListRelationFilter
   }
 
   export type StrategyOrderByWithRelationInput = {
@@ -20825,6 +22149,7 @@ export namespace Prisma {
     status?: StatusOptionsOrderByWithRelationInput
     policy?: PoliciesOrderByWithRelationInput
     implementers?: StrategyImplementerOrderByRelationAggregateInput
+    activities?: StrategyActivityOrderByRelationAggregateInput
   }
 
   export type StrategyWhereUniqueInput = Prisma.AtLeast<{
@@ -20848,6 +22173,7 @@ export namespace Prisma {
     status?: XOR<StatusOptionsScalarRelationFilter, StatusOptionsWhereInput>
     policy?: XOR<PoliciesScalarRelationFilter, PoliciesWhereInput>
     implementers?: StrategyImplementerListRelationFilter
+    activities?: StrategyActivityListRelationFilter
   }, "id">
 
   export type StrategyOrderByWithAggregationInput = {
@@ -21171,6 +22497,76 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Comment"> | Date | string
   }
 
+  export type StrategyActivityWhereInput = {
+    AND?: StrategyActivityWhereInput | StrategyActivityWhereInput[]
+    OR?: StrategyActivityWhereInput[]
+    NOT?: StrategyActivityWhereInput | StrategyActivityWhereInput[]
+    id?: IntFilter<"StrategyActivity"> | number
+    strategy_id?: IntFilter<"StrategyActivity"> | number
+    user_id?: StringFilter<"StrategyActivity"> | string
+    action?: StringFilter<"StrategyActivity"> | string
+    summary?: StringFilter<"StrategyActivity"> | string
+    changes?: JsonFilter<"StrategyActivity">
+    createdAt?: DateTimeFilter<"StrategyActivity"> | Date | string
+    strategy?: XOR<StrategyScalarRelationFilter, StrategyWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type StrategyActivityOrderByWithRelationInput = {
+    id?: SortOrder
+    strategy_id?: SortOrder
+    user_id?: SortOrder
+    action?: SortOrder
+    summary?: SortOrder
+    changes?: SortOrder
+    createdAt?: SortOrder
+    strategy?: StrategyOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type StrategyActivityWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: StrategyActivityWhereInput | StrategyActivityWhereInput[]
+    OR?: StrategyActivityWhereInput[]
+    NOT?: StrategyActivityWhereInput | StrategyActivityWhereInput[]
+    strategy_id?: IntFilter<"StrategyActivity"> | number
+    user_id?: StringFilter<"StrategyActivity"> | string
+    action?: StringFilter<"StrategyActivity"> | string
+    summary?: StringFilter<"StrategyActivity"> | string
+    changes?: JsonFilter<"StrategyActivity">
+    createdAt?: DateTimeFilter<"StrategyActivity"> | Date | string
+    strategy?: XOR<StrategyScalarRelationFilter, StrategyWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type StrategyActivityOrderByWithAggregationInput = {
+    id?: SortOrder
+    strategy_id?: SortOrder
+    user_id?: SortOrder
+    action?: SortOrder
+    summary?: SortOrder
+    changes?: SortOrder
+    createdAt?: SortOrder
+    _count?: StrategyActivityCountOrderByAggregateInput
+    _avg?: StrategyActivityAvgOrderByAggregateInput
+    _max?: StrategyActivityMaxOrderByAggregateInput
+    _min?: StrategyActivityMinOrderByAggregateInput
+    _sum?: StrategyActivitySumOrderByAggregateInput
+  }
+
+  export type StrategyActivityScalarWhereWithAggregatesInput = {
+    AND?: StrategyActivityScalarWhereWithAggregatesInput | StrategyActivityScalarWhereWithAggregatesInput[]
+    OR?: StrategyActivityScalarWhereWithAggregatesInput[]
+    NOT?: StrategyActivityScalarWhereWithAggregatesInput | StrategyActivityScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"StrategyActivity"> | number
+    strategy_id?: IntWithAggregatesFilter<"StrategyActivity"> | number
+    user_id?: StringWithAggregatesFilter<"StrategyActivity"> | string
+    action?: StringWithAggregatesFilter<"StrategyActivity"> | string
+    summary?: StringWithAggregatesFilter<"StrategyActivity"> | string
+    changes?: JsonWithAggregatesFilter<"StrategyActivity">
+    createdAt?: DateTimeWithAggregatesFilter<"StrategyActivity"> | Date | string
+  }
+
   export type FaqWhereInput = {
     AND?: FaqWhereInput | FaqWhereInput[]
     OR?: FaqWhereInput[]
@@ -21408,6 +22804,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleCreateNestedManyWithoutUserInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
     inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
     invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
@@ -21436,6 +22833,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
     invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
   }
@@ -21460,6 +22858,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUpdateManyWithoutUserNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
     inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
     invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
@@ -21488,6 +22887,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
     invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }
@@ -21844,6 +23244,7 @@ export namespace Prisma {
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
     policy: PoliciesCreateNestedOneWithoutStrategiesInput
     implementers?: StrategyImplementerCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyUncheckedCreateInput = {
@@ -21860,6 +23261,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyUpdateInput = {
@@ -21875,6 +23277,7 @@ export namespace Prisma {
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     policy?: PoliciesUpdateOneRequiredWithoutStrategiesNestedInput
     implementers?: StrategyImplementerUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateInput = {
@@ -21891,6 +23294,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyCreateManyInput = {
@@ -22206,6 +23610,71 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StrategyActivityCreateInput = {
+    action: string
+    summary: string
+    changes: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    strategy: StrategyCreateNestedOneWithoutActivitiesInput
+    user: UserCreateNestedOneWithoutActivitiesInput
+  }
+
+  export type StrategyActivityUncheckedCreateInput = {
+    id?: number
+    strategy_id: number
+    user_id: string
+    action: string
+    summary: string
+    changes: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type StrategyActivityUpdateInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    strategy?: StrategyUpdateOneRequiredWithoutActivitiesNestedInput
+    user?: UserUpdateOneRequiredWithoutActivitiesNestedInput
+  }
+
+  export type StrategyActivityUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    strategy_id?: IntFieldUpdateOperationsInput | number
+    user_id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StrategyActivityCreateManyInput = {
+    id?: number
+    strategy_id: number
+    user_id: string
+    action: string
+    summary: string
+    changes: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type StrategyActivityUpdateManyMutationInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StrategyActivityUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    strategy_id?: IntFieldUpdateOperationsInput | number
+    user_id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FaqCreateInput = {
@@ -22623,6 +24092,12 @@ export namespace Prisma {
     none?: CommentWhereInput
   }
 
+  export type StrategyActivityListRelationFilter = {
+    every?: StrategyActivityWhereInput
+    some?: StrategyActivityWhereInput
+    none?: StrategyActivityWhereInput
+  }
+
   export type InviteCodeListRelationFilter = {
     every?: InviteCodeWhereInput
     some?: InviteCodeWhereInput
@@ -22658,6 +24133,10 @@ export namespace Prisma {
   }
 
   export type CommentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type StrategyActivityOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -23263,6 +24742,93 @@ export namespace Prisma {
     strategy_id?: SortOrder
     parent_id?: SortOrder
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type StrategyActivityCountOrderByAggregateInput = {
+    id?: SortOrder
+    strategy_id?: SortOrder
+    user_id?: SortOrder
+    action?: SortOrder
+    summary?: SortOrder
+    changes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StrategyActivityAvgOrderByAggregateInput = {
+    id?: SortOrder
+    strategy_id?: SortOrder
+  }
+
+  export type StrategyActivityMaxOrderByAggregateInput = {
+    id?: SortOrder
+    strategy_id?: SortOrder
+    user_id?: SortOrder
+    action?: SortOrder
+    summary?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StrategyActivityMinOrderByAggregateInput = {
+    id?: SortOrder
+    strategy_id?: SortOrder
+    user_id?: SortOrder
+    action?: SortOrder
+    summary?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type StrategyActivitySumOrderByAggregateInput = {
+    id?: SortOrder
+    strategy_id?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
 
   export type FaqCountOrderByAggregateInput = {
     id?: SortOrder
@@ -23416,6 +24982,13 @@ export namespace Prisma {
     connect?: CommentWhereUniqueInput | CommentWhereUniqueInput[]
   }
 
+  export type StrategyActivityCreateNestedManyWithoutUserInput = {
+    create?: XOR<StrategyActivityCreateWithoutUserInput, StrategyActivityUncheckedCreateWithoutUserInput> | StrategyActivityCreateWithoutUserInput[] | StrategyActivityUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StrategyActivityCreateOrConnectWithoutUserInput | StrategyActivityCreateOrConnectWithoutUserInput[]
+    createMany?: StrategyActivityCreateManyUserInputEnvelope
+    connect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+  }
+
   export type InviteCodeCreateNestedManyWithoutCreatedByInput = {
     create?: XOR<InviteCodeCreateWithoutCreatedByInput, InviteCodeUncheckedCreateWithoutCreatedByInput> | InviteCodeCreateWithoutCreatedByInput[] | InviteCodeUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: InviteCodeCreateOrConnectWithoutCreatedByInput | InviteCodeCreateOrConnectWithoutCreatedByInput[]
@@ -23467,6 +25040,13 @@ export namespace Prisma {
     connectOrCreate?: CommentCreateOrConnectWithoutUserInput | CommentCreateOrConnectWithoutUserInput[]
     createMany?: CommentCreateManyUserInputEnvelope
     connect?: CommentWhereUniqueInput | CommentWhereUniqueInput[]
+  }
+
+  export type StrategyActivityUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<StrategyActivityCreateWithoutUserInput, StrategyActivityUncheckedCreateWithoutUserInput> | StrategyActivityCreateWithoutUserInput[] | StrategyActivityUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StrategyActivityCreateOrConnectWithoutUserInput | StrategyActivityCreateOrConnectWithoutUserInput[]
+    createMany?: StrategyActivityCreateManyUserInputEnvelope
+    connect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
   }
 
   export type InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput = {
@@ -23550,6 +25130,20 @@ export namespace Prisma {
     update?: CommentUpdateWithWhereUniqueWithoutUserInput | CommentUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CommentUpdateManyWithWhereWithoutUserInput | CommentUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: CommentScalarWhereInput | CommentScalarWhereInput[]
+  }
+
+  export type StrategyActivityUpdateManyWithoutUserNestedInput = {
+    create?: XOR<StrategyActivityCreateWithoutUserInput, StrategyActivityUncheckedCreateWithoutUserInput> | StrategyActivityCreateWithoutUserInput[] | StrategyActivityUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StrategyActivityCreateOrConnectWithoutUserInput | StrategyActivityCreateOrConnectWithoutUserInput[]
+    upsert?: StrategyActivityUpsertWithWhereUniqueWithoutUserInput | StrategyActivityUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: StrategyActivityCreateManyUserInputEnvelope
+    set?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    disconnect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    delete?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    connect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    update?: StrategyActivityUpdateWithWhereUniqueWithoutUserInput | StrategyActivityUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: StrategyActivityUpdateManyWithWhereWithoutUserInput | StrategyActivityUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: StrategyActivityScalarWhereInput | StrategyActivityScalarWhereInput[]
   }
 
   export type InviteCodeUpdateManyWithoutCreatedByNestedInput = {
@@ -23661,6 +25255,20 @@ export namespace Prisma {
     update?: CommentUpdateWithWhereUniqueWithoutUserInput | CommentUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CommentUpdateManyWithWhereWithoutUserInput | CommentUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: CommentScalarWhereInput | CommentScalarWhereInput[]
+  }
+
+  export type StrategyActivityUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<StrategyActivityCreateWithoutUserInput, StrategyActivityUncheckedCreateWithoutUserInput> | StrategyActivityCreateWithoutUserInput[] | StrategyActivityUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StrategyActivityCreateOrConnectWithoutUserInput | StrategyActivityCreateOrConnectWithoutUserInput[]
+    upsert?: StrategyActivityUpsertWithWhereUniqueWithoutUserInput | StrategyActivityUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: StrategyActivityCreateManyUserInputEnvelope
+    set?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    disconnect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    delete?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    connect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    update?: StrategyActivityUpdateWithWhereUniqueWithoutUserInput | StrategyActivityUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: StrategyActivityUpdateManyWithWhereWithoutUserInput | StrategyActivityUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: StrategyActivityScalarWhereInput | StrategyActivityScalarWhereInput[]
   }
 
   export type InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput = {
@@ -24080,6 +25688,13 @@ export namespace Prisma {
     connect?: StrategyImplementerWhereUniqueInput | StrategyImplementerWhereUniqueInput[]
   }
 
+  export type StrategyActivityCreateNestedManyWithoutStrategyInput = {
+    create?: XOR<StrategyActivityCreateWithoutStrategyInput, StrategyActivityUncheckedCreateWithoutStrategyInput> | StrategyActivityCreateWithoutStrategyInput[] | StrategyActivityUncheckedCreateWithoutStrategyInput[]
+    connectOrCreate?: StrategyActivityCreateOrConnectWithoutStrategyInput | StrategyActivityCreateOrConnectWithoutStrategyInput[]
+    createMany?: StrategyActivityCreateManyStrategyInputEnvelope
+    connect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+  }
+
   export type StakeholderUncheckedCreateNestedManyWithoutStrategyInput = {
     create?: XOR<StakeholderCreateWithoutStrategyInput, StakeholderUncheckedCreateWithoutStrategyInput> | StakeholderCreateWithoutStrategyInput[] | StakeholderUncheckedCreateWithoutStrategyInput[]
     connectOrCreate?: StakeholderCreateOrConnectWithoutStrategyInput | StakeholderCreateOrConnectWithoutStrategyInput[]
@@ -24099,6 +25714,13 @@ export namespace Prisma {
     connectOrCreate?: StrategyImplementerCreateOrConnectWithoutStrategyInput | StrategyImplementerCreateOrConnectWithoutStrategyInput[]
     createMany?: StrategyImplementerCreateManyStrategyInputEnvelope
     connect?: StrategyImplementerWhereUniqueInput | StrategyImplementerWhereUniqueInput[]
+  }
+
+  export type StrategyActivityUncheckedCreateNestedManyWithoutStrategyInput = {
+    create?: XOR<StrategyActivityCreateWithoutStrategyInput, StrategyActivityUncheckedCreateWithoutStrategyInput> | StrategyActivityCreateWithoutStrategyInput[] | StrategyActivityUncheckedCreateWithoutStrategyInput[]
+    connectOrCreate?: StrategyActivityCreateOrConnectWithoutStrategyInput | StrategyActivityCreateOrConnectWithoutStrategyInput[]
+    createMany?: StrategyActivityCreateManyStrategyInputEnvelope
+    connect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -24179,6 +25801,20 @@ export namespace Prisma {
     deleteMany?: StrategyImplementerScalarWhereInput | StrategyImplementerScalarWhereInput[]
   }
 
+  export type StrategyActivityUpdateManyWithoutStrategyNestedInput = {
+    create?: XOR<StrategyActivityCreateWithoutStrategyInput, StrategyActivityUncheckedCreateWithoutStrategyInput> | StrategyActivityCreateWithoutStrategyInput[] | StrategyActivityUncheckedCreateWithoutStrategyInput[]
+    connectOrCreate?: StrategyActivityCreateOrConnectWithoutStrategyInput | StrategyActivityCreateOrConnectWithoutStrategyInput[]
+    upsert?: StrategyActivityUpsertWithWhereUniqueWithoutStrategyInput | StrategyActivityUpsertWithWhereUniqueWithoutStrategyInput[]
+    createMany?: StrategyActivityCreateManyStrategyInputEnvelope
+    set?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    disconnect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    delete?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    connect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    update?: StrategyActivityUpdateWithWhereUniqueWithoutStrategyInput | StrategyActivityUpdateWithWhereUniqueWithoutStrategyInput[]
+    updateMany?: StrategyActivityUpdateManyWithWhereWithoutStrategyInput | StrategyActivityUpdateManyWithWhereWithoutStrategyInput[]
+    deleteMany?: StrategyActivityScalarWhereInput | StrategyActivityScalarWhereInput[]
+  }
+
   export type StakeholderUncheckedUpdateManyWithoutStrategyNestedInput = {
     create?: XOR<StakeholderCreateWithoutStrategyInput, StakeholderUncheckedCreateWithoutStrategyInput> | StakeholderCreateWithoutStrategyInput[] | StakeholderUncheckedCreateWithoutStrategyInput[]
     connectOrCreate?: StakeholderCreateOrConnectWithoutStrategyInput | StakeholderCreateOrConnectWithoutStrategyInput[]
@@ -24219,6 +25855,20 @@ export namespace Prisma {
     update?: StrategyImplementerUpdateWithWhereUniqueWithoutStrategyInput | StrategyImplementerUpdateWithWhereUniqueWithoutStrategyInput[]
     updateMany?: StrategyImplementerUpdateManyWithWhereWithoutStrategyInput | StrategyImplementerUpdateManyWithWhereWithoutStrategyInput[]
     deleteMany?: StrategyImplementerScalarWhereInput | StrategyImplementerScalarWhereInput[]
+  }
+
+  export type StrategyActivityUncheckedUpdateManyWithoutStrategyNestedInput = {
+    create?: XOR<StrategyActivityCreateWithoutStrategyInput, StrategyActivityUncheckedCreateWithoutStrategyInput> | StrategyActivityCreateWithoutStrategyInput[] | StrategyActivityUncheckedCreateWithoutStrategyInput[]
+    connectOrCreate?: StrategyActivityCreateOrConnectWithoutStrategyInput | StrategyActivityCreateOrConnectWithoutStrategyInput[]
+    upsert?: StrategyActivityUpsertWithWhereUniqueWithoutStrategyInput | StrategyActivityUpsertWithWhereUniqueWithoutStrategyInput[]
+    createMany?: StrategyActivityCreateManyStrategyInputEnvelope
+    set?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    disconnect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    delete?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    connect?: StrategyActivityWhereUniqueInput | StrategyActivityWhereUniqueInput[]
+    update?: StrategyActivityUpdateWithWhereUniqueWithoutStrategyInput | StrategyActivityUpdateWithWhereUniqueWithoutStrategyInput[]
+    updateMany?: StrategyActivityUpdateManyWithWhereWithoutStrategyInput | StrategyActivityUpdateManyWithWhereWithoutStrategyInput[]
+    deleteMany?: StrategyActivityScalarWhereInput | StrategyActivityScalarWhereInput[]
   }
 
   export type ImplementerCreateemailsInput = {
@@ -24505,6 +26155,34 @@ export namespace Prisma {
     update?: CommentUpdateWithWhereUniqueWithoutParentInput | CommentUpdateWithWhereUniqueWithoutParentInput[]
     updateMany?: CommentUpdateManyWithWhereWithoutParentInput | CommentUpdateManyWithWhereWithoutParentInput[]
     deleteMany?: CommentScalarWhereInput | CommentScalarWhereInput[]
+  }
+
+  export type StrategyCreateNestedOneWithoutActivitiesInput = {
+    create?: XOR<StrategyCreateWithoutActivitiesInput, StrategyUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: StrategyCreateOrConnectWithoutActivitiesInput
+    connect?: StrategyWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutActivitiesInput = {
+    create?: XOR<UserCreateWithoutActivitiesInput, UserUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutActivitiesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type StrategyUpdateOneRequiredWithoutActivitiesNestedInput = {
+    create?: XOR<StrategyCreateWithoutActivitiesInput, StrategyUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: StrategyCreateOrConnectWithoutActivitiesInput
+    upsert?: StrategyUpsertWithoutActivitiesInput
+    connect?: StrategyWhereUniqueInput
+    update?: XOR<XOR<StrategyUpdateToOneWithWhereWithoutActivitiesInput, StrategyUpdateWithoutActivitiesInput>, StrategyUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutActivitiesNestedInput = {
+    create?: XOR<UserCreateWithoutActivitiesInput, UserUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutActivitiesInput
+    upsert?: UserUpsertWithoutActivitiesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutActivitiesInput, UserUpdateWithoutActivitiesInput>, UserUncheckedUpdateWithoutActivitiesInput>
   }
 
   export type RoleCreateNestedOneWithoutInviteCodesInput = {
@@ -24844,6 +26522,29 @@ export namespace Prisma {
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type UserCreateWithoutPasskeysInput = {
     id?: string
@@ -24864,6 +26565,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleCreateNestedManyWithoutUserInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
     inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
     invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
@@ -24891,6 +26593,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
     invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
   }
@@ -24930,6 +26633,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUpdateManyWithoutUserNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
     inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
     invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
@@ -24957,6 +26661,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
     invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }
@@ -25108,6 +26813,33 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type StrategyActivityCreateWithoutUserInput = {
+    action: string
+    summary: string
+    changes: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    strategy: StrategyCreateNestedOneWithoutActivitiesInput
+  }
+
+  export type StrategyActivityUncheckedCreateWithoutUserInput = {
+    id?: number
+    strategy_id: number
+    action: string
+    summary: string
+    changes: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type StrategyActivityCreateOrConnectWithoutUserInput = {
+    where: StrategyActivityWhereUniqueInput
+    create: XOR<StrategyActivityCreateWithoutUserInput, StrategyActivityUncheckedCreateWithoutUserInput>
+  }
+
+  export type StrategyActivityCreateManyUserInputEnvelope = {
+    data: StrategyActivityCreateManyUserInput | StrategyActivityCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type InviteCodeCreateWithoutCreatedByInput = {
     id?: string
     code: string
@@ -25191,6 +26923,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleCreateNestedManyWithoutUserInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
     inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
     invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
@@ -25217,6 +26950,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
     invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
   }
@@ -25251,6 +26985,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleCreateNestedManyWithoutUserInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
     inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
     invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
@@ -25278,6 +27013,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
   }
 
@@ -25441,6 +27177,35 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Comment"> | Date | string
   }
 
+  export type StrategyActivityUpsertWithWhereUniqueWithoutUserInput = {
+    where: StrategyActivityWhereUniqueInput
+    update: XOR<StrategyActivityUpdateWithoutUserInput, StrategyActivityUncheckedUpdateWithoutUserInput>
+    create: XOR<StrategyActivityCreateWithoutUserInput, StrategyActivityUncheckedCreateWithoutUserInput>
+  }
+
+  export type StrategyActivityUpdateWithWhereUniqueWithoutUserInput = {
+    where: StrategyActivityWhereUniqueInput
+    data: XOR<StrategyActivityUpdateWithoutUserInput, StrategyActivityUncheckedUpdateWithoutUserInput>
+  }
+
+  export type StrategyActivityUpdateManyWithWhereWithoutUserInput = {
+    where: StrategyActivityScalarWhereInput
+    data: XOR<StrategyActivityUpdateManyMutationInput, StrategyActivityUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type StrategyActivityScalarWhereInput = {
+    AND?: StrategyActivityScalarWhereInput | StrategyActivityScalarWhereInput[]
+    OR?: StrategyActivityScalarWhereInput[]
+    NOT?: StrategyActivityScalarWhereInput | StrategyActivityScalarWhereInput[]
+    id?: IntFilter<"StrategyActivity"> | number
+    strategy_id?: IntFilter<"StrategyActivity"> | number
+    user_id?: StringFilter<"StrategyActivity"> | string
+    action?: StringFilter<"StrategyActivity"> | string
+    summary?: StringFilter<"StrategyActivity"> | string
+    changes?: JsonFilter<"StrategyActivity">
+    createdAt?: DateTimeFilter<"StrategyActivity"> | Date | string
+  }
+
   export type InviteCodeUpsertWithWhereUniqueWithoutCreatedByInput = {
     where: InviteCodeWhereUniqueInput
     update: XOR<InviteCodeUpdateWithoutCreatedByInput, InviteCodeUncheckedUpdateWithoutCreatedByInput>
@@ -25577,6 +27342,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUpdateManyWithoutUserNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
     inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
     invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
@@ -25604,6 +27370,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -25731,6 +27498,7 @@ export namespace Prisma {
     implementer_org?: ImplementerCreateNestedOneWithoutMembersInput
     assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
     inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
     invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
@@ -25758,6 +27526,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
     invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
   }
@@ -25822,6 +27591,7 @@ export namespace Prisma {
     implementer_org?: ImplementerUpdateOneWithoutMembersNestedInput
     assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
     inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
     invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
@@ -25849,6 +27619,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
     invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }
@@ -25889,6 +27660,7 @@ export namespace Prisma {
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
     policy: PoliciesCreateNestedOneWithoutStrategiesInput
     implementers?: StrategyImplementerCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyUncheckedCreateWithoutFocus_areaInput = {
@@ -25904,6 +27676,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyCreateOrConnectWithoutFocus_areaInput = {
@@ -26006,6 +27779,7 @@ export namespace Prisma {
     timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
     implementers?: StrategyImplementerCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyUncheckedCreateWithoutPolicyInput = {
@@ -26021,6 +27795,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyCreateOrConnectWithoutPolicyInput = {
@@ -26087,6 +27862,7 @@ export namespace Prisma {
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
     policy: PoliciesCreateNestedOneWithoutStrategiesInput
     implementers?: StrategyImplementerCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyUncheckedCreateWithoutTimelineInput = {
@@ -26102,6 +27878,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyCreateOrConnectWithoutTimelineInput = {
@@ -26142,6 +27919,7 @@ export namespace Prisma {
     timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
     policy: PoliciesCreateNestedOneWithoutStrategiesInput
     implementers?: StrategyImplementerCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyUncheckedCreateWithoutStatusInput = {
@@ -26157,6 +27935,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyCreateOrConnectWithoutStatusInput = {
@@ -26336,6 +28115,33 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type StrategyActivityCreateWithoutStrategyInput = {
+    action: string
+    summary: string
+    changes: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutActivitiesInput
+  }
+
+  export type StrategyActivityUncheckedCreateWithoutStrategyInput = {
+    id?: number
+    user_id: string
+    action: string
+    summary: string
+    changes: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type StrategyActivityCreateOrConnectWithoutStrategyInput = {
+    where: StrategyActivityWhereUniqueInput
+    create: XOR<StrategyActivityCreateWithoutStrategyInput, StrategyActivityUncheckedCreateWithoutStrategyInput>
+  }
+
+  export type StrategyActivityCreateManyStrategyInputEnvelope = {
+    data: StrategyActivityCreateManyStrategyInput | StrategyActivityCreateManyStrategyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type FocusAreaUpsertWithoutStrategiesInput = {
     update: XOR<FocusAreaUpdateWithoutStrategiesInput, FocusAreaUncheckedUpdateWithoutStrategiesInput>
     create: XOR<FocusAreaCreateWithoutStrategiesInput, FocusAreaUncheckedCreateWithoutStrategiesInput>
@@ -26503,6 +28309,22 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"StrategyImplementer"> | Date | string
   }
 
+  export type StrategyActivityUpsertWithWhereUniqueWithoutStrategyInput = {
+    where: StrategyActivityWhereUniqueInput
+    update: XOR<StrategyActivityUpdateWithoutStrategyInput, StrategyActivityUncheckedUpdateWithoutStrategyInput>
+    create: XOR<StrategyActivityCreateWithoutStrategyInput, StrategyActivityUncheckedCreateWithoutStrategyInput>
+  }
+
+  export type StrategyActivityUpdateWithWhereUniqueWithoutStrategyInput = {
+    where: StrategyActivityWhereUniqueInput
+    data: XOR<StrategyActivityUpdateWithoutStrategyInput, StrategyActivityUncheckedUpdateWithoutStrategyInput>
+  }
+
+  export type StrategyActivityUpdateManyWithWhereWithoutStrategyInput = {
+    where: StrategyActivityScalarWhereInput
+    data: XOR<StrategyActivityUpdateManyMutationInput, StrategyActivityUncheckedUpdateManyWithoutStrategyInput>
+  }
+
   export type UserCreateWithoutImplementer_orgInput = {
     id?: string
     federated_idps?: NullableJsonNullValueInput | InputJsonValue
@@ -26522,6 +28344,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleCreateNestedManyWithoutUserInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
     inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
     invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
@@ -26549,6 +28372,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
     invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
   }
@@ -26582,6 +28406,7 @@ export namespace Prisma {
     implementer_org?: ImplementerCreateNestedOneWithoutMembersInput
     userRoles?: UserRoleCreateNestedManyWithoutUserInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
     inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
     invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
@@ -26609,6 +28434,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
     invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
   }
@@ -26704,6 +28530,7 @@ export namespace Prisma {
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
     policy: PoliciesCreateNestedOneWithoutStrategiesInput
     implementers?: StrategyImplementerCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyUncheckedCreateWithoutStakeholdersInput = {
@@ -26719,6 +28546,7 @@ export namespace Prisma {
     focus_area_id?: number
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyCreateOrConnectWithoutStakeholdersInput = {
@@ -26749,6 +28577,7 @@ export namespace Prisma {
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     policy?: PoliciesUpdateOneRequiredWithoutStrategiesNestedInput
     implementers?: StrategyImplementerUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateWithoutStakeholdersInput = {
@@ -26764,6 +28593,7 @@ export namespace Prisma {
     focus_area_id?: IntFieldUpdateOperationsInput | number
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutStrategyNestedInput
   }
 
   export type ImplementerCreateWithoutStrategiesInput = {
@@ -26810,6 +28640,7 @@ export namespace Prisma {
     timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
     policy: PoliciesCreateNestedOneWithoutStrategiesInput
+    activities?: StrategyActivityCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyUncheckedCreateWithoutImplementersInput = {
@@ -26825,6 +28656,7 @@ export namespace Prisma {
     focus_area_id?: number
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyCreateOrConnectWithoutImplementersInput = {
@@ -26893,6 +28725,7 @@ export namespace Prisma {
     timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     policy?: PoliciesUpdateOneRequiredWithoutStrategiesNestedInput
+    activities?: StrategyActivityUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateWithoutImplementersInput = {
@@ -26908,6 +28741,7 @@ export namespace Prisma {
     focus_area_id?: IntFieldUpdateOperationsInput | number
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutStrategyNestedInput
   }
 
   export type CommentCreateWithoutChildrenInput = {
@@ -26982,6 +28816,7 @@ export namespace Prisma {
     implementer_org?: ImplementerCreateNestedOneWithoutMembersInput
     assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
     inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
     invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
@@ -27009,6 +28844,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
     invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
   }
@@ -27030,6 +28866,7 @@ export namespace Prisma {
     status: StatusOptionsCreateNestedOneWithoutStrategiesInput
     policy: PoliciesCreateNestedOneWithoutStrategiesInput
     implementers?: StrategyImplementerCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyUncheckedCreateWithoutCommentsInput = {
@@ -27045,6 +28882,7 @@ export namespace Prisma {
     focus_area_id?: number
     stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
     implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutStrategyInput
   }
 
   export type StrategyCreateOrConnectWithoutCommentsInput = {
@@ -27128,6 +28966,7 @@ export namespace Prisma {
     implementer_org?: ImplementerUpdateOneWithoutMembersNestedInput
     assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
     inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
     invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
@@ -27155,6 +28994,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
     invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }
@@ -27182,6 +29022,7 @@ export namespace Prisma {
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     policy?: PoliciesUpdateOneRequiredWithoutStrategiesNestedInput
     implementers?: StrategyImplementerUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateWithoutCommentsInput = {
@@ -27197,6 +29038,205 @@ export namespace Prisma {
     focus_area_id?: IntFieldUpdateOperationsInput | number
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutStrategyNestedInput
+  }
+
+  export type StrategyCreateWithoutActivitiesInput = {
+    content: string
+    last_comms_date?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    strategy_number: number
+    focus_area?: FocusAreaCreateNestedOneWithoutStrategiesInput
+    stakeholders?: StakeholderCreateNestedManyWithoutStrategyInput
+    comments?: CommentCreateNestedManyWithoutStrategyInput
+    timeline: TimelineOptionsCreateNestedOneWithoutStrategiesInput
+    status: StatusOptionsCreateNestedOneWithoutStrategiesInput
+    policy: PoliciesCreateNestedOneWithoutStrategiesInput
+    implementers?: StrategyImplementerCreateNestedManyWithoutStrategyInput
+  }
+
+  export type StrategyUncheckedCreateWithoutActivitiesInput = {
+    id?: number
+    content: string
+    last_comms_date?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    policy_id: string
+    strategy_number: number
+    timeline_id: number
+    status_id: number
+    focus_area_id?: number
+    stakeholders?: StakeholderUncheckedCreateNestedManyWithoutStrategyInput
+    comments?: CommentUncheckedCreateNestedManyWithoutStrategyInput
+    implementers?: StrategyImplementerUncheckedCreateNestedManyWithoutStrategyInput
+  }
+
+  export type StrategyCreateOrConnectWithoutActivitiesInput = {
+    where: StrategyWhereUniqueInput
+    create: XOR<StrategyCreateWithoutActivitiesInput, StrategyUncheckedCreateWithoutActivitiesInput>
+  }
+
+  export type UserCreateWithoutActivitiesInput = {
+    id?: string
+    federated_idps?: NullableJsonNullValueInput | InputJsonValue
+    passkey_reg_options?: NullableJsonNullValueInput | InputJsonValue
+    passkey_auth_options?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    display_name?: string | null
+    profile_pic?: string | null
+    username?: string | null
+    given_name?: string | null
+    family_name?: string | null
+    password_hash?: string | null
+    email?: string | null
+    disabled?: boolean
+    passkeys?: PasskeyCreateNestedManyWithoutUserInput
+    implementer_org?: ImplementerCreateNestedOneWithoutMembersInput
+    assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
+    userRoles?: UserRoleCreateNestedManyWithoutUserInput
+    comments?: CommentCreateNestedManyWithoutUserInput
+    inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
+    inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
+    invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
+    invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
+  }
+
+  export type UserUncheckedCreateWithoutActivitiesInput = {
+    id?: string
+    federated_idps?: NullableJsonNullValueInput | InputJsonValue
+    passkey_reg_options?: NullableJsonNullValueInput | InputJsonValue
+    passkey_auth_options?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    display_name?: string | null
+    profile_pic?: string | null
+    username?: string | null
+    given_name?: string | null
+    family_name?: string | null
+    password_hash?: string | null
+    email?: string | null
+    disabled?: boolean
+    implementer_org_id?: number | null
+    inviteCodeId?: string | null
+    invitedById?: string | null
+    passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+    assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
+    userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+    comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
+    invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
+  }
+
+  export type UserCreateOrConnectWithoutActivitiesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutActivitiesInput, UserUncheckedCreateWithoutActivitiesInput>
+  }
+
+  export type StrategyUpsertWithoutActivitiesInput = {
+    update: XOR<StrategyUpdateWithoutActivitiesInput, StrategyUncheckedUpdateWithoutActivitiesInput>
+    create: XOR<StrategyCreateWithoutActivitiesInput, StrategyUncheckedCreateWithoutActivitiesInput>
+    where?: StrategyWhereInput
+  }
+
+  export type StrategyUpdateToOneWithWhereWithoutActivitiesInput = {
+    where?: StrategyWhereInput
+    data: XOR<StrategyUpdateWithoutActivitiesInput, StrategyUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type StrategyUpdateWithoutActivitiesInput = {
+    content?: StringFieldUpdateOperationsInput | string
+    last_comms_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    strategy_number?: IntFieldUpdateOperationsInput | number
+    focus_area?: FocusAreaUpdateOneRequiredWithoutStrategiesNestedInput
+    stakeholders?: StakeholderUpdateManyWithoutStrategyNestedInput
+    comments?: CommentUpdateManyWithoutStrategyNestedInput
+    timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
+    status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
+    policy?: PoliciesUpdateOneRequiredWithoutStrategiesNestedInput
+    implementers?: StrategyImplementerUpdateManyWithoutStrategyNestedInput
+  }
+
+  export type StrategyUncheckedUpdateWithoutActivitiesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    content?: StringFieldUpdateOperationsInput | string
+    last_comms_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    policy_id?: StringFieldUpdateOperationsInput | string
+    strategy_number?: IntFieldUpdateOperationsInput | number
+    timeline_id?: IntFieldUpdateOperationsInput | number
+    status_id?: IntFieldUpdateOperationsInput | number
+    focus_area_id?: IntFieldUpdateOperationsInput | number
+    stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
+    comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
+    implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
+  }
+
+  export type UserUpsertWithoutActivitiesInput = {
+    update: XOR<UserUpdateWithoutActivitiesInput, UserUncheckedUpdateWithoutActivitiesInput>
+    create: XOR<UserCreateWithoutActivitiesInput, UserUncheckedCreateWithoutActivitiesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutActivitiesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutActivitiesInput, UserUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type UserUpdateWithoutActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    federated_idps?: NullableJsonNullValueInput | InputJsonValue
+    passkey_reg_options?: NullableJsonNullValueInput | InputJsonValue
+    passkey_auth_options?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    display_name?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    given_name?: NullableStringFieldUpdateOperationsInput | string | null
+    family_name?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    disabled?: BoolFieldUpdateOperationsInput | boolean
+    passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+    implementer_org?: ImplementerUpdateOneWithoutMembersNestedInput
+    assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
+    userRoles?: UserRoleUpdateManyWithoutUserNestedInput
+    comments?: CommentUpdateManyWithoutUserNestedInput
+    inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
+    inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
+    invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
+    invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    federated_idps?: NullableJsonNullValueInput | InputJsonValue
+    passkey_reg_options?: NullableJsonNullValueInput | InputJsonValue
+    passkey_auth_options?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    display_name?: NullableStringFieldUpdateOperationsInput | string | null
+    profile_pic?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    given_name?: NullableStringFieldUpdateOperationsInput | string | null
+    family_name?: NullableStringFieldUpdateOperationsInput | string | null
+    password_hash?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    disabled?: BoolFieldUpdateOperationsInput | boolean
+    implementer_org_id?: NullableIntFieldUpdateOperationsInput | number | null
+    inviteCodeId?: NullableStringFieldUpdateOperationsInput | string | null
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+    assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
+    userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
+    comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+    invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }
 
   export type RoleCreateWithoutInviteCodesInput = {
@@ -27238,6 +29278,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleCreateNestedManyWithoutUserInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodeUsed?: InviteCodeCreateNestedOneWithoutUsedByInput
     invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
     invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
@@ -27265,6 +29306,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
   }
 
@@ -27293,6 +29335,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleCreateNestedManyWithoutUserInput
     comments?: CommentCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeCreateNestedManyWithoutCreatedByInput
     invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
     invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
@@ -27319,6 +29362,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedCreateNestedManyWithoutCpic_smesInput
     userRoles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
     comments?: CommentUncheckedCreateNestedManyWithoutUserInput
+    activities?: StrategyActivityUncheckedCreateNestedManyWithoutUserInput
     inviteCodesCreated?: InviteCodeUncheckedCreateNestedManyWithoutCreatedByInput
     invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
   }
@@ -27389,6 +29433,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUpdateManyWithoutUserNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
     invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
     invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
@@ -27416,6 +29461,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }
 
@@ -27459,6 +29505,15 @@ export namespace Prisma {
     content: string
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type StrategyActivityCreateManyUserInput = {
+    id?: number
+    strategy_id: number
+    action: string
+    summary: string
+    changes: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
   }
 
   export type InviteCodeCreateManyCreatedByInput = {
@@ -27609,6 +29664,32 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type StrategyActivityUpdateWithoutUserInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    strategy?: StrategyUpdateOneRequiredWithoutActivitiesNestedInput
+  }
+
+  export type StrategyActivityUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    strategy_id?: IntFieldUpdateOperationsInput | number
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StrategyActivityUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    strategy_id?: IntFieldUpdateOperationsInput | number
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type InviteCodeUpdateWithoutCreatedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
@@ -27664,6 +29745,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUpdateManyWithoutUserNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
     inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
     invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
@@ -27690,6 +29772,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
     invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }
@@ -27829,6 +29912,7 @@ export namespace Prisma {
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     policy?: PoliciesUpdateOneRequiredWithoutStrategiesNestedInput
     implementers?: StrategyImplementerUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateWithoutFocus_areaInput = {
@@ -27844,6 +29928,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateManyWithoutFocus_areaInput = {
@@ -27882,6 +29967,7 @@ export namespace Prisma {
     timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     implementers?: StrategyImplementerUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateWithoutPolicyInput = {
@@ -27897,6 +29983,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateManyWithoutPolicyInput = {
@@ -27935,6 +30022,7 @@ export namespace Prisma {
     status?: StatusOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     policy?: PoliciesUpdateOneRequiredWithoutStrategiesNestedInput
     implementers?: StrategyImplementerUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateWithoutTimelineInput = {
@@ -27950,6 +30038,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateManyWithoutTimelineInput = {
@@ -27988,6 +30077,7 @@ export namespace Prisma {
     timeline?: TimelineOptionsUpdateOneRequiredWithoutStrategiesNestedInput
     policy?: PoliciesUpdateOneRequiredWithoutStrategiesNestedInput
     implementers?: StrategyImplementerUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateWithoutStatusInput = {
@@ -28003,6 +30093,7 @@ export namespace Prisma {
     stakeholders?: StakeholderUncheckedUpdateManyWithoutStrategyNestedInput
     comments?: CommentUncheckedUpdateManyWithoutStrategyNestedInput
     implementers?: StrategyImplementerUncheckedUpdateManyWithoutStrategyNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutStrategyNestedInput
   }
 
   export type StrategyUncheckedUpdateManyWithoutStatusInput = {
@@ -28040,6 +30131,15 @@ export namespace Prisma {
     is_primary?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type StrategyActivityCreateManyStrategyInput = {
+    id?: number
+    user_id: string
+    action: string
+    summary: string
+    changes: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
   }
 
   export type StakeholderUpdateWithoutStrategyInput = {
@@ -28117,6 +30217,32 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type StrategyActivityUpdateWithoutStrategyInput = {
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutActivitiesNestedInput
+  }
+
+  export type StrategyActivityUncheckedUpdateWithoutStrategyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    user_id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StrategyActivityUncheckedUpdateManyWithoutStrategyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    user_id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    summary?: StringFieldUpdateOperationsInput | string
+    changes?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserCreateManyImplementer_orgInput = {
     id?: string
     federated_idps?: NullableJsonNullValueInput | InputJsonValue
@@ -28163,6 +30289,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUpdateManyWithoutUserNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
     inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
     invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
@@ -28190,6 +30317,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
     invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }
@@ -28232,6 +30360,7 @@ export namespace Prisma {
     implementer_org?: ImplementerUpdateOneWithoutMembersNestedInput
     userRoles?: UserRoleUpdateManyWithoutUserNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
     inviteCodeUsed?: InviteCodeUpdateOneWithoutUsedByNestedInput
     invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
@@ -28259,6 +30388,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
     invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }
@@ -28383,6 +30513,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUpdateManyWithoutUserNestedInput
     comments?: CommentUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUpdateManyWithoutCreatedByNestedInput
     invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
     invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
@@ -28409,6 +30540,7 @@ export namespace Prisma {
     assigned_implementers?: ImplementerUncheckedUpdateManyWithoutCpic_smesNestedInput
     userRoles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
     comments?: CommentUncheckedUpdateManyWithoutUserNestedInput
+    activities?: StrategyActivityUncheckedUpdateManyWithoutUserNestedInput
     inviteCodesCreated?: InviteCodeUncheckedUpdateManyWithoutCreatedByNestedInput
     invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
   }

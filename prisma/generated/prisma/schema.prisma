@@ -36,26 +36,27 @@ model Passkey {
 }
 
 model User {
-  id                    String        @id @default(uuid())
-  federated_idps        Json?         @db.JsonB
+  id                    String             @id @default(uuid())
+  federated_idps        Json?              @db.JsonB
   passkeys              Passkey[]
-  passkey_reg_options   Json?         @db.JsonB
-  passkey_auth_options  Json?         @db.JsonB
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  passkey_reg_options   Json?              @db.JsonB
+  passkey_auth_options  Json?              @db.JsonB
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
   display_name          String?
   profile_pic           String?
   username              String?
   given_name            String?
   family_name           String?
   password_hash         String?
-  email                 String?       @unique
-  disabled              Boolean       @default(false)
+  email                 String?            @unique
+  disabled              Boolean            @default(false)
   implementer_org_id    Int?
-  implementer_org       Implementer?  @relation("ImplementerMembership", fields: [implementer_org_id], references: [id])
-  assigned_implementers Implementer[] @relation("SMEtoImplementer")
+  implementer_org       Implementer?       @relation("ImplementerMembership", fields: [implementer_org_id], references: [id])
+  assigned_implementers Implementer[]      @relation("SMEtoImplementer")
   userRoles             UserRole[]
   comments              Comment[]
+  activities            StrategyActivity[]
 
   // Invite relationships
   inviteCodesCreated InviteCode[] @relation("InviteCreator")
@@ -138,6 +139,7 @@ model Strategy {
   status          StatusOptions         @relation(fields: [status_id], references: [id])
   policy          Policies              @relation(fields: [policy_id], references: [id])
   implementers    StrategyImplementer[]
+  activities      StrategyActivity[]
 }
 
 model Implementer {
@@ -192,6 +194,23 @@ model Comment {
 
   user     User     @relation(fields: [user_id], references: [id])
   strategy Strategy @relation(fields: [strategy_id], references: [id])
+}
+
+model StrategyActivity {
+  id          Int      @id @default(autoincrement())
+  strategy_id Int
+  user_id     String
+  action      String   @db.VarChar(20)
+  summary     String
+  changes     Json     @db.JsonB
+  createdAt   DateTime @default(now())
+
+  strategy Strategy @relation(fields: [strategy_id], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [user_id], references: [id])
+
+  @@index([strategy_id])
+  @@index([user_id])
+  @@index([createdAt])
 }
 
 model Faq {

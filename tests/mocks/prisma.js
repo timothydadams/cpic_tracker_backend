@@ -29,6 +29,7 @@ export const createMockPrisma = () => ({
   statusOptions: createModelMock(),
   timelineOptions: createModelMock(),
   faq: createModelMock(),
+  strategyActivity: createModelMock(),
   inviteCode: createModelMock(),
   $transaction: vi.fn(),
 });
