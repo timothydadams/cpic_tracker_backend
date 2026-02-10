@@ -7,6 +7,8 @@ import { parseBoolean, buildNestedIncludeObject } from "../utils/queryStringPars
 import { AppError } from "../errors/AppError.js";
 import { UserService } from "../services/user.js";
 import { ImplementerService } from "../services/implementers.js";
+import { StrategyActivityService } from "../services/strategyActivity.js";
+import { buildActivityChanges } from "../utils/buildActivityChanges.js";
 
 export const viewMyStrategies = async (req, res, next) => {
     const userId = res.locals.user.id;
@@ -202,7 +204,20 @@ export const createStrategy = async(req, res) =>{
         const newStrategy = await prisma.strategy.create({
             data
         });
-        handleResponse(res, 200, "strategy updated successfully", newStrategy);
+
+        const changes = {};
+        for (const key of Object.keys(data)) {
+            changes[key] = { old: null, new: data[key] };
+        }
+        await StrategyActivityService.create({
+            strategy_id: newStrategy.id,
+            user_id: res.locals.user.id,
+            action: "CREATE",
+            summary: "Created strategy",
+            changes,
+        });
+
+        handleResponse(res, 200, "strategy created successfully", newStrategy);
     });
 }
 
@@ -229,10 +244,18 @@ export const handleUpdateStrategy = async (req, res, next) => {
         
         //add implementers if changed
         const { add=[], remove=[] } = implementers;
-        
+        const userId = res.locals.user.id;
+
         if (add.length > 0) {
             try {
                 await StrategyService.addImplementersToStrategy(add, strategyId);
+                await StrategyActivityService.create({
+                    strategy_id: strategyId,
+                    user_id: userId,
+                    action: "ADD_IMPLEMENTER",
+                    summary: `Added implementer(s): ${add.join(", ")}`,
+                    changes: { implementer_ids: { old: null, new: add } },
+                });
             } catch(e) {
                 next(e)
             }
@@ -241,7 +264,14 @@ export const handleUpdateStrategy = async (req, res, next) => {
         //remove implementers if changed
         if (remove.length > 0) {
             try {
-                await StrategyService.deleteImplementersFromStrategy(remove, strategyId)
+                await StrategyService.deleteImplementersFromStrategy(remove, strategyId);
+                await StrategyActivityService.create({
+                    strategy_id: strategyId,
+                    user_id: userId,
+                    action: "REMOVE_IMPLEMENTER",
+                    summary: `Removed implementer(s): ${remove.join(", ")}`,
+                    changes: { implementer_ids: { old: remove, new: null } },
+                });
             } catch(e) {
                 next(e)
             }
@@ -249,18 +279,37 @@ export const handleUpdateStrategy = async (req, res, next) => {
 
         if (primary_implementer) {
             try {
-                console.log('attempting to update primary', {strategyId, primary_implementer});
-                await StrategyService.updatePrimaryImplementer(strategyId, primary_implementer)
+                await StrategyService.updatePrimaryImplementer(strategyId, primary_implementer);
+                await StrategyActivityService.create({
+                    strategy_id: strategyId,
+                    user_id: userId,
+                    action: "UPDATE_PRIMARY",
+                    summary: `Set primary implementer to ${primary_implementer}`,
+                    changes: { primary_implementer: { old: null, new: primary_implementer } },
+                });
             } catch(e) {
                 next(e)
             }
         }
 
         try {
+            const { changes, summary } = buildActivityChanges(strategy, rest);
+
             const updatedStrategy = await StrategyService.updateStrategyDetails(strategyId, {
                 ...rest,
                 updatedAt: new Date(),
             });
+
+            if (Object.keys(changes).length > 0) {
+                await StrategyActivityService.create({
+                    strategy_id: strategyId,
+                    user_id: userId,
+                    action: "UPDATE",
+                    summary,
+                    changes,
+                });
+            }
+
             handleResponse(res, 200, "strategy updated successfully", updatedStrategy);
         } catch(e) {
             next(e)
@@ -272,17 +321,53 @@ export const handleUpdateStrategy = async (req, res, next) => {
 
 
 
-export const deleteStrategy = async (req, res) => {
+export const viewStrategyActivities = async (req, res, next) => {
+    const strategyId = parseInt(req.params.id, 10);
+    const { skip = 0, take = 50 } = req.query;
+
+    try {
+        const activities = await StrategyActivityService.fetchByStrategyId(
+            strategyId,
+            { skip: Number(skip), take: Number(take) }
+        );
+        handleResponse(res, 200, "strategy activities retrieved successfully", activities);
+    } catch(e) {
+        next(e);
+    }
+};
+
+export const deleteStrategy = async (req, res, next) => {
     const strategyId = parseInt(req.params.id);
 
-    const strategy = await getStrategyById(strategyId, res);
+    let strategy;
+    try {
+        strategy = await StrategyService.getStrategyById(strategyId);
+    } catch(e) {
+        return next(e);
+    }
 
     authorize(canDelete, strategy)(req, res, async () => {
-        const result = await prisma.strategy.delete({
-            where:{
-                id
-            },
-        });
-        handleResponse(res, 200, "strategy successfully deleted", result);
+        try {
+            const changes = {};
+            for (const key of Object.keys(strategy)) {
+                if (typeof strategy[key] !== "object" || strategy[key] === null) {
+                    changes[key] = { old: strategy[key], new: null };
+                }
+            }
+            await StrategyActivityService.create({
+                strategy_id: strategyId,
+                user_id: res.locals.user.id,
+                action: "DELETE",
+                summary: "Deleted strategy",
+                changes,
+            });
+
+            const result = await prisma.strategy.delete({
+                where: { id: strategyId },
+            });
+            handleResponse(res, 200, "strategy successfully deleted", result);
+        } catch(e) {
+            next(e);
+        }
     });
 }

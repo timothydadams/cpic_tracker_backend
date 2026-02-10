@@ -3,6 +3,7 @@ import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canReadAll, canUpdate, canDelete } from "../resource_permissions/comments.js";
 import { parseBoolean } from "../utils/queryStringParsers.js";
 import { handleResponse } from "../utils/defaultResponse.js";
+import { StrategyActivityService } from "../services/strategyActivity.js";
 
 export const viewComment = async (req, res) => {
     const id = parseInt(req.params.id,10);
@@ -36,6 +37,13 @@ export const createComment = async(req, res) =>{
     const data = req.body;
     authorize(canCreate)(req, res, async () => {
         const comment = await CommentService.create(data);
+        await StrategyActivityService.create({
+            strategy_id: comment.strategy_id,
+            user_id: res.locals.user.id,
+            action: "ADD_COMMENT",
+            summary: "Added a comment",
+            changes: { comment_id: { old: null, new: comment.id } },
+        });
         handleResponse(res, 200, "comment created successfully", comment);
     });
 }
@@ -46,6 +54,15 @@ export const updateComment = async (req, res) => {
     const comment = await CommentService.getById(id);
     authorize(canUpdate, comment)(req, res, async () => {
         const updatedComment = await CommentService.update(id, data);
+        await StrategyActivityService.create({
+            strategy_id: comment.strategy_id,
+            user_id: res.locals.user.id,
+            action: "UPDATE_COMMENT",
+            summary: "Updated a comment",
+            changes: {
+                content: { old: comment.content, new: updatedComment.content },
+            },
+        });
         handleResponse(res, 200, "comment updated successfully", updatedComment);
     });
 }

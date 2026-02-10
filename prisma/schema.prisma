@@ -56,6 +56,7 @@ model User {
   assigned_implementers Implementer[] @relation("SMEtoImplementer")
   userRoles             UserRole[]
   comments              Comment[]
+  activities            StrategyActivity[]
 
   // Invite relationships
   inviteCodesCreated InviteCode[] @relation("InviteCreator")
@@ -138,6 +139,7 @@ model Strategy {
   status          StatusOptions         @relation(fields: [status_id], references: [id])
   policy          Policies              @relation(fields: [policy_id], references: [id])
   implementers    StrategyImplementer[]
+  activities      StrategyActivity[]
 }
 
 model Implementer {
@@ -192,6 +194,23 @@ model Comment {
 
   user     User     @relation(fields: [user_id], references: [id])
   strategy Strategy @relation(fields: [strategy_id], references: [id])
+}
+
+model StrategyActivity {
+  id           Int      @id @default(autoincrement())
+  strategy_id  Int
+  user_id      String
+  action       String   @db.VarChar(20)
+  summary      String
+  changes      Json     @db.JsonB
+  createdAt    DateTime @default(now())
+
+  strategy Strategy @relation(fields: [strategy_id], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [user_id], references: [id])
+
+  @@index([strategy_id])
+  @@index([user_id])
+  @@index([createdAt])
 }
 
 model Faq {

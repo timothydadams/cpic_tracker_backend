@@ -250,6 +250,16 @@ exports.Prisma.CommentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.StrategyActivityScalarFieldEnum = {
+  id: 'id',
+  strategy_id: 'strategy_id',
+  user_id: 'user_id',
+  action: 'action',
+  summary: 'summary',
+  changes: 'changes',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.FaqScalarFieldEnum = {
   id: 'id',
   question: 'question',
@@ -275,6 +285,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -309,6 +323,7 @@ exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   StrategyImplementer: 'StrategyImplementer',
   Comment: 'Comment',
+  StrategyActivity: 'StrategyActivity',
   Faq: 'Faq',
   InviteCode: 'InviteCode'
 };
