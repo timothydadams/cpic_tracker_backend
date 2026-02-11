@@ -40,21 +40,21 @@ export const handleGetUser = async(req,res,next) => {
     try {
         const user = await UserService.getUserById(id, options);
     
-        authorize(userPolicies.canRead, user)(req, res, async () => {
+        await authorize(userPolicies.canRead, user)(req, res, async () => {
             const roles = await RoleService.getUserRoles(id);
             user.roles = roles.map(({role}) => role.name);
             handleResponse(res, 200, "user retrieved successfully", user);
         });
 
     } catch (error) {
-        next(error)
+        return next(error)
     }
 }
 
 export const handleGetAllUsers = async(req,res,next) => {
     const { user } = res.locals;
     const { isGlobalAdmin, isCPICAdmin } = user;
-    if (!isGlobalAdmin || isCPICAdmin) {
+    if (!isGlobalAdmin && !isCPICAdmin) {
         throw new AppError("Forbidden", 403);
     }
 
@@ -62,7 +62,7 @@ export const handleGetAllUsers = async(req,res,next) => {
         const users = await UserService.getAllUsers({includeRoles:true});
         handleResponse(res, 200, "users retrieved", users);
     } catch(e) {
-        next(e)
+        return next(e)
     }
 }
 
@@ -116,7 +116,7 @@ export const handleUpdateUser = async(req,res, next) => {
 
         //console.log('user prior to to update:', userToUpdate);
     
-        authorize(userPolicies.canUpdate, userToUpdate)(req, res, async () => {
+        await authorize(userPolicies.canUpdate, userToUpdate)(req, res, async () => {
             let user;
             try {
                 await UserService.updateUser(id, {
@@ -138,20 +138,20 @@ export const handleUpdateUser = async(req,res, next) => {
                 
                 user = await UserService.getUserById(id, options);
             } catch(e) {
-                next(e)
+                return next(e)
             }
 
             handleResponse(res, 200, "user updated successfully", user);
         });
     } catch(e) {
-        next(e)
+        return next(e)
     }
-    
+
 }
 
 export const getUserRoles = async(req,res, next) => {
     const { id:userId } = req.params;
-    authorize(userPolicies.canRead)(req, res, async() => {
+    await authorize(userPolicies.canRead)(req, res, async() => {
         try {
             let userRoles = await RoleService.getUserRoles(userId);
             userRoles = userRoles.map(({ createdAt, role }) => ({
@@ -160,7 +160,7 @@ export const getUserRoles = async(req,res, next) => {
             }));
             handleResponse(res, 200, "user roles retrieved", userRoles);
         } catch(e) {
-            next(e)
+            return next(e)
         }
     })
 }
@@ -174,12 +174,12 @@ export const removeRoleFromUser = async(req, res, next) => {
     }
     
     try {
-        authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
+        await authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
             const result = await RoleService.removeRoleFromUser(userId, roleId);
             handleResponse(res, 200, "role removed from user", result);
         });
     } catch(e) {
-        next(e)
+        return next(e)
     }
      
 }
@@ -193,12 +193,12 @@ export const addRoleToUser = async(req, res, next) => {
     }
 
     try {
-        authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
+        await authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
             const result = await RoleService.addRoleToUser(userId,roleId);
             handleResponse(res, 200, "role added to user", result);
         });
     }catch(e){
-        next(e)
+        return next(e)
     }
 }
 
@@ -214,12 +214,12 @@ export const deleteUserPasskey = async(req, res, next) => {
         const passkey = await prisma.passkey.findUnique({
             where: {id: pk_id}
         });
-        authorize(userPolicies.canRemovePasskey, passkey)(req,res, async()=>{
+        await authorize(userPolicies.canRemovePasskey, passkey)(req,res, async()=>{
             const count = UserService.deletePasskey(pk_id);
             handleResponse(res, 200, "passkey deleted", count);
         });
     } catch(e) {
-        next(e)
+        return next(e)
     }
     
 }

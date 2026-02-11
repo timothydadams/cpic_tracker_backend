@@ -1,6 +1,9 @@
-import jwt from 'jsonwebtoken';
+import { jwtVerify } from 'jose';
 import { als } from '../configs/context.js';
 import { redis } from '../index.js';
+
+const accessSecret = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET);
+const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET);
 
 export const userContextMiddleware = async (req, res, next) => {
   let isAuthenticated = false;
@@ -20,7 +23,7 @@ export const userContextMiddleware = async (req, res, next) => {
       }
 
       if (!isBlacklisted) {
-        const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+        const { payload: decoded } = await jwtVerify(accessToken, accessSecret);
         user = decoded.id;
         isAuthenticated = true;
       }
@@ -35,7 +38,7 @@ export const userContextMiddleware = async (req, res, next) => {
     const refreshCookie = req.cookies?.jwt_cpic;
     if (refreshCookie) {
       try {
-        const decoded = jwt.verify(refreshCookie, process.env.JWT_REFRESH_SECRET);
+        const { payload: decoded } = await jwtVerify(refreshCookie, refreshSecret);
         user = decoded.id;
         isAuthenticated = true;
       } catch (err) {

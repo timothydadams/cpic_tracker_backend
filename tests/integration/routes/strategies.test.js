@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createMockPrisma } from '../../mocks/prisma.js';
 import { createMockRedis } from '../../mocks/redis.js';
-import jwt from 'jsonwebtoken';
+import { signAccessToken } from '../../helpers/jwt.js';
 
 const mockPrisma = createMockPrisma();
 const mockRedis = createMockRedis();
@@ -12,16 +12,14 @@ vi.mock('../../../server/index.js', () => ({ redis: mockRedis }));
 const supertest = (await import('supertest')).default;
 const { expressApp } = await import('../../../server/express.js');
 
-const adminToken = jwt.sign(
+const adminToken = await signAccessToken(
   { id: 'admin-1', email: 'admin@test.com', roles: ['Admin'], name: 'Admin' },
-  process.env.JWT_ACCESS_SECRET,
-  { expiresIn: '15m' },
+  '15m',
 );
 
-const memberToken = jwt.sign(
+const memberToken = await signAccessToken(
   { id: 'member-1', email: 'member@test.com', roles: ['CPIC Member'], name: 'Member' },
-  process.env.JWT_ACCESS_SECRET,
-  { expiresIn: '15m' },
+  '15m',
 );
 
 describe('Strategy Routes', () => {
@@ -137,7 +135,7 @@ describe('Strategy Routes', () => {
     });
 
     it('updates strategy with auth', async () => {
-      const strategy = { id: 1, title: 'Old', status_id: 1, policy_id: 'p1' };
+      const strategy = { id: 1, title: 'Old', status_id: 1, policy_id: 'p1', implementers: [] };
       mockPrisma.strategy.findUnique.mockResolvedValue(strategy);
       mockPrisma.strategy.update.mockResolvedValue({ ...strategy, title: 'Updated' });
 
@@ -179,6 +177,71 @@ describe('Strategy Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
+    });
+  });
+
+  describe('GET /api/strategies — orderBy validation', () => {
+    it('returns 400 for invalid orderBy JSON', async () => {
+      const res = await supertest(expressApp).get('/api/strategies?orderBy={invalid');
+      expect(res.status).toBe(400);
+      expect(res.body.message).toMatch(/Invalid orderBy/);
+    });
+
+    it('returns 400 for array orderBy', async () => {
+      const res = await supertest(expressApp).get(
+        '/api/strategies?orderBy=' + encodeURIComponent('[1,2,3]'),
+      );
+      expect(res.status).toBe(400);
+      expect(res.body.message).toMatch(/Invalid orderBy/);
+    });
+
+    it('accepts valid orderBy JSON object', async () => {
+      mockPrisma.strategy.findMany.mockResolvedValue([]);
+      const res = await supertest(expressApp).get(
+        '/api/strategies?orderBy=' + encodeURIComponent('{"createdAt":"asc"}'),
+      );
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe('GET /api/strategies — include validation', () => {
+    it('rejects invalid include relation', async () => {
+      const res = await supertest(expressApp).get('/api/strategies?include=nonexistent');
+      expect(res.status).toBe(400);
+      expect(res.body.message).toMatch(/Invalid include relation/);
+    });
+
+    it('accepts valid include relations', async () => {
+      mockPrisma.strategy.findMany.mockResolvedValue([]);
+      const res = await supertest(expressApp).get('/api/strategies?include=policy,status');
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe('GET /api/strategies/:id/activities — pagination', () => {
+    it('returns 401 without auth', async () => {
+      const res = await supertest(expressApp).get('/api/strategies/1/activities');
+      expect(res.status).toBe(401);
+    });
+
+    it('handles negative skip and oversized take', async () => {
+      mockPrisma.strategyActivity.findMany.mockResolvedValue([]);
+
+      const res = await supertest(expressApp)
+        .get('/api/strategies/1/activities?skip=-5&take=999999')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+    });
+
+    it('handles NaN skip and take gracefully', async () => {
+      mockPrisma.strategyActivity.findMany.mockResolvedValue([]);
+
+      const res = await supertest(expressApp)
+        .get('/api/strategies/1/activities?skip=abc&take=xyz')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
     });
   });
 });

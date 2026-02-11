@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createMockPrisma } from '../../mocks/prisma.js';
 import { createMockRedis } from '../../mocks/redis.js';
-import jwt from 'jsonwebtoken';
+import { signAccessToken } from '../../helpers/jwt.js';
 
 const mockPrisma = createMockPrisma();
 const mockRedis = createMockRedis();
@@ -15,10 +15,9 @@ vi.mock('uuid', () => ({
 const supertest = (await import('supertest')).default;
 const { expressApp } = await import('../../../server/express.js');
 
-const adminToken = jwt.sign(
+const adminToken = await signAccessToken(
   { id: 'admin-1', email: 'admin@test.com', roles: ['Admin'], name: 'Admin' },
-  process.env.JWT_ACCESS_SECRET,
-  { expiresIn: '15m' },
+  '15m',
 );
 
 describe('Invite Routes', () => {

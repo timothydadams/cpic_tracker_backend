@@ -2,6 +2,9 @@ import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/faq.js";
 import { parseBoolean } from "../utils/queryStringParsers.js";
+import { pick } from "../utils/sanitize.js";
+
+const FAQ_FIELDS = ['question', 'answer'];
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -29,13 +32,13 @@ export const viewFAQ = async (req, res) => {
     const id = parseInt(req.params.id,10);
 
     const faq = await getCommentById(id, res);
-    authorize(canRead, faq)(req, res, () => {
+    await authorize(canRead, faq)(req, res, () => {
         handleResponse(res, 200, "faq retrieved successfully", faq);
     });
 }
 
 export const viewAllFAQs = async(req,res) => { 
-    authorize(canRead)(req, res, async () => {
+    await authorize(canRead)(req, res, async () => {
         const faqs = await prisma.faq.findMany({});
         handleResponse(res, 200, "faqs retrieved successfully", faqs);
     });
@@ -44,8 +47,8 @@ export const viewAllFAQs = async(req,res) => {
 
 
 export const createFAQ = async(req, res) =>{
-    const data = req.body;
-    authorize(canCreate)(req, res, async () => {
+    const data = pick(req.body, FAQ_FIELDS);
+    await authorize(canCreate)(req, res, async () => {
         const faq = await prisma.faq.create({
             data
         });
@@ -55,10 +58,10 @@ export const createFAQ = async(req, res) =>{
 
 export const updateFAQ = async (req, res) => {
     const id = parseInt(req.params.id);
-    const data = req.body;
+    const data = pick(req.body, FAQ_FIELDS);
     const faq = await getFAQById(id, res);
-    authorize(canUpdate, faq)(req, res, async () => {
-        const updatedFAQ = await prisma.comment.update({
+    await authorize(canUpdate, faq)(req, res, async () => {
+        const updatedFAQ = await prisma.faq.update({
             where:{
                 id
             },
@@ -71,7 +74,7 @@ export const updateFAQ = async (req, res) => {
 export const deleteFAQ = async (req, res) => {
     const id = parseInt(req.params.id);
     const faq = await getFAQById(id, res);
-    authorize(canDelete, faq)(req, res, async () => {
+    await authorize(canDelete, faq)(req, res, async () => {
         const result = await prisma.faq.delete({
             where:{
                 id

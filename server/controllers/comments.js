@@ -4,6 +4,7 @@ import { canCreate, canRead, canReadAll, canUpdate, canDelete } from "../resourc
 import { parseBoolean } from "../utils/queryStringParsers.js";
 import { handleResponse } from "../utils/defaultResponse.js";
 import { StrategyActivityService } from "../services/strategyActivity.js";
+import { pick } from "../utils/sanitize.js";
 
 export const viewComment = async (req, res) => {
     const id = parseInt(req.params.id,10);
@@ -15,7 +16,7 @@ export const viewComment = async (req, res) => {
     }
 
     const comment = await CommentService.getById(id, includeItems);
-    authorize(canRead, comment)(req, res, () => {
+    await authorize(canRead, comment)(req, res, () => {
         handleResponse(res, 200, "comment retrieved successfully", comment);
     });
 }
@@ -27,15 +28,19 @@ export const viewAllComments = async(req,res) => {
         ...(children ? { children:{ include: {children: true}}} : {}),
     }
 
-    authorize(canReadAll)(req, res, async () => {
+    await authorize(canReadAll)(req, res, async () => {
         const comments = await CommentService.getAll(includeItems);
         handleResponse(res, 200, "comments retrieved successfully", comments);
     });
 }
 
 export const createComment = async(req, res) =>{
-    const data = req.body;
-    authorize(canCreate)(req, res, async () => {
+    const data = {
+        ...pick(req.body, ['content', 'parent_id']),
+        strategy_id: req.body.strategy_id,
+        user_id: res.locals.user.id,
+    };
+    await authorize(canCreate)(req, res, async () => {
         const comment = await CommentService.create(data);
         await StrategyActivityService.create({
             strategy_id: comment.strategy_id,
@@ -50,9 +55,9 @@ export const createComment = async(req, res) =>{
 
 export const updateComment = async (req, res) => {
     const id = parseInt(req.params.id);
-    const data = req.body;
+    const data = pick(req.body, ['content']);
     const comment = await CommentService.getById(id);
-    authorize(canUpdate, comment)(req, res, async () => {
+    await authorize(canUpdate, comment)(req, res, async () => {
         const updatedComment = await CommentService.update(id, data);
         await StrategyActivityService.create({
             strategy_id: comment.strategy_id,
@@ -70,7 +75,7 @@ export const updateComment = async (req, res) => {
 export const deleteComment = async (req, res) => {
     const id = parseInt(req.params.id);
     const comment = await CommentService.getById(id);
-    authorize(canDelete, comment)(req, res, async () => {
+    await authorize(canDelete, comment)(req, res, async () => {
         const result = await CommentService.delete(id);
         handleResponse(res, 200, "comment successfully deleted", result);
     });

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import jwt from 'jsonwebtoken';
+import { signAccessToken, signRefreshToken } from '../../helpers/jwt.js';
 import { createMockReq, createMockRes, createMockNext } from '../../mocks/express.js';
 import { createMockRedis } from '../../mocks/redis.js';
 
@@ -25,7 +25,7 @@ describe('userContextMiddleware', () => {
 
   describe('access token (Authorization header)', () => {
     it('sets isAuthenticated: true when valid access token in header', async () => {
-      const token = jwt.sign({ id: 'user-123', roles: ['Admin'] }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+      const token = await signAccessToken({ id: 'user-123', roles: ['Admin'] }, '15m');
       const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
       const res = createMockRes();
       const next = createMockNext();
@@ -40,7 +40,7 @@ describe('userContextMiddleware', () => {
 
     it('sets isAuthenticated: false when access token is blacklisted', async () => {
       mockRedis.exists.mockResolvedValue(1);
-      const token = jwt.sign({ id: 'user-123', roles: ['Admin'] }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+      const token = await signAccessToken({ id: 'user-123', roles: ['Admin'] }, '15m');
       const req = createMockReq({ headers: { authorization: `Bearer ${token}` }, cookies: {} });
       const res = createMockRes();
       const next = createMockNext();
@@ -54,8 +54,8 @@ describe('userContextMiddleware', () => {
 
     it('falls back to cookie when access token is blacklisted but cookie is valid', async () => {
       mockRedis.exists.mockResolvedValue(1);
-      const accessToken = jwt.sign({ id: 'user-123', roles: ['Admin'] }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
-      const refreshToken = jwt.sign({ id: 'user-123' }, process.env.JWT_REFRESH_SECRET, { expiresIn: '2m' });
+      const accessToken = await signAccessToken({ id: 'user-123', roles: ['Admin'] }, '15m');
+      const refreshToken = await signRefreshToken({ id: 'user-123' }, '2m');
       const req = createMockReq({
         headers: { authorization: `Bearer ${accessToken}` },
         cookies: { jwt_cpic: refreshToken },
@@ -85,7 +85,7 @@ describe('userContextMiddleware', () => {
 
   describe('refresh token cookie (fallback)', () => {
     it('sets isAuthenticated: true when valid jwt_cpic cookie exists', async () => {
-      const token = jwt.sign({ id: 'user-123' }, process.env.JWT_REFRESH_SECRET, { expiresIn: '2m' });
+      const token = await signRefreshToken({ id: 'user-123' }, '2m');
       const req = createMockReq({ cookies: { jwt_cpic: token } });
       const res = createMockRes();
       const next = createMockNext();
@@ -125,8 +125,8 @@ describe('userContextMiddleware', () => {
 
   describe('priority and fallback behavior', () => {
     it('prefers access token over cookie when both are valid', async () => {
-      const accessToken = jwt.sign({ id: 'access-user' }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
-      const refreshToken = jwt.sign({ id: 'cookie-user' }, process.env.JWT_REFRESH_SECRET, { expiresIn: '2m' });
+      const accessToken = await signAccessToken({ id: 'access-user' }, '15m');
+      const refreshToken = await signRefreshToken({ id: 'cookie-user' }, '2m');
       const req = createMockReq({
         headers: { authorization: `Bearer ${accessToken}` },
         cookies: { jwt_cpic: refreshToken },
@@ -142,8 +142,8 @@ describe('userContextMiddleware', () => {
     });
 
     it('falls back to cookie when access token is expired', async () => {
-      const expiredToken = jwt.sign({ id: 'expired-user' }, process.env.JWT_ACCESS_SECRET, { expiresIn: '0s' });
-      const refreshToken = jwt.sign({ id: 'cookie-user' }, process.env.JWT_REFRESH_SECRET, { expiresIn: '2m' });
+      const expiredToken = await signAccessToken({ id: 'expired-user' }, '0s');
+      const refreshToken = await signRefreshToken({ id: 'cookie-user' }, '2m');
 
       // Wait for the access token to expire
       await new Promise(resolve => setTimeout(resolve, 1100));
@@ -166,7 +166,7 @@ describe('userContextMiddleware', () => {
   describe('Redis resilience', () => {
     it('still authenticates via access token when Redis is unavailable', async () => {
       mockRedis.exists.mockRejectedValue(new Error('Redis connection refused'));
-      const token = jwt.sign({ id: 'user-123' }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+      const token = await signAccessToken({ id: 'user-123' }, '15m');
       const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
       const res = createMockRes();
       const next = createMockNext();

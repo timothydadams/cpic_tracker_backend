@@ -104,7 +104,7 @@ InvitesRouter.get('/:code/stats', [verifyToken], async (req, res, next) => {
     const userId = res.locals.user.id
     const {isGlobalAdmin, isCPICAdmin} = res.locals.user;
     
-    if (!userId || !isGlobalAdmin || !isCPICAdmin) {
+    if (!userId || (!isGlobalAdmin && !isCPICAdmin)) {
       throw new AppError("Unauthorized", 401);
     }
 
@@ -120,12 +120,5 @@ InvitesRouter.get('/:code/stats', [verifyToken], async (req, res, next) => {
   }
 });
 
-
-
-//InvitesRouter.post("/:id", [verifyToken], createImplementer);
-
-//InvitesRouter.put('/:id', [verifyToken], updateImplementer);
-
-//InvitesRouter.delete('/:id', [verifyToken], deleteImplementer);
 
 export default InvitesRouter;

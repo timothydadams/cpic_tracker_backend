@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import jwt from 'jsonwebtoken';
+import { signAccessToken } from '../../helpers/jwt.js';
 import { createMockReq, createMockRes, createMockNext } from '../../mocks/express.js';
 import { createMockRedis } from '../../mocks/redis.js';
 
@@ -44,7 +44,7 @@ describe('verifyToken', () => {
   });
 
   it('returns 403 when token is blacklisted', async () => {
-    const token = jwt.sign({ id: '123', roles: ['Admin'] }, process.env.JWT_ACCESS_SECRET);
+    const token = await signAccessToken({ id: '123', roles: ['Admin'] });
     mockRedis.exists.mockResolvedValue(1);
 
     const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
@@ -75,7 +75,7 @@ describe('verifyToken', () => {
       roles: ['Admin', 'CPIC Member'],
       name: 'Test User',
     };
-    const token = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+    const token = await signAccessToken(payload, '15m');
 
     const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
     const res = createMockRes();
@@ -93,11 +93,7 @@ describe('verifyToken', () => {
 
   it('sets isCPICAdmin flag for CPIC Admin role', async () => {
     mockRedis.exists.mockResolvedValue(0);
-    const token = jwt.sign(
-      { id: 'u1', roles: ['CPIC Admin'] },
-      process.env.JWT_ACCESS_SECRET,
-      { expiresIn: '15m' },
-    );
+    const token = await signAccessToken({ id: 'u1', roles: ['CPIC Admin'] }, '15m');
 
     const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
     const res = createMockRes();
@@ -109,11 +105,7 @@ describe('verifyToken', () => {
 
   it('sets isImplementer flag for Implementer role', async () => {
     mockRedis.exists.mockResolvedValue(0);
-    const token = jwt.sign(
-      { id: 'u1', roles: ['Implementer'] },
-      process.env.JWT_ACCESS_SECRET,
-      { expiresIn: '15m' },
-    );
+    const token = await signAccessToken({ id: 'u1', roles: ['Implementer'] }, '15m');
 
     const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
     const res = createMockRes();
@@ -126,7 +118,7 @@ describe('verifyToken', () => {
   it('updates ALS store on successful auth', async () => {
     mockRedis.exists.mockResolvedValue(0);
     const payload = { id: 'user-456', roles: ['Admin'] };
-    const token = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+    const token = await signAccessToken(payload, '15m');
 
     const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
     const res = createMockRes();
@@ -150,8 +142,23 @@ describe('verifyToken', () => {
     expect(mockStore.user).toBeNull();
   });
 
+  it('returns 503 when Redis is unavailable', async () => {
+    mockRedis.exists.mockRejectedValue(new Error('Redis connection refused'));
+    const token = await signAccessToken({ id: 'user-123', roles: ['Admin'] }, '15m');
+
+    const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });
+    const res = createMockRes();
+    const next = createMockNext();
+
+    await verifyToken(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(503);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Service temporarily unavailable' });
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it('does not update ALS store when token is blacklisted', async () => {
-    const token = jwt.sign({ id: 'user-789', roles: ['Admin'] }, process.env.JWT_ACCESS_SECRET);
+    const token = await signAccessToken({ id: 'user-789', roles: ['Admin'] });
     mockRedis.exists.mockResolvedValue(1);
 
     const req = createMockReq({ headers: { authorization: `Bearer ${token}` } });

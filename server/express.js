@@ -18,11 +18,17 @@ const app = express();
 
 app.use(useragent());
 app.use(morgan('common'));
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'none'"],
+        },
+    },
+}));
 app.use(cors(corsOptionsDelegate));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 //not needed right now with hosting front-end separately
 //app.use(express.static(join(__dirname, '../public')));

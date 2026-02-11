@@ -3,7 +3,13 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 import { removePiiExtension } from './prisma-pii-extenstion.js'
 
 const use_accelerate = process.env.DATABASE_URL.split(":")[0] === "prisma+postgres"
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+    omit: {
+        user: {
+            password_hash: true,
+        }
+    }
+})
     .$extends(removePiiExtension)
     //.$extends(withAccelerate())
 

@@ -1,6 +1,7 @@
-import {decode} from 'jsonwebtoken';
+import { jwtVerify, decodeJwt } from 'jose';
 import { redis } from "../index.js";
-import jwt from 'jsonwebtoken';
+
+const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET);
 import { 
     comparePasswords, 
     createJWT,
@@ -10,7 +11,6 @@ import {
 import { handleResponse } from "../utils/defaultResponse.js";
 import { AppError } from "../errors/AppError.js";
 import { InviteCodeService } from "../services/invites.js";
-import { UserService } from "../services/user.js";
 import { AuthService } from "../services/auth.js";
 import {
   generateRegistrationOptions,
@@ -19,10 +19,29 @@ import {
   verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
 
-const baseCookieSettings = { 
-    httpOnly:true, 
-    sameSite:'Strict', 
-    secure:true
+// Pre-hashed dummy value for constant-time login responses (bcrypt cost 10).
+// Ensures bcrypt.compare always runs, even when the user doesn't exist.
+const DUMMY_HASH = '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
+
+/**
+ * CSRF Protection Strategy:
+ *
+ * This application relies on the following layered defenses against CSRF:
+ * 1. SameSite='Strict' — browser won't send this cookie on cross-site requests.
+ * 2. httpOnly=true — cookie cannot be read by client-side JavaScript.
+ * 3. secure=true — cookie only sent over HTTPS.
+ * 4. CORS whitelist (server/configs/cors.config.js) — only approved origins.
+ * 5. Helmet middleware — security headers (X-Content-Type-Options, X-Frame-Options, etc.).
+ *
+ * A dedicated CSRF token (e.g. csurf) is intentionally omitted because
+ * SameSite='Strict' provides equivalent protection in all modern browsers.
+ * If SameSite is ever downgraded, add a CSRF token library.
+ */
+const baseCookieSettings = {
+    httpOnly:true,
+    sameSite:'Strict',
+    secure:true,
+    path:'/',
 }
 
 const rpID = process.env.NODE_ENV === "development" ? `localhost` : `cpic.dev`;
@@ -66,7 +85,7 @@ export const generateAuthOptions = async (req,res) => {
 
         //console.log('authentication options generated:', pk_options);
 
-        await UserService.updateUser(user.id, {passkey_auth_options: pk_options});
+        await redis.set(`passkey_auth:${user.id}`, JSON.stringify(pk_options), 'EX', 120);
 
         return res.status(200).json({socials, passkey:pk_options});
     } catch(e) {
@@ -77,7 +96,7 @@ export const generateAuthOptions = async (req,res) => {
 
 
 //passkey registration options:
-export const getPasskeyRegOptions = async (req, res) => {
+export const getPasskeyRegOptions = async (req, res, next) => {
     const { email } = req.body;
 
     //console.log("user passed to getPasskeyRegOptions", email);
@@ -110,33 +129,34 @@ export const getPasskeyRegOptions = async (req, res) => {
 
     //console.log('registration options generated:', regOptions);
 
-    //add currentChallenge to user in db
     try {
-        await UserService.updateUser(user.id, {passkey_reg_options: regOptions})
+        await redis.set(`passkey_reg:${user.id}`, JSON.stringify(regOptions), 'EX', 120);
         return res.json(regOptions);
     } catch(e) {
-        next(e)
+        return next(e)
     }
-    
+
 }
 
 export const handlePasskeyRegVerification = async (req, res, next) => {
     const {email, duration, webAuth} = req.body;
    
-    //retrieve user object
     let user;
     try {
         user = await AuthService.findUserForSignIn(email, "email");
-        await UserService.updateUser(user.id, {passkey_reg_options:null});
     } catch(e) {
-        next(e)
+        return next(e);
     }
-    //const user = await AuthService.findUserForSignIn(email, "email");
-    //reset users registration options once we have what we need
-    //await UserService.updateUser(user.id, {passkey_reg_options:null});
 
-    //parse challenge info for use in verification
-    const {passkey_reg_options:currentOptions} = user;
+    let rawRegOptions;
+    try {
+        rawRegOptions = await redis.get(`passkey_reg:${user.id}`);
+        await redis.del(`passkey_reg:${user.id}`);
+    } catch {
+        return next(new AppError('Service temporarily unavailable', 503));
+    }
+    if (!rawRegOptions) return next(new AppError('Registration challenge expired or not found', 400));
+    const currentOptions = JSON.parse(rawRegOptions);
     const expectedChallenge = currentOptions.challenge;
 
     let verification;
@@ -149,9 +169,9 @@ export const handlePasskeyRegVerification = async (req, res, next) => {
             requireUserVerification: true,
         });
     } catch (error) {
-        next(error)
+        return next(error)
     }
-  
+
     const { verified, registrationInfo } = verification;
 
     //console.log("registration verification results:",{ verified, registrationInfo })
@@ -183,15 +203,15 @@ export const handlePasskeyRegVerification = async (req, res, next) => {
         try {
             await AuthService.addPasskey(data);
         } catch(e) {
-            next(e)
+            return next(e)
         }
     }
-  
+
     if (duration) {
-         const {refreshToken, accessToken} = createJWT(user);
+         const {refreshToken, accessToken} = await createJWT(user);
 
         //send refresh token via httpOnly cookie (not accessible via js)
-        res.cookie('jwt_cpic', refreshToken, { 
+        res.cookie('jwt_cpic', refreshToken, {
             ...baseCookieSettings,
             maxAge: duration == "SHORT"
                 ? Number(process.env.COOKIE_LIFE_SHORT)
@@ -200,7 +220,7 @@ export const handlePasskeyRegVerification = async (req, res, next) => {
 
         return res.json({ verified, accessToken });
     }
-        
+
     return res.json({verified, message: "passkey added"});
     
 }
@@ -209,18 +229,22 @@ export const verifyAuthResponse = async (req,res, next) => {
 
     const {email, duration, webAuth} = req.body;
 
-    //console.log('verify auth response inputs:', {email, duration, webAuth})
     let user;
     try {
         user = await AuthService.findUserForSignIn(email, "email");
-        await UserService.updateUser(user.id, {passkey_auth_options: null});
     } catch(e) {
-        next(e)
+        return next(e);
     }
 
-    //console.log('user found:', user.id);
-    
-    const currentOptions = user?.passkey_auth_options;
+    let rawAuthOptions;
+    try {
+        rawAuthOptions = await redis.get(`passkey_auth:${user.id}`);
+        await redis.del(`passkey_auth:${user.id}`);
+    } catch {
+        return next(new AppError('Service temporarily unavailable', 503));
+    }
+    if (!rawAuthOptions) throw new AppError('Authentication challenge expired or not found', 400);
+    const currentOptions = JSON.parse(rawAuthOptions);
 
     //console.log('users currentOptions:', currentOptions)
 
@@ -243,7 +267,7 @@ export const verifyAuthResponse = async (req,res, next) => {
             },
         });
     } catch (error) {
-        next(error)
+        return next(error)
     }
 
     const { verified, authenticationInfo } = verification;
@@ -257,10 +281,10 @@ export const verifyAuthResponse = async (req,res, next) => {
     }
     
     //generate access/refresh tokens and return verified status
-    const {refreshToken, accessToken} = createJWT(user);
+    const {refreshToken, accessToken} = await createJWT(user);
 
     //send refresh token via httpOnly cookie (not accessible via js)
-    res.cookie('jwt_cpic', refreshToken, { 
+    res.cookie('jwt_cpic', refreshToken, {
         ...baseCookieSettings,
         maxAge: duration == "SHORT"
         ? Number(process.env.COOKIE_LIFE_SHORT)
@@ -307,7 +331,7 @@ export const registerNewUser = async (req, res, next) => {
         });
 
     } catch(e) {
-        next(e)
+        return next(e)
     }
 }
 
@@ -320,12 +344,17 @@ export const handleLogout = async(req,res) => {
         return res.sendStatus(204);
     }
     const token = cookies.jwt_cpic;
-    //if there is a token, add to redis blacklist until it expires
-    const expTime = decode(token).exp * 1000 - Date.now();
-    if (expTime > 0) {
-        await redis.set(`token_bl_${token}`,token,'PX', expTime);
+    // Best-effort blacklist: if Redis is down, still clear the cookie.
+    // The token will expire naturally via its JWT exp claim.
+    try {
+        const expTime = decodeJwt(token).exp * 1000 - Date.now();
+        if (expTime > 0) {
+            await redis.set(`token_bl_${token}`, token, 'PX', expTime);
+        }
+    } catch {
+        console.error('Failed to blacklist token during logout (Redis may be unavailable)');
     }
-    
+
     res.clearCookie('jwt_cpic', baseCookieSettings);
     return res.json({ message: "cleared cookies"});
 }
@@ -341,44 +370,50 @@ export const handleRefreshToken = async(req,res) => {
 
     const token = cookies.jwt_cpic;
 
-    jwt.verify(
-        token,
-        process.env.JWT_REFRESH_SECRET, 
-        async (err, decoded) => {
-            
-            if (err || !decoded?.id) {
-                res.clearCookie('jwt_cpic', baseCookieSettings)
-                return res.status(401).json({message:"forbidden"});
-            }
-            
-            const validUser = await AuthService.findUserForSignIn(decoded.id);
+    let decoded;
+    try {
+        ({ payload: decoded } = await jwtVerify(token, refreshSecret));
+    } catch (err) {
+        res.clearCookie('jwt_cpic', baseCookieSettings)
+        return res.status(401).json({message:"forbidden"});
+    }
 
-            if (!validUser) {
-                res.clearCookie('jwt_cpic', baseCookieSettings)
-                return res.status(401).json({ message: "No enabled user"})
-            }
+    if (!decoded?.id) {
+        res.clearCookie('jwt_cpic', baseCookieSettings)
+        return res.status(401).json({message:"forbidden"});
+    }
 
-            //console.log("valid user from refresh:", validUser)
-
-            const { duration } = req.body;
-            //console.log(`generated ${duration} tokens`);
-            const {refreshToken, accessToken} = createJWT(validUser, duration);
-
-            const expTime = jwt.decode(token).exp * 1000 - Date.now();
-            await redis.set(`token_bl_${token}`,token,'PX', expTime);
-
-            
-            //send refresh token via httpOnly cookie (not accessible via js)
-            res.cookie('jwt_cpic', refreshToken, { 
-                ...baseCookieSettings,
-                maxAge: duration == "SHORT"
-                ? Number(process.env.COOKIE_LIFE_SHORT)
-                : Number(process.env.COOKIE_LIFE_LONG)
-            });
-            
-            return res.json({ accessToken })
+    // Blacklist old token IMMEDIATELY after verification, before any other operations.
+    // If subsequent steps fail, user simply needs to log in again.
+    const expTime = decoded.exp * 1000 - Date.now();
+    if (expTime > 0) {
+        try {
+            await redis.set(`token_bl_${token}`, token, 'PX', expTime);
+        } catch {
+            res.clearCookie('jwt_cpic', baseCookieSettings);
+            return res.status(503).json({ message: "Service temporarily unavailable" });
         }
-    );
+    }
+
+    const validUser = await AuthService.findUserForSignIn(decoded.id);
+
+    if (!validUser) {
+        res.clearCookie('jwt_cpic', baseCookieSettings)
+        return res.status(401).json({ message: "No enabled user"})
+    }
+
+    const { duration } = req.body;
+    const {refreshToken, accessToken} = await createJWT(validUser, duration);
+
+    //send refresh token via httpOnly cookie (not accessible via js)
+    res.cookie('jwt_cpic', refreshToken, {
+        ...baseCookieSettings,
+        maxAge: duration == "SHORT"
+        ? Number(process.env.COOKIE_LIFE_SHORT)
+        : Number(process.env.COOKIE_LIFE_LONG)
+    });
+
+    return res.json({ accessToken })
 
 }
 
@@ -392,12 +427,19 @@ export const handleGoogleSignIn = async(req, res, next) => {
 
     const clientDomain = process.env.NODE_ENV === "development" ? `http://localhost:3000` : `https://cpic.dev`;
 
-    const { 
+    let stateObj;
+    try {
+        stateObj = JSON.parse(decodeURIComponent(req.query.state));
+    } catch {
+        return res.redirect(303, `${clientDomain}/login?message=${encodeURIComponent('Invalid OAuth state')}`);
+    }
+
+    const {
         persist = "SHORT",
         path: { pathname = "/"},
         email,
         isAuthed = false,
-    } = JSON.parse(decodeURIComponent(req.query.state));
+    } = stateObj;
 
     const duration = persist;
 
@@ -428,7 +470,7 @@ export const handleGoogleSignIn = async(req, res, next) => {
         //issue JWT and authenticate the user IF user isn't adding via profile (already logged in)
         if (isAuthed == false) {
             const userWithRoles = await AuthService.findUserForSignIn(user.id, "id");
-            const {refreshToken, accessToken} = createJWT(userWithRoles, duration);
+            const {refreshToken, accessToken} = await createJWT(userWithRoles, duration);
             //send refresh token via httpOnly cookie (not accessible via js)
             res.cookie('jwt_cpic', refreshToken, { 
                 ...baseCookieSettings,
@@ -442,7 +484,7 @@ export const handleGoogleSignIn = async(req, res, next) => {
         return res.redirect(303, `${clientDomain}${pathname}`);
 
     } catch(e) {
-        next(e);
+        return next(e);
     }
 }
 
@@ -453,20 +495,20 @@ export const handleSelfSignIn = async (req,res) => {
     
     if (!email || !password) return res.status(400).json({error: 'username and password are required'});
 
-    const validUser = await AuthService.findUserForSignIn(email, "email");
-    
-    if (!validUser?.id || !validUser?.password_hash) return res.sendStatus(409);;
-    
-    const match = await comparePasswords(password, validUser.password_hash);
+    const validUser = await AuthService.findUserForSignIn(email, "email", { includePasswordHash: true });
 
-    if (!match) return res.sendStatus(409);
+    // Always run bcrypt.compare to prevent timing side-channel user enumeration.
+    const hashToCompare = (validUser?.id && validUser?.password_hash)
+        ? validUser.password_hash
+        : DUMMY_HASH;
+    const match = await comparePasswords(password, hashToCompare);
 
-    //console.log('new login via email/pw:', {id:validUser.id, email:validUser.email, duration});
+    if (!validUser?.id || !validUser?.password_hash || !match) return res.sendStatus(409);
 
-    const {refreshToken, accessToken} = createJWT(validUser, duration);
+    const {refreshToken, accessToken} = await createJWT(validUser, duration);
 
     //send refresh token via httpOnly cookie (not accessible via js)
-    res.cookie('jwt_cpic', refreshToken, { 
+    res.cookie('jwt_cpic', refreshToken, {
         ...baseCookieSettings,
         maxAge: duration == "SHORT"
         ? Number(process.env.COOKIE_LIFE_SHORT)

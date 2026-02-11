@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildActivityChanges } from '../../../server/utils/buildActivityChanges.js';
+import { buildActivityChanges, applyChanges } from '../../../server/utils/buildActivityChanges.js';
 
 describe('buildActivityChanges', () => {
   it('detects changed fields', () => {
@@ -114,5 +114,35 @@ describe('buildActivityChanges', () => {
       status_id: { old: 1, new: 2 },
     });
     expect(summary).toBe('Updated status_id');
+  });
+});
+
+describe('applyChanges', () => {
+  it('adds and removes from original array', () => {
+    expect(applyChanges([1, 2, 3], [4, 5], [2])).toEqual([1, 3, 4, 5]);
+  });
+
+  it('handles empty add array', () => {
+    expect(applyChanges([1, 2, 3], [], [2])).toEqual([1, 3]);
+  });
+
+  it('handles empty remove array', () => {
+    expect(applyChanges([1, 2, 3], [4], [])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles both add and remove empty', () => {
+    expect(applyChanges([1, 2, 3], [], [])).toEqual([1, 2, 3]);
+  });
+
+  it('deduplicates when add contains values already in original', () => {
+    expect(applyChanges([1, 2, 3], [2, 3, 4], [])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles empty original array', () => {
+    expect(applyChanges([], [1, 2], [3])).toEqual([1, 2]);
+  });
+
+  it('ignores remove values not in original', () => {
+    expect(applyChanges([1, 2], [3], [99])).toEqual([1, 2, 3]);
   });
 });

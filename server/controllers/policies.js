@@ -2,6 +2,9 @@ import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/policies.js";
 import { parseBoolean } from "../utils/queryStringParsers.js";
+import { pick } from "../utils/sanitize.js";
+
+const POLICY_FIELDS = ['description', 'policy_number', 'focus_area_id'];
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -32,7 +35,7 @@ const getPolicyById = async (id, res) => {
 export const viewPolicy = async (req, res) => {
     const policyId = parseInt(req.params.id,10);
     const policy = await getPolicyById(policyId, res);
-    authorize(canRead, policy)(req, res, () => {
+    await authorize(canRead, policy)(req, res, () => {
         handleResponse(res, 200, "policy retrieved successfully", policy);
     });
 }
@@ -55,7 +58,7 @@ export const viewAllPolicies = async(req,res) => {
         handleResponse(res, 500, "failed to retrieve policies");
     }
     /*
-    authorize(canRead, strategy)(req, res, async () => {
+    await authorize(canRead, strategy)(req, res, async () => {
         const strategies = await prisma.strategy.findMany();
         handleResponse(res, 200, "strategy retrieved successfully", strategies);
     });
@@ -65,8 +68,8 @@ export const viewAllPolicies = async(req,res) => {
 
 
 export const createPolicy = async(req, res) =>{
-    const data = req.body;
-    authorize(canCreate)(req, res, async () => {
+    const data = pick(req.body, POLICY_FIELDS);
+    await authorize(canCreate)(req, res, async () => {
         const newPolicy = await prisma.policies.create({
             data
         });
@@ -76,9 +79,9 @@ export const createPolicy = async(req, res) =>{
 
 export const updatePolicy = async (req, res) => {
     const policyId = parseInt(req.params.id);
-    const data = req.body;
+    const data = pick(req.body, POLICY_FIELDS);
     const policy = await getPolicyById(policyId, res);
-    authorize(canUpdate, policy)(req, res, async () => {
+    await authorize(canUpdate, policy)(req, res, async () => {
         const updatedPolicy = await prisma.policies.update({
             where:{
                 id
@@ -92,7 +95,7 @@ export const updatePolicy = async (req, res) => {
 export const deletePolicy = async (req, res) => {
     const policyId = parseInt(req.params.id);
     const policy = await getPolicyById(policyId, res);
-    authorize(canDelete, policy)(req, res, async () => {
+    await authorize(canDelete, policy)(req, res, async () => {
         const result = await prisma.policies.delete({
             where:{
                 id

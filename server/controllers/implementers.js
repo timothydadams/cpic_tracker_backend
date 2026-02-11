@@ -2,6 +2,9 @@ import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/focusAreas.js";
 import { parseBoolean } from "../utils/queryStringParsers.js";
+import { pick } from "../utils/sanitize.js";
+
+const IMPLEMENTER_FIELDS = ['name', 'emails', 'phone_numbers', 'is_board', 'is_department', 'is_school'];
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -38,7 +41,7 @@ export const viewImplementer = async (req, res) => {
     }
 
     const imp = await getImplementerById(id, res, includeItems);
-    authorize(canRead, imp)(req, res, () => {
+    await authorize(canRead, imp)(req, res, () => {
         handleResponse(res, 200, "implementer retrieved successfully", imp);
     });
 }
@@ -62,7 +65,7 @@ export const viewAllImplementers = async(req,res) => {
     }
     
     /*
-    authorize(canRead, strategy)(req, res, async () => {
+    await authorize(canRead, strategy)(req, res, async () => {
         const strategies = await prisma.strategy.findMany();
         handleResponse(res, 200, "strategy retrieved successfully", strategies);
     });
@@ -72,8 +75,8 @@ export const viewAllImplementers = async(req,res) => {
 
 
 export const createImplementer = async(req, res) =>{
-    const data = req.body;
-    authorize(canCreate)(req, res, async () => {
+    const data = pick(req.body, IMPLEMENTER_FIELDS);
+    await authorize(canCreate)(req, res, async () => {
         const newImp = await prisma.implementer.create({
             data
         });
@@ -83,9 +86,9 @@ export const createImplementer = async(req, res) =>{
 
 export const updateImplementer = async (req, res) => {
     const id = parseInt(req.params.id);
-    const data = req.body;
+    const data = pick(req.body, IMPLEMENTER_FIELDS);
     const imp = await getImplementerById(id, res);
-    authorize(canUpdate, imp)(req, res, async () => {
+    await authorize(canUpdate, imp)(req, res, async () => {
         const updatedImp = await prisma.implementer.update({
             where:{
                 id
@@ -99,7 +102,7 @@ export const updateImplementer = async (req, res) => {
 export const deleteImplementer = async (req, res) => {
     const id = parseInt(req.params.id);
     const imp = await getImplementerById(id, res);
-    authorize(canDelete, imp)(req, res, async () => {
+    await authorize(canDelete, imp)(req, res, async () => {
         const result = await prisma.implementer.delete({
             where:{
                 id

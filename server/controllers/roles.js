@@ -1,6 +1,9 @@
 import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/roles.js";
+import { pick } from "../utils/sanitize.js";
+
+const ROLE_FIELDS = ['name', 'description'];
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -27,7 +30,7 @@ const getRoleById = async (id, res) => {
 export const viewRole = async (req, res) => {
     const roleId = parseInt(req.params.id);
     const role = await getRoleById(roleId, res);
-    authorize(canRead, role)(req, res, () => {
+    await authorize(canRead, role)(req, res, () => {
         handleResponse(res, 200, "role retrieved successfully", role);
     });
 }
@@ -38,15 +41,15 @@ export const viewAllRoles = async(req,res) => {
     //handleResponse(res, 200, "roles retrieved successfully", roles);
 
     
-    authorize(canRead, role)(req, res, async () => {
+    await authorize(canRead, role)(req, res, async () => {
         const roles = await prisma.role.findMany();
         handleResponse(res, 200, "strategy retrieved successfully", roles);
     });
 }
 
 export const createRole = async(req, res) =>{
-    const data = req.body;
-    authorize(canCreate)(req, res, async () => {
+    const data = pick(req.body, ROLE_FIELDS);
+    await authorize(canCreate)(req, res, async () => {
         const newRole = await prisma.role.create({
             data
         });
@@ -56,11 +59,11 @@ export const createRole = async(req, res) =>{
 
 export const updateRole = async (req, res) => {
     const roleId = parseInt(req.params.id);
-    const data = req.body;
+    const data = pick(req.body, ROLE_FIELDS);
 
     const role = await getRoleById(roleId, res);
 
-    authorize(canUpdate, role)(req, res, async () => {
+    await authorize(canUpdate, role)(req, res, async () => {
         const updatedRole = await prisma.role.update({
             where:{
                 id
@@ -76,7 +79,7 @@ export const deleteRole = async (req, res) => {
 
     const role = await getRoleById(roleId, res);
 
-    authorize(canDelete, role)(req, res, async () => {
+    await authorize(canDelete, role)(req, res, async () => {
         const result = await prisma.role.delete({
             where:{
                 id

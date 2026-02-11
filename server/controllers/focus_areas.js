@@ -2,14 +2,10 @@ import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/focusAreas.js";
 import { parseBoolean } from "../utils/queryStringParsers.js";
+import { handleResponse } from "../utils/defaultResponse.js";
+import { pick } from "../utils/sanitize.js";
 
-const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status,
-        message,
-        data,
-    })
-}
+const FOCUS_AREA_FIELDS = ['name', 'description', 'state_goal'];
 
 const getFocusAreaById = async (id, res, includedItems = null) => {
     const fa = await prisma.focusArea.findUnique({
@@ -41,7 +37,7 @@ export const viewFocusArea = async (req, res) => {
     }
 
     const focus_area = await getFocusAreaById(id, res, includeItems);
-    authorize(canRead, focus_area)(req, res, () => {
+    await authorize(canRead, focus_area)(req, res, () => {
         handleResponse(res, 200, "focus area retrieved successfully", focus_area);
     });
 }
@@ -66,7 +62,7 @@ export const viewAllFocusAreas = async(req,res) => {
         handleResponse(res, 500, "failed to retrieve focus areas");
     }
     /*
-    authorize(canRead, strategy)(req, res, async () => {
+    await authorize(canRead, strategy)(req, res, async () => {
         const strategies = await prisma.strategy.findMany();
         handleResponse(res, 200, "strategy retrieved successfully", strategies);
     });
@@ -76,8 +72,8 @@ export const viewAllFocusAreas = async(req,res) => {
 
 
 export const createFocusArea = async(req, res) =>{
-    const data = req.body;
-    authorize(canCreate)(req, res, async () => {
+    const data = pick(req.body, FOCUS_AREA_FIELDS);
+    await authorize(canCreate)(req, res, async () => {
         const newFA = await prisma.focusArea.create({
             data
         });
@@ -87,9 +83,9 @@ export const createFocusArea = async(req, res) =>{
 
 export const updateFocusArea = async (req, res) => {
     const id = parseInt(req.params.id);
-    const data = req.body;
+    const data = pick(req.body, FOCUS_AREA_FIELDS);
     const fa = await getFocusAreaById(id, res);
-    authorize(canUpdate, fa)(req, res, async () => {
+    await authorize(canUpdate, fa)(req, res, async () => {
         const updatedFA = await prisma.focusArea.update({
             where:{
                 id
@@ -103,7 +99,7 @@ export const updateFocusArea = async (req, res) => {
 export const deleteFocusArea = async (req, res) => {
     const id = parseInt(req.params.id);
     const fa = await getFocusAreaById(id, res);
-    authorize(canDelete, fa)(req, res, async () => {
+    await authorize(canDelete, fa)(req, res, async () => {
         const result = await prisma.focusArea.delete({
             where:{
                 id

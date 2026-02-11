@@ -14,6 +14,8 @@ const SKIP_FIELDS = new Set([
     //"policy",
 ]);
 
+
+
 /**
  * Computes a diff between the old and new state of a strategy,
  * returning only the fields that actually changed.
@@ -44,4 +46,9 @@ export function buildActivityChanges(oldData, newData) {
             : "No changes";
 
     return { changes, summary };
+}
+
+export function applyChanges(original, add, remove) {
+    const removeSet = new Set(remove);
+    return [...new Set([...original.filter(n => !removeSet.has(n)), ...add])];
 }
