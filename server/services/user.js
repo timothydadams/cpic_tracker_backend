@@ -18,16 +18,18 @@ export const UserService = {
         }
     },
 
+    async getPasskeyById(id) {
+        const passkey = await prisma.passkey.findUnique({
+            where: { id },
+        });
+        if (!passkey) throw new AppError("passkey not found", 404);
+        return passkey;
+    },
+
     async deletePasskey(id) {
-        try {
-            return await prisma.passkey.delete({
-                where: {
-                    id
-                }
-            });
-        } catch(e) {
-            throw e
-        }
+        return await prisma.passkey.delete({
+            where: { id },
+        });
     },
 
     async updateAssignedImplementers(userId, implementerIdArray){

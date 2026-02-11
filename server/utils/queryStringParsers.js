@@ -1,3 +1,11 @@
+import { AppError } from '../errors/AppError.js';
+
+export const parseId = (value) => {
+  const id = parseInt(value, 10);
+  if (Number.isNaN(id)) throw new AppError('invalid id', 400);
+  return id;
+}
+
 export const parseBoolean = (value) => {
   if (typeof value === 'string') {
     value = value.toLowerCase();

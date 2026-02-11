@@ -1,40 +1,15 @@
-import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/policies.js";
-import { parseBoolean } from "../utils/queryStringParsers.js";
+import { parseBoolean, parseId } from "../utils/queryStringParsers.js";
+import { handleResponse } from "../utils/defaultResponse.js";
 import { pick } from "../utils/sanitize.js";
+import { PolicyService } from "../services/policies.js";
 
 const POLICY_FIELDS = ['description', 'policy_number', 'focus_area_id'];
 
-const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status,
-        message,
-        data,
-    })
-}
-
-const getPolicyById = async (id, res) => {
-    const policy = await prisma.policies.findUnique({
-        where:{
-            id
-        },
-        include: {
-            area:true,
-            strategies:true,
-        }
-    });
-
-    if (!policy) {
-        handleResponse(res, 404, "policy not found");
-    } else {
-        return policy
-    }
-}
-
 export const viewPolicy = async (req, res) => {
-    const policyId = parseInt(req.params.id,10);
-    const policy = await getPolicyById(policyId, res);
+    const policyId = parseId(req.params.id);
+    const policy = await PolicyService.getById(policyId);
     await authorize(canRead, policy)(req, res, () => {
         handleResponse(res, 200, "policy retrieved successfully", policy);
     });
@@ -49,20 +24,8 @@ export const viewAllPolicies = async(req,res) => {
         ...(strategies ? {strategies:true} : {}),
     }
 
-    try {
-        const policies = await prisma.policies.findMany({
-            include:includeItems
-        });
-        handleResponse(res, 200, "policies retrieved successfully", policies);
-    } catch(e) {
-        handleResponse(res, 500, "failed to retrieve policies");
-    }
-    /*
-    await authorize(canRead, strategy)(req, res, async () => {
-        const strategies = await prisma.strategy.findMany();
-        handleResponse(res, 200, "strategy retrieved successfully", strategies);
-    });
-    */
+    const policies = await PolicyService.getAll(includeItems);
+    handleResponse(res, 200, "policies retrieved successfully", policies);
 }
 
 
@@ -70,37 +33,26 @@ export const viewAllPolicies = async(req,res) => {
 export const createPolicy = async(req, res) =>{
     const data = pick(req.body, POLICY_FIELDS);
     await authorize(canCreate)(req, res, async () => {
-        const newPolicy = await prisma.policies.create({
-            data
-        });
+        const newPolicy = await PolicyService.create(data);
         handleResponse(res, 200, "policy created successfully", newPolicy);
     });
 }
 
 export const updatePolicy = async (req, res) => {
-    const policyId = parseInt(req.params.id);
+    const policyId = parseId(req.params.id);
     const data = pick(req.body, POLICY_FIELDS);
-    const policy = await getPolicyById(policyId, res);
+    const policy = await PolicyService.getById(policyId);
     await authorize(canUpdate, policy)(req, res, async () => {
-        const updatedPolicy = await prisma.policies.update({
-            where:{
-                id
-            },
-            data,
-        });
+        const updatedPolicy = await PolicyService.update(policyId, data);
         handleResponse(res, 200, "policy updated successfully", updatedPolicy);
     });
 }
 
 export const deletePolicy = async (req, res) => {
-    const policyId = parseInt(req.params.id);
-    const policy = await getPolicyById(policyId, res);
+    const policyId = parseId(req.params.id);
+    const policy = await PolicyService.getById(policyId);
     await authorize(canDelete, policy)(req, res, async () => {
-        const result = await prisma.policies.delete({
-            where:{
-                id
-            },
-        });
+        const result = await PolicyService.delete(policyId);
         handleResponse(res, 200, "policy successfully deleted", result);
     });
 }

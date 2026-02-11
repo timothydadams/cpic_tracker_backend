@@ -1,36 +1,14 @@
-import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/focusAreas.js";
-import { parseBoolean } from "../utils/queryStringParsers.js";
+import { parseBoolean, parseId } from "../utils/queryStringParsers.js";
+import { handleResponse } from "../utils/defaultResponse.js";
 import { pick } from "../utils/sanitize.js";
+import { ImplementerService } from "../services/implementers.js";
 
 const IMPLEMENTER_FIELDS = ['name', 'emails', 'phone_numbers', 'is_board', 'is_department', 'is_school'];
 
-const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status,
-        message,
-        data,
-    })
-}
-
-const getImplementerById = async (id, res, includedItems = null) => {
-    const imp = await prisma.implementer.findUnique({
-        where:{
-            id
-        },
-        ...(includedItems != null && {include:includedItems}),
-    });
-
-    if (!imp) {
-        handleResponse(res, 404, "implementer not found");
-    } else {
-        return imp
-    }
-}
-
 export const viewImplementer = async (req, res) => {
-    const id = parseInt(req.params.id,10);
+    const id = parseId(req.params.id);
 
     const cpic_smes = parseBoolean(req.query.cpic_smes);
     const strategies = parseBoolean(req.query.strategies);
@@ -40,7 +18,7 @@ export const viewImplementer = async (req, res) => {
         ...(strategies ? { strategies: true} : {}),
     }
 
-    const imp = await getImplementerById(id, res, includeItems);
+    const imp = await ImplementerService.getById(id, includeItems);
     await authorize(canRead, imp)(req, res, () => {
         handleResponse(res, 200, "implementer retrieved successfully", imp);
     });
@@ -55,21 +33,8 @@ export const viewAllImplementers = async(req,res) => {
         ...(strategies ? { strategies: true} : {}),
     }
 
-    try {
-        const imps = await prisma.implementer.findMany({
-            include:includeItems
-        });
-        handleResponse(res, 200, "implementers retrieved successfully", imps);
-    } catch(e) {
-        handleResponse(res, 500, "failed to retrieve implementers");
-    }
-    
-    /*
-    await authorize(canRead, strategy)(req, res, async () => {
-        const strategies = await prisma.strategy.findMany();
-        handleResponse(res, 200, "strategy retrieved successfully", strategies);
-    });
-    */
+    const imps = await ImplementerService.getAll(includeItems);
+    handleResponse(res, 200, "implementers retrieved successfully", imps);
 }
 
 
@@ -77,37 +42,26 @@ export const viewAllImplementers = async(req,res) => {
 export const createImplementer = async(req, res) =>{
     const data = pick(req.body, IMPLEMENTER_FIELDS);
     await authorize(canCreate)(req, res, async () => {
-        const newImp = await prisma.implementer.create({
-            data
-        });
+        const newImp = await ImplementerService.create(data);
         handleResponse(res, 200, "implementer created successfully", newImp);
     });
 }
 
 export const updateImplementer = async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseId(req.params.id);
     const data = pick(req.body, IMPLEMENTER_FIELDS);
-    const imp = await getImplementerById(id, res);
+    const imp = await ImplementerService.getById(id);
     await authorize(canUpdate, imp)(req, res, async () => {
-        const updatedImp = await prisma.implementer.update({
-            where:{
-                id
-            },
-            data,
-        });
+        const updatedImp = await ImplementerService.update(id, data);
         handleResponse(res, 200, "implementer updated successfully", updatedImp);
     });
 }
 
 export const deleteImplementer = async (req, res) => {
-    const id = parseInt(req.params.id);
-    const imp = await getImplementerById(id, res);
+    const id = parseId(req.params.id);
+    const imp = await ImplementerService.getById(id);
     await authorize(canDelete, imp)(req, res, async () => {
-        const result = await prisma.implementer.delete({
-            where:{
-                id
-            },
-        });
+        const result = await ImplementerService.delete(id);
         handleResponse(res, 200, "implementer successfully deleted", result);
     });
 }
