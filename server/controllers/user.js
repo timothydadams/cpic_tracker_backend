@@ -1,5 +1,3 @@
-import { prisma } from "../configs/db.js";
-import { createJWT, hashPassword } from "../utils/auth.js";
 import { authorize } from "../middleware/authorize.js";
 import * as userPolicies from "../resource_permissions/users.js";
 import * as rolePolicies from "../resource_permissions/roles.js";
@@ -10,7 +8,7 @@ import { RoleService } from "../services/roles.js";
 import { parseBoolean } from "../utils/queryStringParsers.js";
 
 
-export const handleGetUser = async(req,res,next) => {
+export const handleGetUser = async(req,res) => {
     const { id } = req.params;
     if (!id) {
         throw new AppError("must provide a user id", 400);
@@ -37,33 +35,24 @@ export const handleGetUser = async(req,res,next) => {
         ...(assigned_implementers ? {assigned_implementers:true} : {}),
     }
 
-    try {
-        const user = await UserService.getUserById(id, options);
-    
-        await authorize(userPolicies.canRead, user)(req, res, async () => {
-            const roles = await RoleService.getUserRoles(id);
-            user.roles = roles.map(({role}) => role.name);
-            handleResponse(res, 200, "user retrieved successfully", user);
-        });
+    const user = await UserService.getUserById(id, options);
 
-    } catch (error) {
-        return next(error)
-    }
+    await authorize(userPolicies.canRead, user)(req, res, async () => {
+        const roles = await RoleService.getUserRoles(id);
+        user.roles = roles.map(({role}) => role.name);
+        handleResponse(res, 200, "user retrieved successfully", user);
+    });
 }
 
-export const handleGetAllUsers = async(req,res,next) => {
+export const handleGetAllUsers = async(req,res) => {
     const { user } = res.locals;
     const { isGlobalAdmin, isCPICAdmin } = user;
     if (!isGlobalAdmin && !isCPICAdmin) {
         throw new AppError("Forbidden", 403);
     }
 
-    try {
-        const users = await UserService.getAllUsers({includeRoles:true});
-        handleResponse(res, 200, "users retrieved", users);
-    } catch(e) {
-        return next(e)
-    }
+    const users = await UserService.getAllUsers({includeRoles:true});
+    handleResponse(res, 200, "users retrieved", users);
 }
 
 const generateUserProfileSelectOptions = ({
@@ -88,13 +77,13 @@ const generateUserProfileSelectOptions = ({
     }
 })
 
-export const handleUpdateUser = async(req,res, next) => {
+export const handleUpdateUser = async(req,res) => {
     const { id } = req.params;
 
     if (!id) {
         throw new AppError("must provide an id parameter", 400)
     }
-    
+
     const {
         family_name,
         given_name,
@@ -111,115 +100,83 @@ export const handleUpdateUser = async(req,res, next) => {
         }
     }
 
-    try {
-        const userToUpdate = await UserService.getUserById(id, options);
+    const userToUpdate = await UserService.getUserById(id, options);
 
-        //console.log('user prior to to update:', userToUpdate);
-    
-        await authorize(userPolicies.canUpdate, userToUpdate)(req, res, async () => {
-            let user;
-            try {
-                await UserService.updateUser(id, {
-                    ...(family_name ? {family_name} : {}),
-                    ...(given_name ? {given_name} : {}),
-                    ...(display_name ? {display_name} : {}),
-                    ...(username ? {username} : {}),
-                    ...(implementer_org_id ? {implementer_org_id:Number(implementer_org_id)} : {}),
-                });
-
-                if (assigned_implementers) {
-                    await UserService.updateAssignedImplementers(id, assigned_implementers);
-                }
-
-                const options = generateUserProfileSelectOptions({
-                    ...(userToUpdate.implementer_org_id ? {implementer_org:true} : {}),
-                    ...(userToUpdate.assigned_implementers.length > 0 ? {assigned_implementers:true} : {}),
-                });
-                
-                user = await UserService.getUserById(id, options);
-            } catch(e) {
-                return next(e)
-            }
-
-            handleResponse(res, 200, "user updated successfully", user);
+    await authorize(userPolicies.canUpdate, userToUpdate)(req, res, async () => {
+        await UserService.updateUser(id, {
+            ...(family_name ? {family_name} : {}),
+            ...(given_name ? {given_name} : {}),
+            ...(display_name ? {display_name} : {}),
+            ...(username ? {username} : {}),
+            ...(implementer_org_id ? {implementer_org_id:Number(implementer_org_id)} : {}),
         });
-    } catch(e) {
-        return next(e)
-    }
 
+        if (assigned_implementers) {
+            await UserService.updateAssignedImplementers(id, assigned_implementers);
+        }
+
+        const selectOptions = generateUserProfileSelectOptions({
+            ...(userToUpdate.implementer_org_id ? {implementer_org:true} : {}),
+            ...(userToUpdate.assigned_implementers.length > 0 ? {assigned_implementers:true} : {}),
+        });
+
+        const user = await UserService.getUserById(id, selectOptions);
+
+        handleResponse(res, 200, "user updated successfully", user);
+    });
 }
 
-export const getUserRoles = async(req,res, next) => {
+export const getUserRoles = async(req,res) => {
     const { id:userId } = req.params;
     await authorize(userPolicies.canRead)(req, res, async() => {
-        try {
-            let userRoles = await RoleService.getUserRoles(userId);
-            userRoles = userRoles.map(({ createdAt, role }) => ({
-                ...role,
-                createdAt,
-            }));
-            handleResponse(res, 200, "user roles retrieved", userRoles);
-        } catch(e) {
-            return next(e)
-        }
+        let userRoles = await RoleService.getUserRoles(userId);
+        userRoles = userRoles.map(({ createdAt, role }) => ({
+            ...role,
+            createdAt,
+        }));
+        handleResponse(res, 200, "user roles retrieved", userRoles);
     })
 }
 
-export const removeRoleFromUser = async(req, res, next) => {
+export const removeRoleFromUser = async(req, res) => {
     const { id:userId } = req.params
     const { roleId } = req.body
 
     if (!userId || !roleId) {
         throw new AppError("userId and roleId must be provided");
     }
-    
-    try {
-        await authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
-            const result = await RoleService.removeRoleFromUser(userId, roleId);
-            handleResponse(res, 200, "role removed from user", result);
-        });
-    } catch(e) {
-        return next(e)
-    }
-     
+
+    await authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
+        const result = await RoleService.removeRoleFromUser(userId, roleId);
+        handleResponse(res, 200, "role removed from user", result);
+    });
 }
 
 
-export const addRoleToUser = async(req, res, next) => {
+export const addRoleToUser = async(req, res) => {
     const { id:userId } = req.params
     const { roleId } = req.body
     if (!userId || !roleId) {
         throw new AppError("userId and roleId must be provided");
     }
 
-    try {
-        await authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
-            const result = await RoleService.addRoleToUser(userId,roleId);
-            handleResponse(res, 200, "role added to user", result);
-        });
-    }catch(e){
-        return next(e)
-    }
+    await authorize(userPolicies.canAddRemoveRoles)(req, res, async () => {
+        const result = await RoleService.addRoleToUser(userId,roleId);
+        handleResponse(res, 200, "role added to user", result);
+    });
 }
 
-    
-export const deleteUserPasskey = async(req, res, next) => {
+
+export const deleteUserPasskey = async(req, res) => {
     const {id:userId} = req.params;
     const {pk_id} = req.body;
     if (!userId || !pk_id) {
         throw new AppError("userId and pk_id must be provided", 400);
     }
 
-    try {
-        const passkey = await prisma.passkey.findUnique({
-            where: {id: pk_id}
-        });
-        await authorize(userPolicies.canRemovePasskey, passkey)(req,res, async()=>{
-            const count = UserService.deletePasskey(pk_id);
-            handleResponse(res, 200, "passkey deleted", count);
-        });
-    } catch(e) {
-        return next(e)
-    }
-    
+    const passkey = await UserService.getPasskeyById(pk_id);
+    await authorize(userPolicies.canRemovePasskey, passkey)(req,res, async()=>{
+        const count = await UserService.deletePasskey(pk_id);
+        handleResponse(res, 200, "passkey deleted", count);
+    });
 }

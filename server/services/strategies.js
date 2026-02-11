@@ -3,34 +3,58 @@ import { AppError } from "../errors/AppError.js";
 
 export const StrategyService = {
 
-    async getStrategyById (id, include = null) {
-        try {
-            return await prisma.strategy.findUnique({
-                where:{
-                    id
-                },
-                ...(include ? {include} : {}),
-            });
-        } catch(e) {
-            throw e
-        }
+    async getStrategyById(id, include = null) {
+        return await prisma.strategy.findUnique({
+            where: { id },
+            ...(include ? { include } : {}),
+        });
     },
 
-    async updateStrategyDetails (id, data) {
-        try {
-            return await prisma.strategy.update({
-                where:{
-                    id,
-                },
-                data,
-            });
-        } catch (e) {
-            throw e
-        }
+    async getAll({ where = {}, include = {}, orderBy = null } = {}) {
+        return await prisma.strategy.findMany({
+            where,
+            include,
+            ...(orderBy ? { orderBy } : {}),
+        });
     },
 
-    async addImplementersToStrategy (implementerIds, strategyId) {
-    
+    async create(data) {
+        return await prisma.strategy.create({ data });
+    },
+
+    async delete(id) {
+        return await prisma.strategy.delete({
+            where: { id },
+        });
+    },
+
+    async updateStrategyDetails(id, data) {
+        return await prisma.strategy.update({
+            where: { id },
+            data,
+        });
+    },
+
+    async getStatuses() {
+        return await prisma.statusOptions.findMany({
+            where: { enabled: true },
+        });
+    },
+
+    async getTimelineOptions() {
+        return await prisma.timelineOptions.findMany({
+            where: { enabled: true },
+        });
+    },
+
+    async getCommentsByStrategyId(strategyId, include = {}) {
+        return await prisma.comment.findMany({
+            where: { strategy_id: strategyId },
+            include,
+        });
+    },
+
+    async addImplementersToStrategy(implementerIds, strategyId) {
         if (!Array.isArray(implementerIds)) {
             throw new AppError("implementerIds must be an array of implementer ids");
         }
@@ -40,95 +64,62 @@ export const StrategyService = {
             strategy_id: strategyId,
         }));
 
-        try {
-            return await prisma.strategyImplementer.createMany({
-                data
-            });
-        } catch(e) {
-            throw e
-        }
+        return await prisma.strategyImplementer.createMany({ data });
     },
 
-    async deleteImplementersFromStrategy (implementerIds, strategyId){
-        try {
-            return await prisma.strategyImplementer.deleteMany({
-                where: {
-                    strategy_id: strategyId,
-                    implementer_id: {
-                        in: implementerIds //array of implementer ids
-                    },
-                }
-            });
-        } catch(e) {
-            console.log('error removing implementers');
-            throw(e);
-        }
-    },
-
-    async _unsetPrimaryImplementer (strategy_id) {
-        //set all current strategy joint table is_primary entries to false
-        try {
-            return prisma.strategyImplementer.updateManyAndReturn({
-                where: {
-                    strategy_id
+    async deleteImplementersFromStrategy(implementerIds, strategyId) {
+        return await prisma.strategyImplementer.deleteMany({
+            where: {
+                strategy_id: strategyId,
+                implementer_id: {
+                    in: implementerIds,
                 },
-                data: {
-                    is_primary: false,
-                }
-            });
-        } catch(e) {
-            console.log(`error setting 'is_primary:false' on all implementers for strategy_id: ${strategy_id}`);
-            throw e
-        }
+            },
+        });
+    },
+
+    async _unsetPrimaryImplementer(strategy_id) {
+        return prisma.strategyImplementer.updateManyAndReturn({
+            where: { strategy_id },
+            data: { is_primary: false },
+        });
     },
 
     async updatePrimaryImplementer(strategy_id, primary_implementer_id) {
-        try {
-            await this._unsetPrimaryImplementer(strategy_id);
-            return await prisma.strategyImplementer.update({
-                where: {
-                  implementer_id_strategy_id: {
+        await this._unsetPrimaryImplementer(strategy_id);
+        return await prisma.strategyImplementer.update({
+            where: {
+                implementer_id_strategy_id: {
                     implementer_id: Number(primary_implementer_id),
                     strategy_id,
-                  },
                 },
-                data: {
-                    is_primary: true,
-                }
-            });
-        } catch (e) {
-            throw e
-        }
+            },
+            data: { is_primary: true },
+        });
     },
 
     async getStrategiesForImplementer(implementer_id, is_primary = null) {
-        try {
-            return await prisma.strategy.findMany({
-                where: {
-                    implementers: {
-                        some: {
-                            implementer_id,
-                            ...(is_primary !== null ? {is_primary} : {}),
-                        }
-                    }
+        return await prisma.strategy.findMany({
+            where: {
+                implementers: {
+                    some: {
+                        implementer_id,
+                        ...(is_primary !== null ? { is_primary } : {}),
+                    },
                 },
-                include: {
-                    status:true,
-                    focus_area:true,
-                    policy:true,
-                    timeline:true,
-                    implementers: {
-                        include: {
-                            implementer:true
-                        }
-                    }
+            },
+            include: {
+                status: true,
+                focus_area: true,
+                policy: true,
+                timeline: true,
+                implementers: {
+                    include: {
+                        implementer: true,
+                    },
+                },
+            },
+        });
+    },
 
-                }
-            });
-        } catch(e) {
-            throw e
-        }
-        
-    }
-    
 };

@@ -1,33 +1,18 @@
-import { prisma } from "../configs/db.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canUpdate, canDelete } from "../resource_permissions/focusAreas.js";
-import { parseBoolean } from "../utils/queryStringParsers.js";
+import { parseBoolean, parseId } from "../utils/queryStringParsers.js";
 import { handleResponse } from "../utils/defaultResponse.js";
 import { pick } from "../utils/sanitize.js";
+import { FocusAreaService } from "../services/focus_areas.js";
 
 const FOCUS_AREA_FIELDS = ['name', 'description', 'state_goal'];
 
-const getFocusAreaById = async (id, res, includedItems = null) => {
-    const fa = await prisma.focusArea.findUnique({
-        where:{
-            id
-        },
-        ...(includedItems != null && {include:includedItems}),
-    });
-
-    if (!fa) {
-        handleResponse(res, 404, "focus area not found");
-    } else {
-        return fa
-    }
-}
-
 export const viewFocusArea = async (req, res) => {
-    const id = parseInt(req.params.id,10);
+    const id = parseId(req.params.id);
     const policies = parseBoolean(req.query.policies);
 
     const includeItems = {
-        ...(policies ? { 
+        ...(policies ? {
                 policies: {
                     orderBy: {
                         policy_number: 'asc',
@@ -36,7 +21,7 @@ export const viewFocusArea = async (req, res) => {
         } : {}),
     }
 
-    const focus_area = await getFocusAreaById(id, res, includeItems);
+    const focus_area = await FocusAreaService.getById(id, includeItems);
     await authorize(canRead, focus_area)(req, res, () => {
         handleResponse(res, 200, "focus area retrieved successfully", focus_area);
     });
@@ -53,20 +38,8 @@ export const viewAllFocusAreas = async(req,res) => {
         }} : {}),
     }
 
-    try {
-        const fas = await prisma.focusArea.findMany({
-            include:includeItems
-        });
-        handleResponse(res, 200, "focus areas retrieved successfully", fas);
-    } catch(e) {
-        handleResponse(res, 500, "failed to retrieve focus areas");
-    }
-    /*
-    await authorize(canRead, strategy)(req, res, async () => {
-        const strategies = await prisma.strategy.findMany();
-        handleResponse(res, 200, "strategy retrieved successfully", strategies);
-    });
-    */
+    const fas = await FocusAreaService.getAll(includeItems);
+    handleResponse(res, 200, "focus areas retrieved successfully", fas);
 }
 
 
@@ -74,37 +47,26 @@ export const viewAllFocusAreas = async(req,res) => {
 export const createFocusArea = async(req, res) =>{
     const data = pick(req.body, FOCUS_AREA_FIELDS);
     await authorize(canCreate)(req, res, async () => {
-        const newFA = await prisma.focusArea.create({
-            data
-        });
+        const newFA = await FocusAreaService.create(data);
         handleResponse(res, 200, "focus area created successfully", newFA);
     });
 }
 
 export const updateFocusArea = async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseId(req.params.id);
     const data = pick(req.body, FOCUS_AREA_FIELDS);
-    const fa = await getFocusAreaById(id, res);
+    const fa = await FocusAreaService.getById(id);
     await authorize(canUpdate, fa)(req, res, async () => {
-        const updatedFA = await prisma.focusArea.update({
-            where:{
-                id
-            },
-            data,
-        });
+        const updatedFA = await FocusAreaService.update(id, data);
         handleResponse(res, 200, "focus area updated successfully", updatedFA);
     });
 }
 
 export const deleteFocusArea = async (req, res) => {
-    const id = parseInt(req.params.id);
-    const fa = await getFocusAreaById(id, res);
+    const id = parseId(req.params.id);
+    const fa = await FocusAreaService.getById(id);
     await authorize(canDelete, fa)(req, res, async () => {
-        const result = await prisma.focusArea.delete({
-            where:{
-                id
-            },
-        });
+        const result = await FocusAreaService.delete(id);
         handleResponse(res, 200, "focus area successfully deleted", result);
     });
 }

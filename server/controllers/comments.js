@@ -1,13 +1,13 @@
 import { CommentService } from "../services/comments.js";
 import { authorize } from "../middleware/authorize.js";
 import { canCreate, canRead, canReadAll, canUpdate, canDelete } from "../resource_permissions/comments.js";
-import { parseBoolean } from "../utils/queryStringParsers.js";
+import { parseBoolean, parseId } from "../utils/queryStringParsers.js";
 import { handleResponse } from "../utils/defaultResponse.js";
 import { StrategyActivityService } from "../services/strategyActivity.js";
 import { pick } from "../utils/sanitize.js";
 
 export const viewComment = async (req, res) => {
-    const id = parseInt(req.params.id,10);
+    const id = parseId(req.params.id);
 
     const children = parseBoolean(req.query.replies);
 
@@ -54,7 +54,7 @@ export const createComment = async(req, res) =>{
 }
 
 export const updateComment = async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseId(req.params.id);
     const data = pick(req.body, ['content']);
     const comment = await CommentService.getById(id);
     await authorize(canUpdate, comment)(req, res, async () => {
@@ -73,7 +73,7 @@ export const updateComment = async (req, res) => {
 }
 
 export const deleteComment = async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseId(req.params.id);
     const comment = await CommentService.getById(id);
     await authorize(canDelete, comment)(req, res, async () => {
         const result = await CommentService.delete(id);

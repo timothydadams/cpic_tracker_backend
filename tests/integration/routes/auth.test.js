@@ -8,6 +8,10 @@ const mockRedis = createMockRedis();
 
 vi.mock('../../../server/configs/db.js', () => ({ prisma: mockPrisma }));
 vi.mock('../../../server/index.js', () => ({ redis: mockRedis }));
+vi.mock('../../../server/middleware/rateLimiter.js', () => {
+  const passthrough = (_req, _res, next) => next();
+  return { authLimiter: passthrough, refreshLimiter: passthrough };
+});
 vi.mock('@simplewebauthn/server', () => ({
   generateRegistrationOptions: vi.fn(),
   verifyRegistrationResponse: vi.fn(),
@@ -299,6 +303,167 @@ describe('Auth Routes', () => {
     });
   });
 
+  describe('POST /api/auth/generate-passkey-reg-options', () => {
+    it('returns 400 when email is missing', async () => {
+      const res = await supertest(expressApp)
+        .post('/api/auth/generate-passkey-reg-options')
+        .send({});
+
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 404 when user not found', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+
+      const res = await supertest(expressApp)
+        .post('/api/auth/generate-passkey-reg-options')
+        .send({ email: 'unknown@test.com' });
+
+      expect(res.status).toBe(404);
+    });
+
+    it('returns registration options and stores challenge in Redis', async () => {
+      const webauthn = await import('@simplewebauthn/server');
+      const mockRegOptions = { challenge: 'reg-challenge', user: { id: 'webauthn-uid' } };
+      webauthn.generateRegistrationOptions.mockResolvedValue(mockRegOptions);
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'test@test.com',
+        disabled: false,
+        userRoles: [{ role: { name: 'Admin' } }],
+      });
+      mockPrisma.passkey.findMany.mockResolvedValue([]);
+      mockRedis.set.mockResolvedValue('OK');
+
+      const res = await supertest(expressApp)
+        .post('/api/auth/generate-passkey-reg-options')
+        .send({ email: 'test@test.com' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.challenge).toBe('reg-challenge');
+      expect(mockRedis.set).toHaveBeenCalledWith(
+        'passkey_reg:u1',
+        expect.any(String),
+        'EX',
+        120,
+      );
+    });
+
+    it('returns 503 when Redis is unavailable', async () => {
+      const webauthn = await import('@simplewebauthn/server');
+      webauthn.generateRegistrationOptions.mockResolvedValue({ challenge: 'c' });
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'test@test.com',
+        disabled: false,
+        userRoles: [{ role: { name: 'Admin' } }],
+      });
+      mockPrisma.passkey.findMany.mockResolvedValue([]);
+      mockRedis.set.mockRejectedValue(new Error('Redis connection refused'));
+
+      const res = await supertest(expressApp)
+        .post('/api/auth/generate-passkey-reg-options')
+        .send({ email: 'test@test.com' });
+
+      expect(res.status).toBe(503);
+    });
+  });
+
+  describe('Passkey registration verification — happy path', () => {
+    it('returns verified with passkey added message when no duration', async () => {
+      const webauthn = await import('@simplewebauthn/server');
+      const challengeData = JSON.stringify({
+        challenge: 'reg-challenge',
+        user: { id: 'webauthn-uid' },
+      });
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'test@test.com',
+        disabled: false,
+        userRoles: [{ role: { name: 'Admin' } }],
+      });
+      mockRedis.get.mockResolvedValue(challengeData);
+      mockRedis.del.mockResolvedValue(1);
+      webauthn.verifyRegistrationResponse.mockResolvedValue({
+        verified: true,
+        registrationInfo: {
+          credential: {
+            id: 'cred-1',
+            publicKey: new Uint8Array([1, 2, 3]),
+            counter: 0,
+            transports: ['internal'],
+          },
+          credentialDeviceType: 'singleDevice',
+          credentialBackedUp: false,
+        },
+      });
+      mockPrisma.passkey.create.mockResolvedValue({});
+
+      const res = await supertest(expressApp)
+        .post('/api/auth/passkey-reg-verification')
+        .send({ email: 'test@test.com', webAuth: {} });
+
+      expect(res.status).toBe(200);
+      expect(res.body.verified).toBe(true);
+      expect(res.body.message).toBe('passkey added');
+    });
+
+    it('consumes challenge from Redis (get then del) during registration', async () => {
+      const challengeData = JSON.stringify({ challenge: 'reg-challenge', user: { id: 'wuid' } });
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'test@test.com',
+        disabled: false,
+        userRoles: [{ role: { name: 'Admin' } }],
+      });
+      mockRedis.get.mockResolvedValue(challengeData);
+      mockRedis.del.mockResolvedValue(1);
+      const webauthn = await import('@simplewebauthn/server');
+      webauthn.verifyRegistrationResponse.mockRejectedValue(new Error('test abort'));
+
+      await supertest(expressApp)
+        .post('/api/auth/passkey-reg-verification')
+        .send({ email: 'test@test.com', webAuth: {} });
+
+      expect(mockRedis.get).toHaveBeenCalledWith('passkey_reg:u1');
+      expect(mockRedis.del).toHaveBeenCalledWith('passkey_reg:u1');
+    });
+  });
+
+  describe('Passkey auth verification — happy path', () => {
+    it('returns verified status with accessToken on successful auth', async () => {
+      const challengeData = JSON.stringify({ challenge: 'auth-challenge' });
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'test@test.com',
+        disabled: false,
+        userRoles: [{ role: { name: 'Admin' } }],
+      });
+      mockRedis.get.mockResolvedValue(challengeData);
+      mockRedis.del.mockResolvedValue(1);
+      mockPrisma.passkey.findFirst.mockResolvedValue({
+        id: 'cred-1',
+        publicKey: Buffer.from('test'),
+        counter: 0,
+        transports: [],
+      });
+      const webauthn = await import('@simplewebauthn/server');
+      webauthn.verifyAuthenticationResponse.mockResolvedValue({
+        verified: true,
+        authenticationInfo: { newCounter: 1 },
+      });
+      mockPrisma.passkey.update.mockResolvedValue({});
+
+      const res = await supertest(expressApp)
+        .post('/api/auth/passkey-auth-verify')
+        .send({ email: 'test@test.com', duration: 'SHORT', webAuth: { id: 'cred-1' } });
+
+      expect(res.status).toBe(200);
+      expect(res.body.verified).toBe(true);
+      expect(res.body).toHaveProperty('accessToken');
+    });
+  });
+
   describe('POST /api/auth/register', () => {
     it('rejects request without invite code', async () => {
       const res = await supertest(expressApp)
@@ -307,6 +472,66 @@ describe('Auth Routes', () => {
 
       // requireInviteCode middleware throws AppError which is caught by error handler
       expect(res.status).toBe(400);
+    });
+
+    it('returns 400 when user email is missing', async () => {
+      mockPrisma.inviteCode.findUnique.mockResolvedValue({
+        id: 1,
+        code: 'VALID-CODE',
+        roleId: 3,
+        useCount: 0,
+        maxUses: 5,
+        expiresAt: new Date(Date.now() + 86400000),
+        role: { name: 'CPIC Member' },
+        createdBy: { id: 'admin-1', email: 'admin@test.com' },
+      });
+
+      const res = await supertest(expressApp)
+        .post('/api/auth/register')
+        .send({ inviteCode: 'VALID-CODE', user: {} });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('registers a new user successfully', async () => {
+      mockPrisma.inviteCode.findUnique.mockResolvedValue({
+        id: 1,
+        code: 'VALID-CODE',
+        roleId: 3,
+        useCount: 0,
+        maxUses: 5,
+        expiresAt: new Date(Date.now() + 86400000),
+        role: { name: 'CPIC Member' },
+        createdBy: { id: 'admin-1', email: 'admin@test.com' },
+      });
+      mockPrisma.$transaction.mockResolvedValue({
+        id: 'new-user-1',
+        email: 'new@test.com',
+        display_name: 'New User',
+      });
+      // register() calls findUserForSignIn(newUser.id) after $transaction
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'new-user-1',
+        email: 'new@test.com',
+        display_name: 'New User',
+        disabled: false,
+        userRoles: [{ role: { name: 'CPIC Member' } }],
+      });
+
+      const res = await supertest(expressApp)
+        .post('/api/auth/register')
+        .send({
+          inviteCode: 'VALID-CODE',
+          user: {
+            email: 'new@test.com',
+            given_name: 'New',
+            family_name: 'User',
+            assigned_implementers: [],
+          },
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.email).toBe('new@test.com');
     });
   });
 });
