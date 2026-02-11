@@ -67,4 +67,32 @@ describe('buildNestedIncludeObject', () => {
   it('returns empty object for empty array', () => {
     expect(buildNestedIncludeObject([])).toEqual({});
   });
+
+  it('truncates paths beyond maxDepth', () => {
+    expect(buildNestedIncludeObject(['a', 'b', 'c', 'd'], 2)).toEqual({
+      a: { include: { b: true } },
+    });
+  });
+
+  it('maxDepth of 1 returns single-level include', () => {
+    expect(buildNestedIncludeObject(['a', 'b', 'c'], 1)).toEqual({
+      a: true,
+    });
+  });
+
+  it('maxDepth of 0 returns empty object', () => {
+    expect(buildNestedIncludeObject(['a', 'b'], 0)).toEqual({});
+  });
+
+  it('maxDepth greater than path length has no effect', () => {
+    expect(buildNestedIncludeObject(['a', 'b'], 10)).toEqual({
+      a: { include: { b: true } },
+    });
+  });
+
+  it('defaults to unlimited depth when maxDepth not provided', () => {
+    expect(buildNestedIncludeObject(['a', 'b', 'c', 'd'])).toEqual({
+      a: { include: { b: { include: { c: { include: { d: true } } } } } },
+    });
+  });
 });

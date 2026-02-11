@@ -3,6 +3,9 @@ import { hashPassword } from "../utils/auth.js";
 import { getAuthedGoogleClient } from '../utils/auth.js';
 import { google } from 'googleapis';
 import { AppError } from "../errors/AppError.js";
+import { pick } from "../utils/sanitize.js";
+
+const USER_REGISTER_FIELDS = ['email', 'given_name', 'family_name', 'username', 'password_hash', 'profile_pic', 'implementer_org_id'];
 
 export const AuthService = {
     async getSocialLoginOptions(email){
@@ -55,9 +58,9 @@ export const AuthService = {
     async register(userData, options = {}) {
         const {
             assigned_implementers,
-            ...userProperties
         } = userData;
 
+        const userProperties = pick(userData, USER_REGISTER_FIELDS);
         const { family_name, given_name } = userProperties;
 
         const { roleId, inviteCode } = options;
@@ -122,7 +125,7 @@ export const AuthService = {
     },
 
     //Get user with friendly roles array
-    async findUserForSignIn(val, key = "id") {
+    async findUserForSignIn(val, key = "id", { includePasswordHash = false } = {}) {
         const whereClause = {}
         whereClause.disabled = false;
         whereClause[key] = val;
@@ -143,6 +146,7 @@ export const AuthService = {
             const validUser = await prisma.user.findUnique({
                 where: whereClause,
                 include: includeItems,
+                ...(includePasswordHash ? { omit: { password_hash: false } } : {}),
             });
 
             if (!validUser) return null;

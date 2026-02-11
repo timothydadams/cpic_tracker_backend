@@ -37,7 +37,7 @@ export const errorHandler = (err,req,res,next) => {
       case 'P2002':
         // Unique constraint violation
         statusCode = 409;
-        message = `A record with this ${err.meta?.target} (${err.meta?.modelName}) already exists`;
+        message = 'A record with this value already exists';
         break;
       case 'P2025':
         // Record not found

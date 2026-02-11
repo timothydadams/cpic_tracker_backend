@@ -1,10 +1,50 @@
+import 'dotenv/config';
+
+// --- JWT Secret Validation ---
+const SAMPLE_SECRETS = [
+    'abcd',
+    'CHANGE_ME_access_run_require_crypto_randomBytes_64_toString_hex',
+    'CHANGE_ME_refresh_run_require_crypto_randomBytes_64_toString_hex',
+];
+
+(function validateJwtSecrets() {
+    const access = process.env.JWT_ACCESS_SECRET;
+    const refresh = process.env.JWT_REFRESH_SECRET;
+    const problems = [];
+
+    if (!access || !refresh) {
+        problems.push('JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must both be set.');
+    }
+    if (access && refresh && access === refresh) {
+        problems.push('JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must be different.');
+    }
+    if (SAMPLE_SECRETS.includes(access)) {
+        problems.push('JWT_ACCESS_SECRET is still set to a sample/placeholder value.');
+    }
+    if (SAMPLE_SECRETS.includes(refresh)) {
+        problems.push('JWT_REFRESH_SECRET is still set to a sample/placeholder value.');
+    }
+
+    if (problems.length > 0) {
+        const msg = `JWT SECRET CONFIGURATION ERROR:\n  - ${problems.join('\n  - ')}`;
+        if (process.env.NODE_ENV === 'production') {
+            console.error(`FATAL: ${msg}`);
+            process.exit(1);
+        } else if (process.env.NODE_ENV !== 'test') {
+            console.warn(`WARNING: ${msg}`);
+        }
+    }
+})();
+// --- End JWT Secret Validation ---
+
 import { Server } from "socket.io";
 import { createServer } from "http";
+import { jwtVerify } from 'jose';
 import {expressApp} from "./express.js";
-import * as dotenv from 'dotenv';
+import { whitelist } from './configs/cors.config.js';
 import Redis from 'ioredis';
 
-dotenv.config();
+const socketSecret = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET);
 
 const port = process.env.PORT || 3500;
 
@@ -20,21 +60,28 @@ httpServer.listen(port, ()=>{
 
 const io = new Server(httpServer, {
     cors: {
-        origin: process.env.NODE_ENV === "production" 
-            ? false 
-            : [
-               'http://127.0.0.1:3000',
-                'http://localhost:3000' 
-            ]
+        origin: whitelist,
     },
 });
 
 
+io.use(async (socket, next) => {
+    const token = socket.handshake.auth?.token;
+    if (!token) return next(new Error('Authentication required'));
+    try {
+        const { payload } = await jwtVerify(token, socketSecret);
+        socket.data.user = payload;
+        next();
+    } catch {
+        next(new Error('Invalid token'));
+    }
+});
+
 io.on('connection', socket => {
-    const userId = socket?.request?.user?.id || socket.id.substring(0,5);
+    const userId = socket.data.user.id;
     console.log(`user ${userId} connected`);
     //use socket to target user that just connected
-    socket.emit('message', "welcome to droneops");
+    socket.emit('message', "welcome to cpic.dev");
     //all users except this new user
     socket.broadcast.emit('message',`User ${userId} connected`)
 

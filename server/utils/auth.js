@@ -1,6 +1,9 @@
-import jwt from 'jsonwebtoken';
+import { SignJWT } from 'jose';
 import bcrypt from 'bcrypt';
 import { OAuth2Client } from 'google-auth-library';
+
+const accessSecret = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET);
+const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET);
 
 export const cookieLife = 24*60*60*1000;
 
@@ -40,33 +43,27 @@ export const createObjFromFilteredKeys = (userObject, desiredFields) => Object.f
     Object.entries(userObject).filter(([key]) => desiredFields.includes(key))
 );
 
-export const createJWT = (user, duration = "SHORT") => {
+export const createJWT = async (user, duration = "SHORT") => {
 
     const access_token_claims = createObjFromFilteredKeys(user, claim_keys);
     const { id } = access_token_claims;
 
-    
-    const refreshTokenExpiration = duration == "SHORT" 
+
+    const refreshTokenExpiration = duration == "SHORT"
         ? process.env.JWT_REFRESH_LIFE_SHORT
         : process.env.JWT_REFRESH_LIFE_LONG
 
-    const accessToken = jwt.sign(
-        access_token_claims,
-        process.env.JWT_ACCESS_SECRET,
-        { 
-            expiresIn: process.env.JWT_ACCESS_LIFE,
-            //algorithm: 'HS256'
-        }
-    );
+    const accessToken = await new SignJWT(access_token_claims)
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime(process.env.JWT_ACCESS_LIFE)
+        .sign(accessSecret);
 
-    const refreshToken = jwt.sign(
-        {id},
-        process.env.JWT_REFRESH_SECRET,
-        { 
-            expiresIn: refreshTokenExpiration,
-            //algorithm: 'HS256'
-        }
-    )
+    const refreshToken = await new SignJWT({ id })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime(refreshTokenExpiration)
+        .sign(refreshSecret);
 
     return { accessToken, refreshToken }
 }

@@ -6,7 +6,7 @@ import {
   createObjFromFilteredKeys,
   ensureUint8Array,
 } from '../../../server/utils/auth.js';
-import jwt from 'jsonwebtoken';
+import { verifyAccessToken, verifyRefreshToken, decodeJwt } from '../../helpers/jwt.js';
 
 describe('hashPassword / comparePasswords', () => {
   it('hashes a password and successfully compares it', async () => {
@@ -35,39 +35,39 @@ describe('createJWT', () => {
     family_name: 'User',
   };
 
-  it('returns an object with accessToken and refreshToken', () => {
-    const tokens = createJWT(user);
+  it('returns an object with accessToken and refreshToken', async () => {
+    const tokens = await createJWT(user);
     expect(tokens).toHaveProperty('accessToken');
     expect(tokens).toHaveProperty('refreshToken');
     expect(typeof tokens.accessToken).toBe('string');
     expect(typeof tokens.refreshToken).toBe('string');
   });
 
-  it('access token contains user claims', () => {
-    const { accessToken } = createJWT(user);
-    const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+  it('access token contains user claims', async () => {
+    const { accessToken } = await createJWT(user);
+    const decoded = await verifyAccessToken(accessToken);
     expect(decoded.id).toBe(user.id);
     expect(decoded.email).toBe(user.email);
     expect(decoded.roles).toEqual(user.roles);
   });
 
-  it('refresh token contains user id', () => {
-    const { refreshToken } = createJWT(user);
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  it('refresh token contains user id', async () => {
+    const { refreshToken } = await createJWT(user);
+    const decoded = await verifyRefreshToken(refreshToken);
     expect(decoded.id).toBe(user.id);
   });
 
-  it('uses SHORT duration by default', () => {
-    const { refreshToken } = createJWT(user);
-    const decoded = jwt.decode(refreshToken);
+  it('uses SHORT duration by default', async () => {
+    const { refreshToken } = await createJWT(user);
+    const decoded = decodeJwt(refreshToken);
     // SHORT duration = 2m = 120s
     const lifetime = decoded.exp - decoded.iat;
     expect(lifetime).toBe(120);
   });
 
-  it('uses LONG duration when specified', () => {
-    const { refreshToken } = createJWT(user, 'LONG');
-    const decoded = jwt.decode(refreshToken);
+  it('uses LONG duration when specified', async () => {
+    const { refreshToken } = await createJWT(user, 'LONG');
+    const decoded = decodeJwt(refreshToken);
     // LONG duration = 10m = 600s
     const lifetime = decoded.exp - decoded.iat;
     expect(lifetime).toBe(600);

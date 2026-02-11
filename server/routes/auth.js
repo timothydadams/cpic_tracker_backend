@@ -11,14 +11,13 @@ import {
     verifyAuthResponse,
 } from "../controllers/authentication.js";
 import { requireInviteCode } from '../middleware/inviteCodeMiddleware.js';
-//import { getAuthedGoogleClient } from '../utils/auth.js'
-//import { OAuth2Client } from 'google-auth-library';
+import { authLimiter, refreshLimiter } from '../middleware/rateLimiter.js';
 
 
 const AuthRouter = Router();
 
 //NEW ACCOUNT CREATION / ONBOARDING
-AuthRouter.post('/register', [requireInviteCode], registerNewUser);
+AuthRouter.post('/register', authLimiter, [requireInviteCode], registerNewUser);
 
 
 
@@ -27,11 +26,11 @@ AuthRouter.post("/generate-passkey-reg-options", getPasskeyRegOptions)
 AuthRouter.post("/passkey-reg-verification", handlePasskeyRegVerification);
 
 //RETURN METHODS USER CAN SIGN IN (SOCIALS || PASSKEY)
-AuthRouter.post('/get-auth-options', generateAuthOptions);
-AuthRouter.post("/passkey-auth-verify", verifyAuthResponse);
+AuthRouter.post('/get-auth-options', authLimiter, generateAuthOptions);
+AuthRouter.post("/passkey-auth-verify", authLimiter, verifyAuthResponse);
 
 
-AuthRouter.post('/self-sign-in', handleSelfSignIn);
+AuthRouter.post('/self-sign-in', authLimiter, handleSelfSignIn);
 
 //SOCIAL SIGNINS
 AuthRouter.get('/google-callback/', handleGoogleSignIn);
@@ -71,7 +70,7 @@ AuthRouter.get('/google-url', async function(req, res, next){
 });
 */
 
-AuthRouter.post('/refresh', handleRefreshToken);
+AuthRouter.post('/refresh', refreshLimiter, handleRefreshToken);
 
 export default AuthRouter;
 
