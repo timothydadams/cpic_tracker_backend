@@ -23,29 +23,42 @@ import { buildActivityChanges } from "../utils/buildActivityChanges.js";
 
 export const viewMyStrategies = async (req, res) => {
     const userId = res.locals.user.id;
-    const isImplementer = res.locals.user.isImplementer;
+    //const isImplementer = res.locals.user.isImplementer;
 
     if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const options = {}
-    options.select = isImplementer ? { implementer_org:true } : {assigned_implementers: true }
+    const options = {};
+    options.select = {
+        implementer_org:true,
+        assigned_implementers: true,
+    }
+
+    //options.select = isImplementer ? { implementer_org:true } : {assigned_implementers: true }
     const user = await UserService.getUserById(userId, options);
 
     const {implementer_org = null, assigned_implementers = null} = user;
 
-    let results;
+    let results = {
+        monitor: [],
+        execute: [],
+    };
     if (implementer_org) {
-        results = {}
-        results.implementer = {...implementer_org}
-        results.strategies = await ImplementerService.getImplementerStrategies(implementer_org.id);
-    } else {
-        results = []
+        const strategies = await ImplementerService.getImplementerStrategies(implementer_org.id);
+        results.execute.push({
+            implementer_org,
+            strategies,
+        });
+    } 
+    
+    if (assigned_implementers) {
         for (const imp of assigned_implementers) {
-            const details = imp;
             const strategies = await ImplementerService.getImplementerStrategies(imp.id);
-            results.push({details,strategies});
+            results.monitor.push({
+                implementer_org: imp,
+                strategies
+            });
         }
     }
 
@@ -144,7 +157,26 @@ export const viewStrategyComments = async(req, res) => {
     const children = parseBoolean(req.query.replies);
 
     const includeItems = {
-        ...(children ? { children:{ include: {children: true}}} : {}),
+        user: {
+          select: { id: true, display_name: true, profile_pic: true },
+        },
+        ...(children ? { 
+            children:{ 
+                include: {
+                    user: {
+                        select: { id: true, display_name: true, profile_pic: true },
+                    },
+                    children: { 
+                include: {
+                    user: {
+                        select: { id: true, display_name: true, profile_pic: true },
+                    },
+                    children: true
+                }
+            }
+                }
+            }
+        } : {}),
     }
 
     const comments = await StrategyService.getCommentsByStrategyId(id, includeItems);
