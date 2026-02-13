@@ -2,7 +2,9 @@ import { Router } from 'express';
 import {
     viewAllStrategies,
     viewStrategy,
+    createStrategy,
     handleUpdateStrategy,
+    deleteStrategy,
     viewStrategyStatuses,
     viewTimelineOptions,
     viewFocusAreas,
@@ -37,8 +39,10 @@ StrategyRouter.get('/statuses', viewStrategyStatuses);
 StrategyRouter.get('/timeline_options', viewTimelineOptions);
 StrategyRouter.get('/policies', viewPolicies);
 StrategyRouter.get('/focusareas', viewFocusAreas);
+StrategyRouter.post("/", [verifyToken], createStrategy);
 StrategyRouter.get('/:id', viewStrategy);
 StrategyRouter.put('/:id', [verifyToken], handleUpdateStrategy);
+StrategyRouter.delete('/:id', [verifyToken], deleteStrategy);
 StrategyRouter.post('/:id/comments', [verifyToken], createComment)
 StrategyRouter.get('/:id/comments', viewStrategyComments);
 StrategyRouter.get('/:id/activities', [verifyToken], viewStrategyActivities);

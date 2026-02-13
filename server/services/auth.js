@@ -4,6 +4,7 @@ import { getAuthedGoogleClient } from '../utils/auth.js';
 import { google } from 'googleapis';
 import { AppError } from "../errors/AppError.js";
 import { pick } from "../utils/sanitize.js";
+import { generateUsername } from "../utils/generateUsername.js";
 
 const USER_REGISTER_FIELDS = ['email', 'given_name', 'family_name', 'username', 'password_hash', 'profile_pic', 'implementer_org_id'];
 
@@ -72,6 +73,7 @@ export const AuthService = {
                 const user = await tx.user.create({
                     data: {
                         ...userProperties,
+                        username: userProperties.username || generateUsername(),
                         display_name: `${given_name} ${family_name}`,
                         assigned_implementers: {
                             connect: assigned_implementers.map(num => ({id: num}))
@@ -165,7 +167,7 @@ export const AuthService = {
         }
     },
 
-    async getGoogleUserData(googleCode, appInviteCode) {
+    async getGoogleUserData(googleCode) {
         try {
             const goog_oauth_client = getAuthedGoogleClient();
             const {tokens} = await goog_oauth_client.getToken(googleCode);
@@ -175,7 +177,7 @@ export const AuthService = {
                 idToken: tokens.id_token,
             });
 
-            if (!ticket) throw new AppError("google tokens could not be verified", 400, {inviteCode:appInviteCode});
+            if (!ticket) throw new AppError("google tokens could not be verified", 400);
 
             await goog_oauth_client.setCredentials(tokens);
 

@@ -182,6 +182,71 @@ describe('AuthService', () => {
       expect(result.id).toBe('new-u1');
       expect(result.roles).toEqual(['Viewer']);
     });
+
+    it('generates a username when none is provided', async () => {
+      const userData = {
+        email: 'new@test.com',
+        given_name: 'New',
+        family_name: 'User',
+        assigned_implementers: [1],
+      };
+
+      let capturedData;
+      mockPrisma.$transaction.mockImplementation(async (fn) => {
+        const tx = {
+          user: {
+            create: vi.fn().mockImplementation(({ data }) => {
+              capturedData = data;
+              return { id: 'new-u1' };
+            }),
+          },
+          userRole: { create: vi.fn().mockResolvedValue({}) },
+        };
+        return fn(tx);
+      });
+
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'new-u1',
+        userRoles: [{ role: { name: 'Viewer' } }],
+      });
+
+      await AuthService.register(userData, { roleId: 'role-1', inviteCode: 'abc' });
+
+      expect(capturedData.username).toMatch(/^user_[0-9a-f]{8}$/);
+    });
+
+    it('preserves username when explicitly provided', async () => {
+      const userData = {
+        email: 'new@test.com',
+        given_name: 'New',
+        family_name: 'User',
+        username: 'custom_name',
+        assigned_implementers: [1],
+      };
+
+      let capturedData;
+      mockPrisma.$transaction.mockImplementation(async (fn) => {
+        const tx = {
+          user: {
+            create: vi.fn().mockImplementation(({ data }) => {
+              capturedData = data;
+              return { id: 'new-u1' };
+            }),
+          },
+          userRole: { create: vi.fn().mockResolvedValue({}) },
+        };
+        return fn(tx);
+      });
+
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'new-u1',
+        userRoles: [{ role: { name: 'Viewer' } }],
+      });
+
+      await AuthService.register(userData, { roleId: 'role-1', inviteCode: 'abc' });
+
+      expect(capturedData.username).toBe('custom_name');
+    });
   });
 
   describe('findAndUpdateUserWithFederatedId', () => {
