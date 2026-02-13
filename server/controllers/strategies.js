@@ -10,6 +10,8 @@ import { PolicyService } from "../services/policies.js";
 import { FocusAreaService } from "../services/focus_areas.js";
 import { pick } from "../utils/sanitize.js";
 import { applyChanges } from "../utils/buildActivityChanges.js"
+import { getUserSelect, buildCommentTree } from "../utils/commentTree.js";
+import { als } from "../configs/context.js";
 
 const STRATEGY_FIELDS = ['content', 'policy_id', 'strategy_number', 'timeline_id', 'status_id', 'focus_area_id', 'last_comms_date'];
 
@@ -154,34 +156,15 @@ export const viewStrategyStatuses = async(req, res) => {
 
 export const viewStrategyComments = async(req, res) => {
     const id = parseId(req.params.id);
-    const children = parseBoolean(req.query.replies);
+    const userSelect = getUserSelect(als);
 
-    const includeItems = {
-        user: {
-          select: { id: true, display_name: true, profile_pic: true },
-        },
-        ...(children ? { 
-            children:{ 
-                include: {
-                    user: {
-                        select: { id: true, display_name: true, profile_pic: true },
-                    },
-                    children: { 
-                include: {
-                    user: {
-                        select: { id: true, display_name: true, profile_pic: true },
-                    },
-                    children: true
-                }
-            }
-                }
-            }
-        } : {}),
-    }
+    const comments = await StrategyService.getCommentsByStrategyId(id, {
+        user: { select: userSelect },
+    });
 
-    const comments = await StrategyService.getCommentsByStrategyId(id, includeItems);
+    const tree = buildCommentTree(comments);
 
-    handleResponse(res, 200, "strategy comments retrieved successfully", comments);
+    handleResponse(res, 200, "strategy comments retrieved successfully", tree);
 }
 
 export const viewTimelineOptions = async(req, res) => {
@@ -302,7 +285,7 @@ export const handleUpdateStrategy = async (req, res) => {
 
         if (primary_implementer) {
             let previous = "unassigned";
-            if (currentPrimaryImp.implementer_id) {
+            if (currentPrimaryImp?.implementer_id) {
                 previous = await ImplementerService.getImplementerName(Number(currentPrimaryImp.implementer_id));
             }
 
@@ -345,10 +328,11 @@ export const viewStrategyActivities = async (req, res) => {
     const strategyId = parseId(req.params.id);
     const skip = Math.max(0, Number(req.query.skip) || 0);
     const take = Math.min(Math.max(1, Number(req.query.take) || 50), 100);
+    const userSelect = getUserSelect(als);
 
     const activities = await StrategyActivityService.fetchByStrategyId(
         strategyId,
-        { skip, take }
+        { skip, take, userSelect }
     );
     handleResponse(res, 200, "strategy activities retrieved successfully", activities);
 };

@@ -43,11 +43,12 @@ All API routes are mounted under `/api` in `server/express.js`.
 - `server/resource_permissions/` — Per-resource authorization policies exporting `canCreate`, `canRead`, `canUpdate`, `canDelete` functions that take `(user, resource)` and return boolean
 - `server/configs/` — Prisma client setup (`db.js`), CORS config, PII extension, AsyncLocalStorage context
 - `server/errors/` — `AppError` class (extends Error with `statusCode` and `data`)
-- `server/utils/` — Query string parsers, auth helpers, response formatter
+- `server/utils/` — Query string parsers, auth helpers, response formatter, comment tree builder (`commentTree.js`), username generator (`generateUsername.js`)
+- `scripts/` — One-off maintenance scripts (e.g., `backfill-usernames.js`)
 
 ### Authorization Pattern
 
-The `authorize(policy, resource)` middleware in `server/middleware/authorize.js` is a higher-order function. Each resource has a permissions file in `server/resource_permissions/` defining role-based access rules. The authenticated user is available at `res.locals.user` after `verifyToken` runs. Role flags (`isGlobalAdmin`, `isCPICAdmin`, `isCPICMember`, `isImplementer`) are set on `res.locals.user` by the `verifyToken` middleware.
+The `authorize(policy, resource)` middleware in `server/middleware/authorize.js` is a higher-order function. Each resource has a permissions file in `server/resource_permissions/` defining role-based access rules. The authenticated user is available at `res.locals.user` after `verifyToken` runs. Role flags (`isGlobalAdmin`, `isCPICAdmin`, `isCPICMember`, `isImplementer`) are set on `res.locals.user` by the `verifyToken` middleware. Truly public read endpoints (e.g., `GET /comments/:id`) skip `authorize` entirely since it requires auth context — do not wrap public controllers in `authorize` unless the route also has `verifyToken`.
 
 ### Authentication
 

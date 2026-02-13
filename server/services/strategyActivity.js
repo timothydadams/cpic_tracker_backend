@@ -1,4 +1,5 @@
 import { prisma } from "../configs/db.js";
+import { PUBLIC_USER_SELECT } from "../utils/commentTree.js";
 
 export const StrategyActivityService = {
 
@@ -19,7 +20,7 @@ export const StrategyActivityService = {
     });
   },
 
-  async fetchByStrategyId(strategy_id, { skip = 0, take = 50 } = {}) {
+  async fetchByStrategyId(strategy_id, { skip = 0, take = 50, userSelect = PUBLIC_USER_SELECT } = {}) {
     return await prisma.strategyActivity.findMany({
       where: { strategy_id: Number(strategy_id) },
       orderBy: { createdAt: "desc" },
@@ -27,7 +28,7 @@ export const StrategyActivityService = {
       take,
       include: {
         user: {
-          select: { id: true, display_name: true, profile_pic: true },
+          select: userSelect,
         },
       },
     });

@@ -1,6 +1,6 @@
 import { CommentService } from "../services/comments.js";
 import { authorize } from "../middleware/authorize.js";
-import { canCreate, canRead, canReadAll, canUpdate, canDelete } from "../resource_permissions/comments.js";
+import { canCreate, canReadAll, canUpdate, canDelete } from "../resource_permissions/comments.js";
 import { parseBoolean, parseId } from "../utils/queryStringParsers.js";
 import { handleResponse } from "../utils/defaultResponse.js";
 import { StrategyActivityService } from "../services/strategyActivity.js";
@@ -16,9 +16,7 @@ export const viewComment = async (req, res) => {
     }
 
     const comment = await CommentService.getById(id, includeItems);
-    await authorize(canRead, comment)(req, res, () => {
-        handleResponse(res, 200, "comment retrieved successfully", comment);
-    });
+    handleResponse(res, 200, "comment retrieved successfully", comment);
 }
 
 export const viewAllComments = async(req,res) => {

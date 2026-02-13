@@ -109,16 +109,16 @@ export const MetricsService = {
         }
     },
 
-    async getImplementerStrategyStatusCounts() {
+    async getImplementerStrategyStatusCounts(whereClause = {}) {
         try {
             const implementers = await prisma.implementer.findMany({});
 
             const impsWithStrategiesStats = await Promise.all(
                 implementers.map( async imp => {
+                    const impFilter = { implementer_id: imp.id, ...whereClause };
+
                     const totalStratCount = await prisma.strategyImplementer.count({
-                        where: {
-                            implementer_id: imp.id
-                        }
+                        where: impFilter
                     });
 
                     const stratsInProgress =  await prisma.strategy.count({
@@ -129,9 +129,7 @@ export const MetricsService = {
                                 },
                             },
                             implementers: {
-                                some: {
-                                    implementer_id: imp.id,
-                                }
+                                some: impFilter
                             }
                         }
                     });
@@ -144,9 +142,7 @@ export const MetricsService = {
                                 },
                             },
                             implementers: {
-                                some: {
-                                    implementer_id: imp.id,
-                                }
+                                some: impFilter
                             }
                         }
                     });

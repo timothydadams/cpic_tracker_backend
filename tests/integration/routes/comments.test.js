@@ -55,14 +55,12 @@ describe('Comments Routes', () => {
   });
 
   describe('GET /api/comments/:id', () => {
-    it('returns 500 without auth (canRead requires user.roles)', async () => {
-      // NOTE: This route has no verifyToken middleware but the controller calls
-      // authorize(canRead, comment) which needs res.locals.user.roles.
-      // This is a known bug in the source - the route works only when user is set.
+    it('returns comment without auth (public endpoint)', async () => {
       mockPrisma.comment.findUnique.mockResolvedValue({ id: 1, content: 'test' });
 
       const res = await supertest(expressApp).get('/api/comments/1');
-      expect(res.status).toBe(500);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual({ id: 1, content: 'test' });
     });
 
     it('returns 404 when comment not found', async () => {

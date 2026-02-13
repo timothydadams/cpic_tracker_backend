@@ -130,21 +130,66 @@ describe('Strategy Routes', () => {
 
   describe('PUT /api/strategies/:id', () => {
     it('returns 401 without auth', async () => {
-      const res = await supertest(expressApp).put('/api/strategies/1').send({ title: 'Updated' });
+      const res = await supertest(expressApp).put('/api/strategies/1').send({ content: 'Updated' });
       expect(res.status).toBe(401);
     });
 
-    it('updates strategy with auth', async () => {
-      const strategy = { id: 1, title: 'Old', status_id: 1, policy_id: 'p1', implementers: [] };
+    it('updates strategy fields with auth', async () => {
+      const strategy = {
+        id: 1, content: 'Old', status_id: 1, policy_id: 'p1',
+        implementers: [],
+      };
       mockPrisma.strategy.findUnique.mockResolvedValue(strategy);
-      mockPrisma.strategy.update.mockResolvedValue({ ...strategy, title: 'Updated' });
+      mockPrisma.strategy.update.mockResolvedValue({ ...strategy, content: 'Updated' });
+      mockPrisma.strategyActivity.create.mockResolvedValue({});
 
       const res = await supertest(expressApp)
         .put('/api/strategies/1')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ title: 'Updated' });
+        .send({ content: 'Updated' });
 
       expect(res.status).toBe(200);
+      expect(mockPrisma.strategy.update).toHaveBeenCalled();
+    });
+
+    it('handles implementer add with activity tracking', async () => {
+      const strategy = {
+        id: 1, content: 'Test', status_id: 1, policy_id: 'p1',
+        implementers: [{ implementer_id: 1, is_primary: false }],
+      };
+      mockPrisma.strategy.findUnique.mockResolvedValue(strategy);
+      mockPrisma.implementer.findFirst.mockResolvedValue({ name: 'Dept A' });
+      mockPrisma.strategyImplementer.createMany.mockResolvedValue({ count: 1 });
+      mockPrisma.strategyActivity.create.mockResolvedValue({});
+      mockPrisma.strategy.update.mockResolvedValue(strategy);
+
+      const res = await supertest(expressApp)
+        .put('/api/strategies/1')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ implementers: { add: [2], remove: [] } });
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.strategyImplementer.createMany).toHaveBeenCalled();
+    });
+
+    it('handles primary implementer update', async () => {
+      const strategy = {
+        id: 1, content: 'Test', status_id: 1, policy_id: 'p1',
+        implementers: [{ implementer_id: 1, is_primary: true }],
+      };
+      mockPrisma.strategy.findUnique.mockResolvedValue(strategy);
+      mockPrisma.implementer.findFirst.mockResolvedValue({ name: 'Dept A' });
+      mockPrisma.strategyImplementer.updateMany.mockResolvedValue({});
+      mockPrisma.strategyActivity.create.mockResolvedValue({});
+      mockPrisma.strategy.update.mockResolvedValue(strategy);
+
+      const res = await supertest(expressApp)
+        .put('/api/strategies/1')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ primary_implementer: 2 });
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.strategyActivity.create).toHaveBeenCalled();
     });
   });
 
@@ -171,12 +216,89 @@ describe('Strategy Routes', () => {
 
   describe('GET /api/strategies/:id/comments', () => {
     it('returns comments for strategy', async () => {
-      mockPrisma.comment.findMany.mockResolvedValue([{ id: 1, content: 'A comment' }]);
+      mockPrisma.comment.findMany.mockResolvedValue([
+        { id: 1, parent_id: null, content: 'A comment' },
+      ]);
 
       const res = await supertest(expressApp).get('/api/strategies/1/comments');
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
+      expect(res.body.data[0].children).toEqual([]);
+    });
+
+    it('nests replies under parent comments', async () => {
+      const user = { id: 'u1', username: 'alice', profile_pic: null };
+      mockPrisma.comment.findMany.mockResolvedValue([
+        { id: 1, parent_id: null, content: 'root', user },
+        { id: 2, parent_id: 1, content: 'reply', user },
+        { id: 3, parent_id: 2, content: 'nested reply', user },
+      ]);
+
+      const res = await supertest(expressApp).get('/api/strategies/1/comments');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.data[0].id).toBe(1);
+      expect(res.body.data[0].children).toHaveLength(1);
+      expect(res.body.data[0].children[0].id).toBe(2);
+      expect(res.body.data[0].children[0].children).toHaveLength(1);
+      expect(res.body.data[0].children[0].children[0].id).toBe(3);
+    });
+
+    it('includes user fields on all nesting levels', async () => {
+      const user = { id: 'u1', username: 'alice', profile_pic: 'pic.jpg' };
+      mockPrisma.comment.findMany.mockResolvedValue([
+        { id: 1, parent_id: null, content: 'root', user },
+        { id: 2, parent_id: 1, content: 'reply', user },
+      ]);
+
+      const res = await supertest(expressApp).get('/api/strategies/1/comments');
+
+      expect(res.body.data[0].user).toEqual(user);
+      expect(res.body.data[0].children[0].user).toEqual(user);
+    });
+
+    it('uses PUBLIC_USER_SELECT without auth', async () => {
+      mockPrisma.comment.findMany.mockResolvedValue([]);
+
+      await supertest(expressApp).get('/api/strategies/1/comments');
+
+      expect(mockPrisma.comment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          include: {
+            user: {
+              select: { id: true, username: true, profile_pic: true },
+            },
+          },
+        }),
+      );
+    });
+
+    it('uses AUTH_USER_SELECT with auth', async () => {
+      mockPrisma.comment.findMany.mockResolvedValue([]);
+
+      await supertest(expressApp)
+        .get('/api/strategies/1/comments')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(mockPrisma.comment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                profile_pic: true,
+                display_name: true,
+                given_name: true,
+                family_name: true,
+                email: true,
+              },
+            },
+          },
+        }),
+      );
     });
   });
 
@@ -242,6 +364,32 @@ describe('Strategy Routes', () => {
         .set('Authorization', `Bearer ${adminToken}`);
 
       expect(res.status).toBe(200);
+    });
+
+    it('uses AUTH_USER_SELECT for user include', async () => {
+      mockPrisma.strategyActivity.findMany.mockResolvedValue([]);
+
+      await supertest(expressApp)
+        .get('/api/strategies/1/activities')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(mockPrisma.strategyActivity.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                profile_pic: true,
+                display_name: true,
+                given_name: true,
+                family_name: true,
+                email: true,
+              },
+            },
+          },
+        }),
+      );
     });
   });
 });

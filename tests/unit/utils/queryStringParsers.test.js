@@ -1,5 +1,31 @@
 import { describe, it, expect } from 'vitest';
-import { parseBoolean, buildNestedIncludeObject } from '../../../server/utils/queryStringParsers.js';
+import { parseId, parseBoolean, buildNestedIncludeObject } from '../../../server/utils/queryStringParsers.js';
+
+describe('parseId', () => {
+  it('parses a valid integer string', () => {
+    expect(parseId('42')).toBe(42);
+  });
+
+  it('parses a numeric value', () => {
+    expect(parseId(7)).toBe(7);
+  });
+
+  it('throws AppError for non-numeric string', () => {
+    expect(() => parseId('abc')).toThrow('invalid id');
+  });
+
+  it('throws AppError for undefined', () => {
+    expect(() => parseId(undefined)).toThrow('invalid id');
+  });
+
+  it('throws AppError for empty string', () => {
+    expect(() => parseId('')).toThrow('invalid id');
+  });
+
+  it('truncates decimal strings to integer', () => {
+    expect(parseId('3.9')).toBe(3);
+  });
+});
 
 describe('parseBoolean', () => {
   it('returns true for "true"', () => {

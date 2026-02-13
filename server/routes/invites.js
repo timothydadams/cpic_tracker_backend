@@ -113,7 +113,7 @@ InvitesRouter.get('/:code/stats', [verifyToken], async (req, res, next) => {
     if (!invite || invite.createdById !== userId) {
         throw new AppError("Invite code not found", 404);
     }
-    handleResponse(res, "stats retrieved", invite);
+    handleResponse(res, 200, "stats retrieved", invite);
   } catch (e) {
     console.error('Get invite stats error:', e);
     next(e)
